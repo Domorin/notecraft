@@ -1,20 +1,20 @@
-import { trpc } from "../utils/trpc";
-import { Note } from "./components/note";
-import { Sidebar } from "./components/sidebar";
+import MainPage from "@/react/components/main";
+import { trpc } from "@/utils/trpc";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 export default function IndexPage() {
-  const thing = trpc.testProcedure.useQuery();
+  const router = useRouter();
 
-  return (
-    <div className="flex items-center justify-center h-screen bg-base-300">
-      <div className="flex w-3/4 h-3/4 rounded-lg overflow-hidden shadow-lg">
-        <div className="bg-base-200 p-8">
-          <Sidebar />
-        </div>
-        <div className="bg-base-100 flex-grow p-8">
-          <Note />
-        </div>
-      </div>
-    </div>
-  );
+  const mutation = trpc.createPage.useMutation({
+    onSuccess: (data) => {
+      router.push(`/${data}`);
+    },
+  });
+
+  useEffect(() => {
+    mutation.mutate();
+  }, []);
+
+  return <span className="loading loading-spinner text-primary"></span>;
 }
