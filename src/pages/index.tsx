@@ -1,32 +1,30 @@
 import { trpc } from "@/utils/trpc";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
+import MainPage from "./react/components/main";
 
 export default function IndexPage() {
-  const router = useRouter();
+	const router = useRouter();
+	const context = trpc.useContext();
+	const mutation = trpc.createPage.useMutation({
+		onSuccess: (data) => {
+			context.getAllSlugs.setData(undefined, (slugs) => {
+				if (!slugs) {
+					return slugs;
+				}
 
-  const context = trpc.useContext();
+				return [
+					{ slug: data.slug, updatedAt: data.updatedAt },
+					...slugs,
+				];
+			});
+			router.push(`/${data.slug}`);
+		},
+	});
 
-  const mutation = trpc.createPage.useMutation({
-    onSuccess: (data) => {
-      context.getAllSlugs.setData(undefined, (slugs) => {
-        if (!slugs) {
-          return slugs;
-        }
+	useEffect(() => {
+		mutation.mutate();
+	}, []);
 
-        return [{ slug: data }, ...slugs];
-      });
-      router.push(`/${data}`);
-    },
-  });
-
-  useEffect(() => {
-    mutation.mutate();
-  }, []);
-
-  return (
-    <div className="flex h-full w-full items-center">
-      <div className="loading loading-spinner mx-auto text-primary"></div>;
-    </div>
-  );
+	return <MainPage />;
 }

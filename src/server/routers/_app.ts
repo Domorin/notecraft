@@ -26,7 +26,7 @@ export const appRouter = router({
 				content: "",
 			},
 		});
-		return page.slug;
+		return page;
 	}),
 	getPage: procedure
 		.input(z.object({ slug: z.string() }))
@@ -60,6 +60,7 @@ export const appRouter = router({
 		return prisma.post.findMany({
 			select: {
 				slug: true,
+				updatedAt: true,
 			},
 			orderBy: {
 				updatedAt: "desc",
