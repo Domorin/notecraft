@@ -56,6 +56,16 @@ export const appRouter = router({
 				},
 			});
 		}),
+	getAllSlugs: procedure.query(async ({ input }) => {
+		return prisma.post.findMany({
+			select: {
+				slug: true,
+			},
+			orderBy: {
+				updatedAt: "desc",
+			},
+		});
+	}),
 });
 
 // export type definition of API

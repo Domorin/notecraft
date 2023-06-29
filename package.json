@@ -7,12 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "sync": "npx prisma migrate dev"
+    "sync": "npx prisma migrate dev",
+    "studio": "npx prisma studio"
   },
   "dependencies": {
     "@prisma/client": "^4.16.1",
     "@remirror/pm": "^2.0.6",
     "@remirror/react": "^2.0.29",
+    "@remirror/react-editors": "^1.0.34",
     "@tanstack/react-query": "^4.29.17",
     "@trpc/client": "^10.32.0",
     "@trpc/next": "^10.32.0",
@@ -22,6 +24,7 @@
     "@types/react": "18.2.14",
     "@types/react-dom": "18.2.6",
     "autoprefixer": "10.4.14",
+    "classnames": "^2.3.2",
     "eslint": "8.43.0",
     "eslint-config-next": "13.4.7",
     "mini-css-extract-plugin": "^2.7.6",
@@ -39,6 +42,8 @@
     "@types/pg": "^8.10.2",
     "@types/uuid": "^9.0.2",
     "daisyui": "^3.1.6",
+    "prettier": "^2.8.8",
+    "prettier-plugin-tailwindcss": "^0.3.0",
     "prisma": "^4.16.1"
   }
 }
