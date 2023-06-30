@@ -5,6 +5,7 @@ import { TextInput } from "./text_input";
 import { useHelpers } from "@remirror/react";
 import { Spinner } from "./spinner";
 import { useRouter } from "next/router";
+import { MutationButton } from "./load_button";
 
 export function LoadableNote() {
 	const slug = usePageSlug();
@@ -21,15 +22,13 @@ export function LoadableNote() {
 }
 
 export function Note(props: { slug: string }) {
-	const saveMutation = trpc.savePage.useMutation({
-		onSuccess: (data) => {},
-	});
+	const context = trpc.useContext();
+
+	const saveMutation = trpc.savePage.useMutation();
 
 	const [page, query] = trpc.getPage.useSuspenseQuery({
 		slug: props.slug,
 	});
-
-	const currentContent = useRef(page?.content ?? "");
 
 	if (!page) {
 		return <div>Page not found</div>;
@@ -39,20 +38,29 @@ export function Note(props: { slug: string }) {
 		<div className="flex h-full flex-col">
 			<TextInput
 				initial_text={page.content}
-				setContent={(content) => (currentContent.current = content)}
+				setContent={(content) => {
+					context.getPage.setData(
+						{
+							slug: props.slug,
+						},
+						(data) => (data ? { ...data, content } : data)
+					);
+				}}
 			/>
 			<div className="ml-auto justify-self-end">
-				<button
+				<MutationButton
 					onClick={() => {
 						saveMutation.mutate({
-							text: currentContent.current,
+							text:
+								context.getPage.getData({ slug: props.slug })
+									?.content ?? "",
 							slug: props.slug,
 						});
 					}}
-					className="btn-primary btn bg-black"
+					isLoading={saveMutation.isLoading}
 				>
 					Save
-				</button>
+				</MutationButton>
 			</div>
 		</div>
 	);

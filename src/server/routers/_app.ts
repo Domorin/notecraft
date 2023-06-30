@@ -45,8 +45,6 @@ export const appRouter = router({
 			})
 		)
 		.mutation(async ({ input }) => {
-			console.log("saving", input.slug, input.text);
-
 			await prisma.post.update({
 				data: {
 					content: input.text,
