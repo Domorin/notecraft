@@ -5,7 +5,7 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model Post {
+model Note {
   id      Int    @id @default(autoincrement())
   slug    String @unique
   content String

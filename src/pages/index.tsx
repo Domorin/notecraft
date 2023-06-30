@@ -6,15 +6,15 @@ import MainPage from "./react/components/main";
 export default function IndexPage() {
 	const router = useRouter();
 	const context = trpc.useContext();
-	const mutation = trpc.createPage.useMutation({
+	const mutation = trpc.note.create.useMutation({
 		onSuccess: (data) => {
-			context.getAllSlugs.setData(undefined, (slugs) => {
+			context.note.list.setData(undefined, (slugs) => {
 				if (!slugs) {
 					return slugs;
 				}
 
 				return [
-					{ slug: data.slug, updatedAt: data.updatedAt },
+					{ slug: data.slug, updatedAt: data.updatedAt, createdAt: data.createdAt },
 					...slugs,
 				];
 			});
