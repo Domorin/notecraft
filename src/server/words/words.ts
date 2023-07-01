@@ -6,42 +6,44 @@ import { prisma } from "../prisma";
 
 // https://github.com/glitchdotcom/friendly-words/blob/main/words/predicates.txt
 export namespace Words {
-  const objectChoices = wordList.objects.length;
-  const predicateChoices = wordList.predicates.length;
-  const teamChoices = wordList.teams.length;
+	const objectChoices = wordList.objects.length;
+	const predicateChoices = wordList.predicates.length;
+	const teamChoices = wordList.teams.length;
 
-  function getPageSlug(predicates = 1) {
-    const slugs: string[] = [];
+	function getPageSlug(predicates: number) {
+		const slugs: string[] = [];
 
-    for (let i = 0; i < predicates; i++) {
-      slugs.push(
-        wordList.predicates[Math.floor(Math.random() * predicateChoices)]
-      );
-    }
+		for (let i = 0; i < predicates; i++) {
+			slugs.push(
+				wordList.predicates[
+					Math.floor(Math.random() * predicateChoices)
+				]
+			);
+		}
 
-    slugs.push(wordList.objects[Math.floor(Math.random() * objectChoices)]);
-    slugs.push(wordList.teams[Math.floor(Math.random() * teamChoices)]);
+		slugs.push(wordList.objects[Math.floor(Math.random() * objectChoices)]);
+		slugs.push(wordList.teams[Math.floor(Math.random() * teamChoices)]);
 
-    return slugs.join("-");
-  }
+		return slugs.join("-");
+	}
 
-  export async function getUniquePageSlug() {
-    let existing_slug: Prisma.NoteGetPayload<{}> | null = null;
-    let i = 0;
-    do {
-      i++;
-      const slug = getPageSlug(i);
-      existing_slug = await prisma.note.findFirst({
-        where: {
-          slug,
-        },
-      });
+	export async function getUniquePageSlug() {
+		let existing_slug: Prisma.NoteGetPayload<{}> | null = null;
+		let i = 3;
+		do {
+			i++;
+			const slug = getPageSlug(i);
+			existing_slug = await prisma.note.findFirst({
+				where: {
+					slug,
+				},
+			});
 
-      if (!existing_slug) {
-        return slug;
-      }
-    } while (existing_slug);
+			if (!existing_slug) {
+				return slug;
+			}
+		} while (existing_slug);
 
-    throw new Error("Could not find unique slug");
-  }
+		throw new Error("Could not find unique slug");
+	}
 }
