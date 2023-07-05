@@ -29,7 +29,7 @@ export namespace Words {
 
 	export async function getUniquePageSlug() {
 		let existing_slug: Prisma.NoteGetPayload<{}> | null = null;
-		let i = 3;
+		let i = 0;
 		do {
 			i++;
 			const slug = getPageSlug(i);

@@ -1,20 +1,16 @@
 import { trpc } from "@/utils/trpc";
-import Link from "next/link";
-import { usePageSlug } from "../hooks/use_page_id";
-import classNames from "classnames";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-	faClockRotateLeft,
-	faPen,
-	faPlus,
-} from "@fortawesome/free-solid-svg-icons";
-import { useRouter } from "next/router";
+import classNames from "classnames";
 import { DateTime } from "luxon";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { usePageSlug } from "../hooks/use_page_id";
 import { Spinner } from "./spinner";
-import { useGetNoteMetadata } from "../hooks/trpc/use_note_metadata";
+import { useNoteListCreatedQuery } from "../hooks/trpc/use_note_list_created";
 
 export function Sidebar() {
-	const listQuery = trpc.note.list.useQuery();
+	const listQuery = useNoteListCreatedQuery();
 	const router = useRouter();
 	const currentSlug = usePageSlug();
 
@@ -22,26 +18,24 @@ export function Sidebar() {
 		return <Spinner />;
 	}
 
-	const slugs = listQuery.data.sort(
-		(a, b) =>
-			new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-	);
-
 	return (
 		<div className="flex h-full w-full flex-col border-r border-neutral">
-			<div className="border-b border-neutral flex items-center flex-col">
-			<button className="btn-ghost btn w-full rounded-none" onClick={() => router.push("/")}>
-				<FontAwesomeIcon icon={faPlus} />
-				New Note
-			</button>
+			<div className="flex flex-col items-center border-b border-neutral">
+				<button
+					className="btn-ghost btn w-full rounded-none"
+					onClick={() => router.push("/")}
+				>
+					<FontAwesomeIcon icon={faPlus} />
+					New Note
+				</button>
 			</div>
 			<div className="h-full w-full overflow-auto">
 				<ul className="menu w-full p-0">
-					{slugs.map((val) => (
-						<li key={val.slug} className="w-full">
+					{listQuery.data.map((val) => (
+						<li key={val} className="w-full">
 							<SidebarElement
-								slug={val.slug}
-								active={currentSlug === val.slug}
+								slug={val}
+								active={currentSlug === val}
 							/>
 						</li>
 					))}
@@ -52,10 +46,15 @@ export function Sidebar() {
 }
 
 function SidebarElement(props: { slug: string; active: boolean }) {
-	const metadata = useGetNoteMetadata(props.slug);
+	const metadataQuery = trpc.note.metadata.useQuery({
+		slug: props.slug,
+	});
 
-	if (!metadata) {
-		return <div>Invalid Page</div>;
+	const metadata = metadataQuery.data;
+
+	// If the metadata query cache is not already populated, then something went wrong
+	if (!metadataQuery.isSuccess || !metadata) {
+		return <></>;
 	}
 
 	const updatedAt = DateTime.fromISO(metadata.updatedAt);
@@ -83,14 +82,6 @@ function SidebarElement(props: { slug: string; active: boolean }) {
 					? "Less than a minute ago"
 					: updatedAt.toRelative({
 							round: true,
-							unit: [
-								"years",
-								"months",
-								"hours",
-								"days",
-								"weeks",
-								"minutes",
-							],
 					  })}
 			</div>
 		</Link>

@@ -1,9 +1,45 @@
 import { initTRPC } from "@trpc/server";
-// Avoid exporting the entire t-object
-// since it's not very descriptive.
-// For instance, the use of a t variable
-// is common in i18n libraries.
-const t = initTRPC.create();
+import { CreateNextContextOptions } from "@trpc/server/adapters/next";
+import * as cookie from "cookie";
+import { prisma } from "./prisma";
+
+export const createContext = async (opts: CreateNextContextOptions) => {
+	// https://stackoverflow.com/a/73200295
+
+	return {
+		api: {
+			req: opts.req,
+			res: opts.res,
+		},
+	};
+};
+
+const t = initTRPC.context<typeof createContext>().create();
 // Base router and procedure helpers
 export const router = t.router;
 export const procedure = t.procedure;
+
+export const authedProcedure = t.procedure.use(
+	t.middleware(async ({ ctx, next }) => {
+		let userId = cookie.parse(ctx.api.req.headers.cookie || "")["id"];
+
+		// TODO: do not make a user if they have cookies disabled
+		if (!userId) {
+			const user = await prisma.user.create({
+				data: {},
+			});
+			userId = user.id;
+			ctx.api.res.setHeader(
+				"Set-Cookie",
+				cookie.serialize("id", userId, {
+					sameSite: "strict",
+					httpOnly: true,
+				})
+			);
+		}
+
+		return next({
+			ctx: { ...ctx, userId },
+		});
+	})
+);

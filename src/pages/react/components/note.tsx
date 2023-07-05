@@ -1,6 +1,6 @@
 import { trpc } from "@/utils/trpc";
 import { useEffect, useState } from "react";
-import { useSetNoteMetadata } from "../hooks/trpc/use_set_note_metadata";
+import { useUpdateMetadata } from "../hooks/trpc/use_set_note_metadata";
 import { usePageSlug } from "../hooks/use_page_id";
 import { Spinner } from "./spinner";
 import { TextInput } from "./text_input";
@@ -18,7 +18,7 @@ export function LoadableNote() {
 }
 
 const useSaveDebounce = (slug: string, value: string, delay: number) => {
-	const setNoteMetadata = useSetNoteMetadata(slug);
+	const setNoteMetadata = useUpdateMetadata(slug);
 
 	const [lastSaveMs, setLastSaveMs] = useState<number | undefined>(undefined);
 	const [savedValue, setSavedValue] = useState(value);
@@ -76,7 +76,7 @@ const useSaveDebounce = (slug: string, value: string, delay: number) => {
 
 export function Note(props: { slug: string }) {
 	const contentQuery = trpc.note.content.useQuery({ slug: props.slug });
-	if (!contentQuery.isSuccess || contentQuery.isFetching) {
+	if (!contentQuery.isSuccess) {
 		return <Spinner />;
 	}
 

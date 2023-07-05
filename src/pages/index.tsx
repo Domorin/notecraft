@@ -8,13 +8,18 @@ export default function IndexPage() {
 	const context = trpc.useContext();
 	const mutation = trpc.note.create.useMutation({
 		onSuccess: (data) => {
-			context.note.list.setData(undefined, (slugs) => {
+			context.note.listCreated.setData(undefined, (slugs) => {
 				if (!slugs) {
 					return slugs;
 				}
 
 				return [
-					{ slug: data.slug, updatedAt: data.updatedAt, createdAt: data.createdAt },
+					{
+						slug: data.slug,
+						updatedAt: data.updatedAt,
+						createdAt: data.createdAt,
+						viewedAt: data.viewedAt,
+					},
 					...slugs,
 				];
 			});

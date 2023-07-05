@@ -5,6 +5,12 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model User {
+  id           String @id @default(uuid())
+  createdNotes Note[] @relation("CreatedBy")
+  viewedNotes  Note[] @relation("ViewedBy")
+}
+
 model Note {
   id      Int    @id @default(autoincrement())
   slug    String @unique
@@ -12,6 +18,12 @@ model Note {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  viewedAt  DateTime @default(now())
+
+  creatorId String
+
+  creator User   @relation("CreatedBy", fields: [creatorId], references: [id])
+  viewers User[] @relation("ViewedBy")
 }
 
 datasource db {
