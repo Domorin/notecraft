@@ -150,8 +150,9 @@ function NoteEditDisplay(props: { slug: string; isSaving: boolean }) {
 	}, [props.isSaving, updatedAt]);
 
 	return (
-		<div className="ml-auto text-sm opacity-50">
-			{props.isSaving ? "Saving..." : `Saved ${dateText}`}
+		<div className="ml-auto flex gap-2 text-sm opacity-50">
+			<div>{props.isSaving ? "Saving..." : `Saved ${dateText}`}</div>
+			<div>{metadata.views} Views</div>
 		</div>
 	);
 }

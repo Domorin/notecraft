@@ -29,6 +29,7 @@ export const noteRouter = router({
 					updatedAt: true,
 					createdAt: true,
 					viewedAt: true,
+					views: true,
 				},
 			});
 
@@ -60,22 +61,12 @@ export const noteRouter = router({
 				});
 			}
 
-			await prisma.user.update({
-				data: {
-					viewedNotes: {
-						connect: {
-							slug: input.slug,
-						},
-					},
-				},
-				where: {
-					id: userId,
-				},
-			});
-
 			await prisma.note.update({
 				data: {
 					viewedAt: new Date(),
+					views: {
+						increment: 1,
+					},
 				},
 				where: {
 					slug: input.slug,
@@ -92,11 +83,13 @@ export const noteRouter = router({
 			})
 		)
 		.mutation(async ({ input, ctx: { userId } }) => {
+			const updatedAtDate = new Date();
+
 			return prisma.note.update({
 				data: {
 					content: input.text,
-					updatedAt: new Date(),
-					viewedAt: new Date(),
+					updatedAt: updatedAtDate,
+					viewedAt: updatedAtDate,
 				},
 				where: {
 					slug: input.slug,

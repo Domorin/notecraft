@@ -21,10 +21,6 @@ function getBaseUrl() {
 
 export const trpc = createTRPCNext<AppRouter>({
 	config(opts) {
-		console.log("hello?");
-
-		const isSsr = typeof window === "undefined";
-
 		return {
 			links: [
 				httpBatchLink({

@@ -8,7 +8,7 @@
 		"build": "next build",
 		"start": "next start",
 		"lint": "next lint",
-		"sync": "npx prisma db push",
+		"sync": "npx prisma db push --accept-data-loss",
 		"generate": "npx prisma generate",
 		"studio": "npx prisma studio"
 	},
