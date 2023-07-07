@@ -1,11 +1,11 @@
 import { trpc } from "@/utils/trpc";
-import { useEffect, useState } from "react";
+import { DateTime } from "luxon";
+import { useEffect, useRef, useState } from "react";
 import { useUpdateMetadata } from "../hooks/trpc/use_set_note_metadata";
 import { usePageSlug } from "../hooks/use_page_id";
+import { DefaultSuspense } from "./default_suspense";
 import { Spinner } from "./spinner";
 import { TextInput } from "./text_input";
-import { useGetNoteMetadata } from "../hooks/trpc/use_note_metadata";
-import { DateTime } from "luxon";
 
 export function LoadableNote() {
 	const slug = usePageSlug();
@@ -30,6 +30,15 @@ const useSaveDebounce = (slug: string, value: string, delay: number) => {
 			setNoteMetadata({ updatedAt: data.updatedAt });
 		},
 	});
+
+	const componentWillUnmount = useRef(false);
+
+	useEffect(
+		() => () => {
+			componentWillUnmount.current = true;
+		},
+		[]
+	);
 
 	useEffect(() => {
 		if (savedValue === value) {
@@ -56,17 +65,18 @@ const useSaveDebounce = (slug: string, value: string, delay: number) => {
 		};
 	}, [value, delay]);
 
-	useEffect(() => {
-		return () => {
-			if (savedValue === value) {
-				return;
+	useEffect(
+		() => () => {
+			// Hacky way to save the text when this component is unmounted
+			if (componentWillUnmount.current && savedValue !== value) {
+				saveMutation.mutate({
+					slug,
+					text: value,
+				});
 			}
-			saveMutation.mutate({
-				slug,
-				text: value,
-			});
-		};
-	}, []);
+		},
+		[value]
+	);
 
 	return {
 		savedValue,
@@ -108,15 +118,25 @@ function NoteWithContent(props: { noteContent: string; slug: string }) {
 					);
 				}}
 			/>
-			<NoteEditDisplay slug={props.slug} isSaving={isLoading} />
+			<NoteEditDisplaySuspense slug={props.slug} isSaving={isLoading} />
 		</div>
 	);
 }
 
-function NoteEditDisplay(props: { slug: string; isSaving: boolean }) {
-	const metadata = useGetNoteMetadata(props.slug)!;
-	const updatedAt = DateTime.fromISO(metadata.updatedAt);
+function NoteEditDisplaySuspense(props: { slug: string; isSaving: boolean }) {
+	return (
+		<DefaultSuspense>
+			<NoteEditDisplay {...props} />
+		</DefaultSuspense>
+	);
+}
 
+function NoteEditDisplay(props: { slug: string; isSaving: boolean }) {
+	const [metadata, status] = trpc.note.metadata.useSuspenseQuery({
+		slug: props.slug,
+	});
+
+	const updatedAt = DateTime.fromISO(metadata.updatedAt);
 	const [dateText, setDateText] = useState(updatedAt.toRelative());
 
 	useEffect(() => {
@@ -127,7 +147,7 @@ function NoteEditDisplay(props: { slug: string; isSaving: boolean }) {
 		);
 
 		return () => clearInterval(timer);
-	}, [props.isSaving]);
+	}, [props.isSaving, updatedAt]);
 
 	return (
 		<div className="ml-auto text-sm opacity-50">

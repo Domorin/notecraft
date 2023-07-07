@@ -12,7 +12,7 @@ export function useUpdateMetadata(slug: string) {
 				return oldData;
 			}
 
-			return { ...oldData, newData };
+			return { ...oldData, ...newData };
 		});
 		context.note.listCreated.setData(undefined, (data) => {
 			if (!data) {

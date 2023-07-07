@@ -20,7 +20,7 @@ export const noteRouter = router({
 	metadata: authedProcedure
 		.input(z.object({ slug: z.string() }))
 		.query(async ({ input, ctx: { userId } }) => {
-			return prisma.note.findUnique({
+			const metadata = await prisma.note.findUnique({
 				where: {
 					slug: input.slug,
 				},
@@ -31,6 +31,15 @@ export const noteRouter = router({
 					viewedAt: true,
 				},
 			});
+
+			if (!metadata) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Note not found",
+				});
+			}
+
+			return metadata;
 		}),
 	content: authedProcedure
 		.input(z.object({ slug: z.string() }))
