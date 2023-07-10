@@ -1,13 +1,21 @@
-import { useRemirror } from "@remirror/react";
+import { Remirror, useRemirror } from "@remirror/react";
+import { YjsExtension } from "remirror/extensions";
+import * as Y from "yjs";
 import "remirror/styles/all.css";
-import { Thing } from "./markdown_input";
+import { WebrtcProvider } from "y-webrtc";
+
+// https://remirror.io/docs/extensions/yjs-extension/
+const ydoc = new Y.Doc();
+const provider = new WebrtcProvider("remirror-yjs-demo", ydoc, {
+	signaling: ["ws://localhost:4444"], // TODO: get from environment
+});
 
 export function TextInput(props: {
 	initial_text: string;
 	setContent: (content: string) => void;
 }) {
 	const { manager, state } = useRemirror({
-		extensions: () => [],
+		extensions: () => [new YjsExtension({ getProvider: () => provider })],
 
 		// Set the initial content.
 		content: props.initial_text,
@@ -25,7 +33,14 @@ export function TextInput(props: {
 
 	return (
 		<div className="remirror-theme flex h-full w-full items-stretch">
-			<Thing />
+			<Remirror
+				manager={manager}
+				// initialContent={state}
+				// onChange={(e) => {
+				// 	props.setContent(e.state.doc.textContent);
+				// }}
+				// classNames={["h-full w-full self-stretch"]}
+			/>
 		</div>
 	);
 }

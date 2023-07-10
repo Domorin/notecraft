@@ -103,6 +103,7 @@ export const noteRouter = router({
 				createdAt: true,
 				updatedAt: true,
 				viewedAt: true,
+				views: true,
 			},
 			orderBy: {
 				updatedAt: "desc",
@@ -124,6 +125,7 @@ export const noteRouter = router({
 					slug: true,
 					createdAt: true,
 					updatedAt: true,
+					views: true,
 				},
 				orderBy: {
 					updatedAt: "desc",

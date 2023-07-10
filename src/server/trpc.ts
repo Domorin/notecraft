@@ -2,8 +2,15 @@ import { initTRPC } from "@trpc/server";
 import { CreateNextContextOptions } from "@trpc/server/adapters/next";
 import * as cookie from "cookie";
 import { prisma } from "./prisma";
+import { NodeHTTPCreateContextFnOptions } from "@trpc/server/dist/adapters/node-http";
+import { IncomingMessage } from "http";
+import ws from "ws";
 
-export const createContext = async (opts: CreateNextContextOptions) => {
+export const createContext = async (
+	opts:
+		| NodeHTTPCreateContextFnOptions<IncomingMessage, ws>
+		| CreateNextContextOptions
+) => {
 	// https://stackoverflow.com/a/73200295
 
 	return {
@@ -24,11 +31,13 @@ export const authedProcedure = t.procedure.use(
 		let userId = cookie.parse(ctx.api.req.headers.cookie || "")["id"];
 
 		// TODO: do not make a user if they have cookies disabled
-		if (!userId) {
+
+		if (!userId && "setHeader" in ctx.api.res) {
 			const user = await prisma.user.create({
 				data: {},
 			});
 			userId = user.id;
+
 			ctx.api.res.setHeader(
 				"Set-Cookie",
 				cookie.serialize("id", userId, {

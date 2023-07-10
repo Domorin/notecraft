@@ -19,6 +19,7 @@ export default function IndexPage() {
 						updatedAt: data.updatedAt,
 						createdAt: data.createdAt,
 						viewedAt: data.viewedAt,
+						views: data.views,
 					},
 					...slugs,
 				];
