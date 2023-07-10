@@ -108,6 +108,7 @@ function NoteWithContent(props: { noteContent: string; slug: string }) {
 		<div className="flex h-full flex-col">
 			<TextInput
 				key={props.slug}
+				slug={props.slug}
 				initial_text={noteContent}
 				setContent={(content) => {
 					context.note.content.setData(

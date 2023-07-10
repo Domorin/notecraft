@@ -3,20 +3,54 @@ import { YjsExtension } from "remirror/extensions";
 import * as Y from "yjs";
 import "remirror/styles/all.css";
 import { WebrtcProvider } from "y-webrtc";
+import { useEffect, useRef, useState } from "react";
+import { usePageSlug } from "../hooks/use_page_id";
+import { Spinner } from "./spinner";
 
 // https://remirror.io/docs/extensions/yjs-extension/
 const ydoc = new Y.Doc();
-const provider = new WebrtcProvider("remirror-yjs-demo", ydoc, {
-	signaling: ["ws://localhost:4444"], // TODO: get from environment
-});
 
 export function TextInput(props: {
+	slug: string;
 	initial_text: string;
 	setContent: (content: string) => void;
 }) {
-	const { manager, state } = useRemirror({
-		extensions: () => [new YjsExtension({ getProvider: () => provider })],
+	const [provider, setProvider] = useState<WebrtcProvider | undefined>(
+		undefined
+	);
 
+	useEffect(() => {
+		console.log(props.slug);
+		setProvider(
+			new WebrtcProvider(props.slug, ydoc, {
+				signaling: ["ws://localhost:4444"], // TODO: get from environment
+			})
+		);
+
+		return () => {
+			console.log("disconnecting", props.slug);
+			ydoc.destroy();
+			provider?.disconnect();
+		};
+	}, [props.slug]);
+
+	if (!provider) {
+		return <Spinner />;
+	}
+
+	return <TextInputWithProvider {...props} provider={provider} />;
+}
+
+function TextInputWithProvider(props: {
+	slug: string;
+	initial_text: string;
+	setContent: (content: string) => void;
+	provider: WebrtcProvider;
+}) {
+	const { manager, state } = useRemirror({
+		extensions: () => [
+			new YjsExtension({ getProvider: () => props.provider }),
+		],
 		// Set the initial content.
 		content: props.initial_text,
 

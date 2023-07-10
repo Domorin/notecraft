@@ -10,7 +10,7 @@ export default function MainPage() {
 				<div className="rounded-l-box w-1/6 bg-base-200">
 					<Sidebar />
 				</div>
-				<div className="rounded-r-box flex-grow bg-base-100 p-8">
+				<div className="rounded-r-box flex-grow-0 w-5/6 bg-base-100 p-8">
 					<LoadableNote />
 				</div>
 			</div>
