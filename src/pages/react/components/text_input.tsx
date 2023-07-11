@@ -24,7 +24,7 @@ export function TextInput(props: {
 		const ydoc = new Y.Doc();
 
 		const provider = new WebrtcProvider(props.slug, ydoc, {
-			signaling: ["ws://localhost:4444"], // TODO: get from environment
+			signaling: ["ws://ws.localhost"], // TODO: get from environment
 		});
 
 		const signalingConn = provider.signalingConns[0];

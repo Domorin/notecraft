@@ -45,8 +45,6 @@ services:
         volumes:
             - .:/app
         working_dir: /app
-        ports:
-            - "4444:4444"
         command: npm run ws
         environment:
             - NODE_ENV
@@ -55,10 +53,10 @@ services:
             # enable traefik
             - traefik.enable=true
             # set the url that will be routed to this container
-            - traefik.http.routers.ws.entrypoints=ws
-            - traefik.http.routers.ws.rule=Host(`localhost:4444`)
+            # - traefik.http.routers.ws_service.entrypoints=ws
+            - traefik.http.routers.ws_service.rule=Host(`ws.localhost`)
             # set the port this web service expects to receive requests on
-            - traefik.http.services.ws.loadbalancer.server.port=4444
+            - traefik.http.services.ws_service.loadbalancer.server.port=4444
     # redis:
     #     image: redis:7
 # services:
