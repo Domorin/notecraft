@@ -1,10 +1,10 @@
+import { CustomMessage } from "@/ws/ws_server";
 import { Remirror, useRemirror } from "@remirror/react";
+import { useEffect, useState } from "react";
 import { YjsExtension } from "remirror/extensions";
-import * as Y from "yjs";
 import "remirror/styles/all.css";
 import { WebrtcProvider } from "y-webrtc";
-import { useEffect, useRef, useState } from "react";
-import { usePageSlug } from "../hooks/use_page_id";
+import * as Y from "yjs";
 import { Spinner } from "./spinner";
 
 // https://remirror.io/docs/extensions/yjs-extension/
@@ -19,31 +19,28 @@ export function TextInput(props: {
 		undefined
 	);
 
-	const [isConnected, setIsConnected] = useState(false);
 	const [connections, setConnections] = useState(0);
-	const [bcConnections, setBcConnections] = useState(0);
 
 	useEffect(() => {
 		const provider = new WebrtcProvider(props.slug, ydoc, {
 			signaling: ["ws://localhost:4444"], // TODO: get from environment
 		});
 
-		provider.room?.webrtcConns.size;
-		const interval = setInterval(() => {
-			setBcConnections(provider.room?.bcConns.size || 0);
-			setIsConnected(provider.connected);
-			setConnections(provider.room?.webrtcConns.size || 0);
-		}, 1000);
-		// provider.signalingConns.forEach((val) =>
-		// 	val.on("message", (m) => console.log("got message", m))
-		// );
+		const signalingConn = provider.signalingConns[0];
+
+		signalingConn.on("message", (m: CustomMessage) => {
+			switch (m.type) {
+				case "metadata":
+					setConnections(m.activeConnections);
+					break;
+			}
+		});
 
 		setProvider(provider);
 
 		return () => {
 			ydoc.destroy();
-			provider?.disconnect();
-			clearInterval(interval);
+			provider?.destroy();
 		};
 	}, [props.slug]);
 
@@ -54,9 +51,8 @@ export function TextInput(props: {
 	return (
 		<div className="flex flex-col">
 			<div className="flex gap-2">
-				<div>{isConnected ? "Connected" : "Not Connected"}</div>
+				<div>{provider.connected ? "Connected" : "Not Connected"}</div>
 				<div>Connections: {connections}</div>
-				<div>BcConnections: {bcConnections}</div>
 			</div>
 			<TextInputWithProvider {...props} provider={provider} />
 		</div>
@@ -71,7 +67,29 @@ function TextInputWithProvider(props: {
 }) {
 	const { manager, state } = useRemirror({
 		extensions: () => [
-			new YjsExtension({ getProvider: () => props.provider }),
+			new YjsExtension({
+				getProvider: () => props.provider,
+				cursorBuilder: (user) => {
+					const cursor = document.createElement("span");
+					cursor.classList.add("ProseMirror-yjs-cursor");
+					cursor.setAttribute("style", `border-color: ${user.color}`);
+					const userDiv = document.createElement("div");
+					userDiv.setAttribute(
+						"style",
+						`background-color: ${user.color}`
+					);
+					userDiv.insertBefore(
+						document.createTextNode(user.name + "blargh!"),
+						null
+					);
+					const nonbreakingSpace1 = document.createTextNode("\u2060");
+					const nonbreakingSpace2 = document.createTextNode("\u2060");
+					cursor.insertBefore(nonbreakingSpace1, null);
+					cursor.insertBefore(userDiv, null);
+					cursor.insertBefore(nonbreakingSpace2, null);
+					return cursor;
+				},
+			}),
 		],
 		// Set the initial content.
 		content: props.initial_text,
