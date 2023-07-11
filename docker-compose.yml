@@ -18,11 +18,13 @@ services:
         command: sh -c 'npm run sync && npm run dev'
         ports:
             - "3000:3000"
+            - "4444:4444"
         environment:
             - APP_URL
             - WSL_URL
             - NODE_ENV=development
             - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DATABASE}
+            - SOCKET_PORT=4444
 # services:
 #     postgres:
 #         env_file:

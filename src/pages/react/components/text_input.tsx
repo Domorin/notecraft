@@ -20,15 +20,17 @@ export function TextInput(props: {
 	);
 
 	useEffect(() => {
-		console.log(props.slug);
-		setProvider(
-			new WebrtcProvider(props.slug, ydoc, {
-				signaling: ["ws://localhost:4444"], // TODO: get from environment
-			})
-		);
+		const provider = new WebrtcProvider(props.slug, ydoc, {
+			signaling: ["ws://localhost:4444"], // TODO: get from environment
+		});
+
+		// provider.signalingConns.forEach((val) =>
+		// 	val.on("message", (m) => console.log("got message", m))
+		// );
+
+		setProvider(provider);
 
 		return () => {
-			console.log("disconnecting", props.slug);
 			ydoc.destroy();
 			provider?.disconnect();
 		};
@@ -69,11 +71,11 @@ function TextInputWithProvider(props: {
 		<div className="remirror-theme flex h-full w-full items-stretch">
 			<Remirror
 				manager={manager}
-				// initialContent={state}
-				// onChange={(e) => {
-				// 	props.setContent(e.state.doc.textContent);
-				// }}
-				// classNames={["h-full w-full self-stretch"]}
+				initialContent={state}
+				onChange={(e) => {
+					props.setContent(e.state.doc.textContent);
+				}}
+				classNames={["h-full w-full self-stretch"]}
 			/>
 		</div>
 	);

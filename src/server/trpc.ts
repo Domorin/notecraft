@@ -5,11 +5,12 @@ import { prisma } from "./prisma";
 import { NodeHTTPCreateContextFnOptions } from "@trpc/server/dist/adapters/node-http";
 import { IncomingMessage } from "http";
 import ws from "ws";
+import { createWsServer } from "./ws_server";
+import { CreateHTTPContextOptions } from "@trpc/server/adapters/standalone";
+import { CreateWSSContextFnOptions } from "@trpc/server/adapters/ws";
 
 export const createContext = async (
-	opts:
-		| NodeHTTPCreateContextFnOptions<IncomingMessage, ws>
-		| CreateNextContextOptions
+	opts: CreateHTTPContextOptions | CreateWSSContextFnOptions
 ) => {
 	// https://stackoverflow.com/a/73200295
 
