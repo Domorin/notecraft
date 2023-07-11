@@ -6,12 +6,13 @@ import "remirror/styles/all.css";
 import { WebrtcProvider } from "y-webrtc";
 import * as Y from "yjs";
 import { Spinner } from "./spinner";
+import { RouterOutput } from "@/server/routers/_app";
 
 // https://remirror.io/docs/extensions/yjs-extension/
 
 export function TextInput(props: {
 	slug: string;
-	initial_text: string;
+	doc: Y.Doc;
 	setContent: (content: string) => void;
 }) {
 	const [provider, setProvider] = useState<WebrtcProvider | undefined>(
@@ -21,9 +22,7 @@ export function TextInput(props: {
 	const [connections, setConnections] = useState(0);
 
 	useEffect(() => {
-		const ydoc = new Y.Doc();
-
-		const provider = new WebrtcProvider(props.slug, ydoc, {
+		const provider = new WebrtcProvider(props.slug, props.doc, {
 			signaling: ["ws://ws.localhost"], // TODO: get from environment
 		});
 
@@ -40,7 +39,7 @@ export function TextInput(props: {
 		setProvider(provider);
 
 		return () => {
-			ydoc.destroy();
+			props.doc.destroy();
 			provider?.destroy();
 		};
 	}, [props.slug]);
@@ -55,6 +54,14 @@ export function TextInput(props: {
 				<div>{provider.connected ? "Connected" : "Not Connected"}</div>
 				<div>Connections: {connections}</div>
 			</div>
+			<button
+				onClick={() => {
+					console.log("v1", Y.encodeStateAsUpdate(provider.doc));
+					console.log("v2", Y.encodeStateAsUpdateV2(provider.doc));
+				}}
+			>
+				Click me
+			</button>
 			<TextInputWithProvider {...props} provider={provider} />
 		</div>
 	);
@@ -62,7 +69,6 @@ export function TextInput(props: {
 
 function TextInputWithProvider(props: {
 	slug: string;
-	initial_text: string;
 	setContent: (content: string) => void;
 	provider: WebrtcProvider;
 }) {
@@ -93,7 +99,7 @@ function TextInputWithProvider(props: {
 			}),
 		],
 		// Set the initial content.
-		content: props.initial_text,
+		// content: props.initial_text,
 
 		// Place the cursor at the start of the document. This can also be set to
 		// `end`, `all` or a numbered position.

@@ -3,15 +3,19 @@ import { prisma } from "../prisma";
 import { authedProcedure, procedure, router } from "../trpc";
 import { Words } from "../words/words";
 import { TRPCError } from "@trpc/server";
+import * as Y from "yjs";
+import { encodeYDocContent } from "@/common/ydoc_utils";
 
 export const noteRouter = router({
 	create: authedProcedure.mutation(async ({ input, ctx: { userId } }) => {
 		const slug = await Words.getUniquePageSlug();
 
+		const ydoc = new Y.Doc();
+
 		const page = await prisma.note.create({
 			data: {
 				slug,
-				content: "",
+				content: Buffer.from(encodeYDocContent(ydoc)),
 				creatorId: userId,
 			},
 		});
@@ -73,13 +77,13 @@ export const noteRouter = router({
 				},
 			});
 
-			return note;
+			return note.content;
 		}),
 	save: authedProcedure
 		.input(
 			z.object({
 				slug: z.string(),
-				text: z.string(),
+				text: z.array(z.number().min(0).max(255)),
 			})
 		)
 		.mutation(async ({ input, ctx: { userId } }) => {
@@ -87,7 +91,7 @@ export const noteRouter = router({
 
 			return prisma.note.update({
 				data: {
-					content: input.text,
+					content: Buffer.from(input.text),
 					updatedAt: updatedAtDate,
 					viewedAt: updatedAtDate,
 				},

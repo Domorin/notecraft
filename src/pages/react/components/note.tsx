@@ -6,6 +6,8 @@ import { usePageSlug } from "../hooks/use_page_id";
 import { DefaultSuspense } from "./default_suspense";
 import { Spinner } from "./spinner";
 import { TextInput } from "./text_input";
+import { RouterOutput } from "@/server/routers/_app";
+import { parseYDocContent } from "@/common/ydoc_utils";
 
 export function LoadableNote() {
 	const slug = usePageSlug();
@@ -17,72 +19,72 @@ export function LoadableNote() {
 	return <Note key={slug} slug={slug} />;
 }
 
-const useSaveDebounce = (slug: string, value: string, delay: number) => {
-	const setNoteMetadata = useUpdateMetadata(slug);
+// const useSaveDebounce = (slug: string, value: string, delay: number) => {
+// 	const setNoteMetadata = useUpdateMetadata(slug);
 
-	const [lastSaveMs, setLastSaveMs] = useState<number | undefined>(undefined);
-	const [savedValue, setSavedValue] = useState(value);
+// 	const [lastSaveMs, setLastSaveMs] = useState<number | undefined>(undefined);
+// 	const [savedValue, setSavedValue] = useState(value);
 
-	const saveMutation = trpc.note.save.useMutation({
-		onSuccess: (data) => {
-			setLastSaveMs(Date.now());
-			setSavedValue(data.content);
-			setNoteMetadata({ updatedAt: data.updatedAt });
-		},
-	});
+// 	const saveMutation = trpc.note.save.useMutation({
+// 		onSuccess: (data) => {
+// 			setLastSaveMs(Date.now());
+// 			setSavedValue(data.content);
+// 			setNoteMetadata({ updatedAt: data.updatedAt });
+// 		},
+// 	});
 
-	const componentWillUnmount = useRef(false);
+// 	const componentWillUnmount = useRef(false);
 
-	useEffect(
-		() => () => {
-			componentWillUnmount.current = true;
-		},
-		[]
-	);
+// 	useEffect(
+// 		() => () => {
+// 			componentWillUnmount.current = true;
+// 		},
+// 		[]
+// 	);
 
-	useEffect(() => {
-		if (savedValue === value) {
-			return;
-		}
+// 	useEffect(() => {
+// 		if (savedValue === value) {
+// 			return;
+// 		}
 
-		if ((lastSaveMs ?? 0) < Date.now() - 5000) {
-			saveMutation.mutate({
-				slug,
-				text: value,
-			});
-			return;
-		}
+// 		if ((lastSaveMs ?? 0) < Date.now() - 5000) {
+// 			saveMutation.mutate({
+// 				slug,
+// 				text: value,
+// 			});
+// 			return;
+// 		}
 
-		const timer = setTimeout(() => {
-			saveMutation.mutate({
-				slug,
-				text: value,
-			});
-		}, delay);
+// 		const timer = setTimeout(() => {
+// 			saveMutation.mutate({
+// 				slug,
+// 				text: value,
+// 			});
+// 		}, delay);
 
-		return () => {
-			clearTimeout(timer);
-		};
-	}, [value, delay]);
+// 		return () => {
+// 			clearTimeout(timer);
+// 		};
+// 	}, [value, delay]);
 
-	useEffect(
-		() => () => {
-			// Hacky way to save the text when this component is unmounted
-			if (componentWillUnmount.current && savedValue !== value) {
-				saveMutation.mutate({
-					slug,
-					text: value,
-				});
-			}
-		},
-		[value]
-	);
+// 	useEffect(
+// 		() => () => {
+// 			// Hacky way to save the text when this component is unmounted
+// 			if (componentWillUnmount.current && savedValue !== value) {
+// 				saveMutation.mutate({
+// 					slug,
+// 					text: value,
+// 				});
+// 			}
+// 		},
+// 		[value]
+// 	);
 
-	return {
-		savedValue,
-		isLoading: saveMutation.isLoading,
-	};
-};
+// 	return {
+// 		savedValue,
+// 		isLoading: saveMutation.isLoading,
+// 	};
+// };
 
 export function Note(props: { slug: string }) {
 	const contentQuery = trpc.note.content.useQuery({ slug: props.slug });
@@ -92,34 +94,34 @@ export function Note(props: { slug: string }) {
 
 	return (
 		<NoteWithContent
-			noteContent={contentQuery.data.content}
+			noteContent={Buffer.from(contentQuery.data.data)}
 			slug={props.slug}
 		/>
 	);
 }
 
-function NoteWithContent(props: { noteContent: string; slug: string }) {
+function NoteWithContent(props: { noteContent: Buffer; slug: string }) {
 	const { slug, noteContent } = props;
 
 	const context = trpc.useContext();
-	const { isLoading } = useSaveDebounce(slug, noteContent, 2000);
+	// const { isLoading } = useSaveDebounce(slug, noteContent, 2000);
 
 	return (
 		<div className="flex h-full flex-col">
 			<TextInput
 				key={props.slug}
 				slug={props.slug}
-				initial_text={noteContent}
+				doc={parseYDocContent(props.noteContent)}
 				setContent={(content) => {
-					context.note.content.setData(
-						{
-							slug: props.slug,
-						},
-						(data) => ({ content })
-					);
+					// context.note.content.setData(
+					// 	{
+					// 		slug: props.slug,
+					// 	},
+					// 	(data) => ({ content })
+					// );
 				}}
 			/>
-			<NoteEditDisplaySuspense slug={props.slug} isSaving={isLoading} />
+			<NoteEditDisplaySuspense slug={props.slug} isSaving={false} />
 		</div>
 	);
 }
