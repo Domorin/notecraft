@@ -8,7 +8,6 @@ import * as Y from "yjs";
 import { Spinner } from "./spinner";
 
 // https://remirror.io/docs/extensions/yjs-extension/
-const ydoc = new Y.Doc();
 
 export function TextInput(props: {
 	slug: string;
@@ -22,6 +21,8 @@ export function TextInput(props: {
 	const [connections, setConnections] = useState(0);
 
 	useEffect(() => {
+		const ydoc = new Y.Doc();
+
 		const provider = new WebrtcProvider(props.slug, ydoc, {
 			signaling: ["ws://localhost:4444"], // TODO: get from environment
 		});
