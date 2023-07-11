@@ -3,25 +3,9 @@
 import { WebSocketServer, WebSocket } from "ws";
 import http from "http";
 import * as map from "lib0/map";
-import { applyWSSHandler } from "@trpc/server/adapters/ws";
-import { AppRouter, appRouter } from "./routers/_app";
-import { createContext } from "./trpc";
-import { createHTTPServer } from "@trpc/server/adapters/standalone";
 
-export function createWsServer() {
-	// I don't know that we need context for this, I don't know whats happening with context
-	const { server, listen } = createHTTPServer({
-		router: appRouter,
-		createContext,
-	});
-
-	// ws server
-	const wss = new WebSocketServer({ server });
-	applyWSSHandler<AppRouter>({
-		wss,
-		router: appRouter,
-		createContext,
-	});
+function createWsServer() {
+	const wss = new WebSocketServer({ noServer: true });
 
 	const wsReadyStateConnecting = 0;
 	const wsReadyStateOpen = 1;
@@ -32,8 +16,21 @@ export function createWsServer() {
 
 	const port = 4444;
 
+	const server = http.createServer((request, response) => {
+		response.writeHead(200, { "Content-Type": "text/plain" });
+		response.end("okay");
+	});
+
+	/**
+	 * Map froms topic-name to set of subscribed clients.
+	 * @type {Map<string, Set<any>>}
+	 */
 	const topics = new Map<string, Set<WebSocket>>();
 
+	/**
+	 * @param {any} conn
+	 * @param {object} message
+	 */
 	const send = (conn: WebSocket, message: any) => {
 		if (
 			conn.readyState !== wsReadyStateConnecting &&
@@ -120,7 +117,6 @@ export function createWsServer() {
 						if (parsedMessage.topic) {
 							const receivers = topics.get(parsedMessage.topic);
 							if (receivers) {
-								console.log("sending", parsedMessage);
 								parsedMessage.clients = receivers.size;
 								receivers.forEach((receiver) =>
 									send(receiver, parsedMessage)
@@ -148,3 +144,5 @@ export function createWsServer() {
 
 	console.log("Signaling server running on localhost:", port);
 }
+
+createWsServer();

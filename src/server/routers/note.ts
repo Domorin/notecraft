@@ -85,8 +85,6 @@ export const noteRouter = router({
 		.mutation(async ({ input, ctx: { userId } }) => {
 			const updatedAtDate = new Date();
 
-			console.log("saving");
-
 			return prisma.note.update({
 				data: {
 					content: input.text,

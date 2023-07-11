@@ -8,6 +8,20 @@ services:
             - POSTGRES_USER
             - POSTGRES_PASSWORD
             - POSTGRES_DATABASE
+    reverse-proxy:
+        # The official v2 Traefik docker image
+        image: traefik:v2.10
+        # Enables the web UI and tells Traefik to listen to docker
+        # TODO: exposedByDefault=false?
+        command: --api.insecure=true --providers.docker
+        ports:
+            # The HTTP port
+            - "80:80"
+            # The Web UI (enabled by --api.insecure=true)
+            - "8080:8080"
+        volumes:
+            # So that Traefik can listen to the Docker events
+            - /var/run/docker.sock:/var/run/docker.sock
     web:
         image: node:18
         depends_on:
@@ -16,15 +30,37 @@ services:
             - .:/app
         working_dir: /app
         command: sh -c 'npm run sync && npm run dev'
-        ports:
-            - "3000:3000"
-            - "4444:4444"
+        # note: next automatically loads all env files from .env
         environment:
-            - APP_URL
-            - WSL_URL
-            - NODE_ENV=development
             - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DATABASE}
-            - SOCKET_PORT=4444
+        labels:
+            # enable traefik
+            - traefik.enable=true
+            # set the url that will be routed to this container
+            - traefik.http.routers.web.rule=Host(`web.localhost`)
+            # set the port this web service expects to receive requests on
+            - traefik.http.services.web.loadbalancer.server.port=3000
+    ws:
+        image: node:18
+        volumes:
+            - .:/app
+        working_dir: /app
+        ports:
+            - "4444:4444"
+        command: npm run ws
+        environment:
+            - NODE_ENV
+            - SOCKET_PORT=${SOCKET_PORT}
+        labels:
+            # enable traefik
+            - traefik.enable=true
+            # set the url that will be routed to this container
+            - traefik.http.routers.ws.entrypoints=ws
+            - traefik.http.routers.ws.rule=Host(`localhost:4444`)
+            # set the port this web service expects to receive requests on
+            - traefik.http.services.ws.loadbalancer.server.port=4444
+    # redis:
+    #     image: redis:7
 # services:
 #     postgres:
 #         env_file:

@@ -19,11 +19,21 @@ export function TextInput(props: {
 		undefined
 	);
 
+	const [isConnected, setIsConnected] = useState(false);
+	const [connections, setConnections] = useState(0);
+	const [bcConnections, setBcConnections] = useState(0);
+
 	useEffect(() => {
 		const provider = new WebrtcProvider(props.slug, ydoc, {
 			signaling: ["ws://localhost:4444"], // TODO: get from environment
 		});
 
+		provider.room?.webrtcConns.size;
+		const interval = setInterval(() => {
+			setBcConnections(provider.room?.bcConns.size || 0);
+			setIsConnected(provider.connected);
+			setConnections(provider.room?.webrtcConns.size || 0);
+		}, 1000);
 		// provider.signalingConns.forEach((val) =>
 		// 	val.on("message", (m) => console.log("got message", m))
 		// );
@@ -33,6 +43,7 @@ export function TextInput(props: {
 		return () => {
 			ydoc.destroy();
 			provider?.disconnect();
+			clearInterval(interval);
 		};
 	}, [props.slug]);
 
@@ -40,7 +51,16 @@ export function TextInput(props: {
 		return <Spinner />;
 	}
 
-	return <TextInputWithProvider {...props} provider={provider} />;
+	return (
+		<div className="flex flex-col">
+			<div className="flex gap-2">
+				<div>{isConnected ? "Connected" : "Not Connected"}</div>
+				<div>Connections: {connections}</div>
+				<div>BcConnections: {bcConnections}</div>
+			</div>
+			<TextInputWithProvider {...props} provider={provider} />
+		</div>
+	);
 }
 
 function TextInputWithProvider(props: {

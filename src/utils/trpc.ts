@@ -15,8 +15,11 @@ function getBaseUrl() {
 		// reference for render.com
 		return `http://${process.env.RENDER_INTERNAL_HOSTNAME}:${process.env.PORT}`;
 
+	if (!process.env.APP_PORT) {
+		throw new Error("APP_PORT is not defined");
+	}
 	// assume localhost
-	return `http://localhost:${process.env.PORT ?? 3000}`;
+	return `http://localhost:${process.env.APP_PORT}`;
 }
 
 export const trpc = createTRPCNext<AppRouter>({
@@ -32,11 +35,6 @@ export const trpc = createTRPCNext<AppRouter>({
 
 					// You can pass any HTTP headers you wish here
 					async headers() {
-						if (opts.ctx?.req) {
-							return {
-								test: "hello",
-							};
-						}
 						return {};
 					},
 				}),
