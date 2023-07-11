@@ -5,7 +5,7 @@ services:
             - 5432:5432
         environment:
             - POSTGRES_NAME
-            - POSTGRES_USER
+            - POSTGRES_USERNAME
             - POSTGRES_PASSWORD
             - POSTGRES_DATABASE
     reverse-proxy:
@@ -32,7 +32,7 @@ services:
         command: sh -c 'npm run sync && npm run dev'
         # note: next automatically loads all env files from .env
         environment:
-            - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DATABASE}
+            - DATABASE_URL=postgresql://${POSTGRES_USERNAME}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DATABASE}
         labels:
             # enable traefik
             - traefik.enable=true

@@ -8,7 +8,7 @@
 		"build": "next build",
 		"start": "next start",
 		"lint": "next lint",
-		"sync": "npx prisma db push --accept-data-loss",
+		"sync": "npx prisma db push --accept-data-loss --force-reset",
 		"generate": "npx prisma generate",
 		"studio": "npx prisma studio",
 		"ws": "npx tsx watch src/ws/ws_server.ts"
