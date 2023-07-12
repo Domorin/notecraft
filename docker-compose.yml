@@ -57,8 +57,9 @@ services:
             - traefik.http.routers.ws_service.rule=Host(`ws.localhost`)
             # set the port this web service expects to receive requests on
             - traefik.http.services.ws_service.loadbalancer.server.port=4444
-    # redis:
-    #     image: redis:7
+    redis:
+        image: redis:7
+        container_name: ${REDIS_HOST}
 # services:
 #     postgres:
 #         env_file:
