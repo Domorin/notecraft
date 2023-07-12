@@ -3,11 +3,14 @@ import { CreateHTTPContextOptions } from "@trpc/server/adapters/standalone";
 import { CreateWSSContextFnOptions } from "@trpc/server/adapters/ws";
 import * as cookie from "cookie";
 import { prisma } from "./prisma";
+import { getRedis } from "../../redis/redis";
 
 export const createContext = async (
 	opts: CreateHTTPContextOptions | CreateWSSContextFnOptions
 ) => {
 	// https://stackoverflow.com/a/73200295
+
+	getRedis();
 
 	return {
 		api: {

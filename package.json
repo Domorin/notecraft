@@ -11,7 +11,7 @@
 		"sync": "npx prisma db push --accept-data-loss --force-reset",
 		"generate": "npx prisma generate",
 		"studio": "npx prisma studio",
-		"ws": "npx tsx watch src/ws/ws_server.ts"
+		"ws": "npx tsx watch ws/ws_server.ts"
 	},
 	"dependencies": {
 		"@fortawesome/fontawesome-svg-core": "^6.4.0",

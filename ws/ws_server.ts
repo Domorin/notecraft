@@ -3,6 +3,7 @@
 import { WebSocketServer, WebSocket } from "ws";
 import http from "http";
 import * as map from "lib0/map";
+import { redisHandler } from "../redis/redis";
 
 type Message =
 	| {
@@ -37,6 +38,10 @@ const send = (conn: WebSocket, message: Message) => {
 
 function createWsServer() {
 	const wss = new WebSocketServer({ noServer: true });
+
+	redisHandler.subscribe("NoteUpdate", (message) =>
+		console.log("got message:", message)
+	);
 
 	const pingTimeout = 30000;
 

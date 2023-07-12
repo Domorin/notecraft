@@ -6,10 +6,13 @@ import { TRPCError } from "@trpc/server";
 import * as Y from "yjs";
 import { encodeYDocContent } from "@/common/ydoc_utils";
 import { sleep } from "@/utils/misc";
+import { redisHandler } from "../../../redis/redis";
 
 export const noteRouter = router({
 	create: authedProcedure.mutation(async ({ input, ctx: { userId } }) => {
 		const slug = await Words.getUniquePageSlug();
+
+		redisHandler.publish("NoteUpdate", "this is the note created message");
 
 		const ydoc = new Y.Doc();
 

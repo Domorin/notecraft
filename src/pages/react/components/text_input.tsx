@@ -1,4 +1,4 @@
-import { CustomMessage } from "@/ws/ws_server";
+import type { CustomMessage } from "../../../../ws/ws_server";
 import { Remirror, useRemirror } from "@remirror/react";
 import { useEffect, useState } from "react";
 import { YjsExtension } from "remirror/extensions";

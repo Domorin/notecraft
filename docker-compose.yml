@@ -48,6 +48,7 @@ services:
         command: npm run ws
         environment:
             - NODE_ENV
+            - REDIS_HOST
             - SOCKET_PORT=${SOCKET_PORT}
         labels:
             # enable traefik
