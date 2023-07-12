@@ -1,11 +1,12 @@
-import * as Y from "yjs";
+// https://docs.yjs.dev/api/document-updates
+import { encodeStateAsUpdateV2, Doc, applyUpdateV2 } from "yjs";
 
-export function encodeYDocContent(ydoc: Y.Doc) {
-	return Y.encodeStateAsUpdateV2(ydoc);
+export function encodeYDocContent(ydoc: Doc) {
+	return encodeStateAsUpdateV2(ydoc);
 }
 
 export function parseYDocContent(content: Uint8Array) {
-	const ydoc = new Y.Doc();
-	Y.applyUpdate(ydoc, content);
+	const ydoc = new Doc();
+	applyUpdateV2(ydoc, content);
 	return ydoc;
 }

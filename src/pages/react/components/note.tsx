@@ -1,13 +1,14 @@
+import { encodeYDocContent, parseYDocContent } from "@/common/ydoc_utils";
 import { trpc } from "@/utils/trpc";
+import debounce from "lodash.debounce";
 import { DateTime } from "luxon";
 import { useEffect, useRef, useState } from "react";
-import { useUpdateMetadata } from "../hooks/trpc/use_set_note_metadata";
+import * as Y from "yjs";
 import { usePageSlug } from "../hooks/use_page_id";
 import { DefaultSuspense } from "./default_suspense";
 import { Spinner } from "./spinner";
 import { TextInput } from "./text_input";
-import { RouterOutput } from "@/server/routers/_app";
-import { parseYDocContent } from "@/common/ydoc_utils";
+import { useUpdateMetadata } from "../hooks/trpc/use_set_note_metadata";
 
 export function LoadableNote() {
 	const slug = usePageSlug();
@@ -19,75 +20,9 @@ export function LoadableNote() {
 	return <Note key={slug} slug={slug} />;
 }
 
-// const useSaveDebounce = (slug: string, value: string, delay: number) => {
-// 	const setNoteMetadata = useUpdateMetadata(slug);
-
-// 	const [lastSaveMs, setLastSaveMs] = useState<number | undefined>(undefined);
-// 	const [savedValue, setSavedValue] = useState(value);
-
-// 	const saveMutation = trpc.note.save.useMutation({
-// 		onSuccess: (data) => {
-// 			setLastSaveMs(Date.now());
-// 			setSavedValue(data.content);
-// 			setNoteMetadata({ updatedAt: data.updatedAt });
-// 		},
-// 	});
-
-// 	const componentWillUnmount = useRef(false);
-
-// 	useEffect(
-// 		() => () => {
-// 			componentWillUnmount.current = true;
-// 		},
-// 		[]
-// 	);
-
-// 	useEffect(() => {
-// 		if (savedValue === value) {
-// 			return;
-// 		}
-
-// 		if ((lastSaveMs ?? 0) < Date.now() - 5000) {
-// 			saveMutation.mutate({
-// 				slug,
-// 				text: value,
-// 			});
-// 			return;
-// 		}
-
-// 		const timer = setTimeout(() => {
-// 			saveMutation.mutate({
-// 				slug,
-// 				text: value,
-// 			});
-// 		}, delay);
-
-// 		return () => {
-// 			clearTimeout(timer);
-// 		};
-// 	}, [value, delay]);
-
-// 	useEffect(
-// 		() => () => {
-// 			// Hacky way to save the text when this component is unmounted
-// 			if (componentWillUnmount.current && savedValue !== value) {
-// 				saveMutation.mutate({
-// 					slug,
-// 					text: value,
-// 				});
-// 			}
-// 		},
-// 		[value]
-// 	);
-
-// 	return {
-// 		savedValue,
-// 		isLoading: saveMutation.isLoading,
-// 	};
-// };
-
 export function Note(props: { slug: string }) {
 	const contentQuery = trpc.note.content.useQuery({ slug: props.slug });
+
 	if (!contentQuery.isSuccess) {
 		return <Spinner />;
 	}
@@ -100,18 +35,50 @@ export function Note(props: { slug: string }) {
 	);
 }
 
+function saveContent(
+	mutation: ReturnType<typeof trpc.note.save.useMutation>,
+	slug: string,
+	doc: Y.Doc
+) {
+	console.log("saving");
+	mutation.mutate({
+		slug,
+		content: Array.from(encodeYDocContent(doc)),
+	});
+}
+
+const debouncedSaveContent = debounce(saveContent, 2000);
+
 function NoteWithContent(props: { noteContent: Buffer; slug: string }) {
 	const { slug, noteContent } = props;
 
-	const context = trpc.useContext();
-	// const { isLoading } = useSaveDebounce(slug, noteContent, 2000);
+	const setNoteMetadata = useUpdateMetadata(slug);
+
+	const doc = useRef(parseYDocContent(noteContent));
+
+	const saveMutation = trpc.note.save.useMutation({
+		onSuccess: (data) => {
+			setNoteMetadata(data);
+		},
+	});
+
+	useEffect(() => {
+		doc.current.on(
+			"update",
+			(update: Uint8Array, origin: any, doc: Y.Doc) => {
+				debouncedSaveContent(saveMutation, slug, doc);
+			}
+		);
+	}, []);
+
+	console.log(saveMutation.isLoading);
 
 	return (
 		<div className="flex h-full flex-col">
 			<TextInput
 				key={props.slug}
 				slug={props.slug}
-				doc={parseYDocContent(props.noteContent)}
+				doc={doc.current}
 				setContent={(content) => {
 					// context.note.content.setData(
 					// 	{
@@ -121,7 +88,10 @@ function NoteWithContent(props: { noteContent: Buffer; slug: string }) {
 					// );
 				}}
 			/>
-			<NoteEditDisplaySuspense slug={props.slug} isSaving={false} />
+			<NoteEditDisplaySuspense
+				slug={props.slug}
+				isSaving={saveMutation.isLoading}
+			/>
 		</div>
 	);
 }

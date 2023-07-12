@@ -5,6 +5,7 @@ import { Words } from "../words/words";
 import { TRPCError } from "@trpc/server";
 import * as Y from "yjs";
 import { encodeYDocContent } from "@/common/ydoc_utils";
+import { sleep } from "@/utils/misc";
 
 export const noteRouter = router({
 	create: authedProcedure.mutation(async ({ input, ctx: { userId } }) => {
@@ -83,7 +84,7 @@ export const noteRouter = router({
 		.input(
 			z.object({
 				slug: z.string(),
-				text: z.array(z.number().min(0).max(255)),
+				content: z.array(z.number().min(0).max(255)),
 			})
 		)
 		.mutation(async ({ input, ctx: { userId } }) => {
@@ -91,7 +92,7 @@ export const noteRouter = router({
 
 			return prisma.note.update({
 				data: {
-					content: Buffer.from(input.text),
+					content: Buffer.from(input.content),
 					updatedAt: updatedAtDate,
 					viewedAt: updatedAtDate,
 				},

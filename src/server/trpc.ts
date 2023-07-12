@@ -28,7 +28,6 @@ export const authedProcedure = t.procedure.use(
 
 		// TODO: do not make a user if they have cookies disabled
 
-		console.log(userId);
 		if (!userId && "setHeader" in ctx.api.res) {
 			console.log("creating user");
 

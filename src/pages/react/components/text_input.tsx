@@ -54,14 +54,6 @@ export function TextInput(props: {
 				<div>{provider.connected ? "Connected" : "Not Connected"}</div>
 				<div>Connections: {connections}</div>
 			</div>
-			<button
-				onClick={() => {
-					console.log("v1", Y.encodeStateAsUpdate(provider.doc));
-					console.log("v2", Y.encodeStateAsUpdateV2(provider.doc));
-				}}
-			>
-				Click me
-			</button>
 			<TextInputWithProvider {...props} provider={provider} />
 		</div>
 	);
