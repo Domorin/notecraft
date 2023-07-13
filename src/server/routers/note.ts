@@ -5,14 +5,11 @@ import { Words } from "../words/words";
 import { TRPCError } from "@trpc/server";
 import * as Y from "yjs";
 import { encodeYDocContent } from "@/common/ydoc_utils";
-import { sleep } from "@/utils/misc";
-import { redisHandler } from "../../../redis/redis";
+import { redis } from "../redis";
 
 export const noteRouter = router({
 	create: authedProcedure.mutation(async ({ input, ctx: { userId } }) => {
 		const slug = await Words.getUniquePageSlug();
-
-		redisHandler.publish("NoteUpdate", "this is the note created message");
 
 		const ydoc = new Y.Doc();
 
@@ -93,7 +90,7 @@ export const noteRouter = router({
 		.mutation(async ({ input, ctx: { userId } }) => {
 			const updatedAtDate = new Date();
 
-			return prisma.note.update({
+			const note = await prisma.note.update({
 				data: {
 					content: Buffer.from(input.content),
 					updatedAt: updatedAtDate,
@@ -103,6 +100,16 @@ export const noteRouter = router({
 					slug: input.slug,
 				},
 			});
+
+			redis.pubsub.publish("NoteMetadataUpdate", {
+				createdAt: note.createdAt.toISOString(),
+				updatedAt: note.updatedAt.toISOString(),
+				slug: note.slug,
+				viewedAt: note.viewedAt?.toISOString(),
+				views: note.views,
+			});
+
+			return note;
 		}),
 	listCreated: authedProcedure.query(async ({ input, ctx: { userId } }) => {
 		return prisma.note.findMany({

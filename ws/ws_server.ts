@@ -3,7 +3,7 @@
 import { WebSocketServer, WebSocket } from "ws";
 import http from "http";
 import * as map from "lib0/map";
-import { redisHandler } from "../redis/redis";
+import { RedisChannelType, initRedis } from "../redis/redis";
 
 type Message =
 	| {
@@ -15,7 +15,11 @@ type Message =
 	| { type: "pong" }
 	| CustomMessage;
 
-export type CustomMessage = { type: "metadata"; activeConnections: number };
+export type CustomMessage =
+	| { type: "connectionMetadata"; activeConnections: number }
+	| ({
+			type: "noteMetadataUpdate";
+	  } & RedisChannelType["NoteMetadataUpdate"]);
 
 const wsReadyStateConnecting = 0;
 const wsReadyStateOpen = 1;
@@ -36,12 +40,8 @@ const send = (conn: WebSocket, message: Message) => {
 	}
 };
 
-function createWsServer() {
+async function createWsServer() {
 	const wss = new WebSocketServer({ noServer: true });
-
-	redisHandler.subscribe("NoteUpdate", (message) =>
-		console.log("got message:", message)
-	);
 
 	const pingTimeout = 30000;
 
@@ -50,6 +50,18 @@ function createWsServer() {
 	const server = http.createServer((request, response) => {
 		response.writeHead(200, { "Content-Type": "text/plain" });
 		response.end("okay");
+	});
+
+	const redis = initRedis({
+		service: "Ws",
+		rpcHandler: {
+			GetHost: (message) => {
+				console.log("ws server request received", message);
+				return {
+					hostId: "this is the host id!",
+				};
+			},
+		},
 	});
 
 	/**
@@ -65,17 +77,13 @@ function createWsServer() {
 		}
 	}
 
-	setInterval(() => {
-		for (const key of allTopics.keys()) {
-			const subs = allTopics.get(key);
-			subs?.forEach((val) => {
-				send(val, {
-					type: "metadata",
-					activeConnections: subs.size,
-				});
-			});
-		}
-	}, 1000);
+	// Subscribe to NoteMetadataUpdate from redis; broadcast to all connections
+	redis.pubsub.subscribe("NoteMetadataUpdate", (message) => {
+		broadcast(message.slug, {
+			type: "noteMetadataUpdate",
+			...message,
+		});
+	});
 
 	const onConnection = (conn: WebSocket) => {
 		const subscribedTopicsForUser = new Set<string>();
@@ -109,7 +117,7 @@ function createWsServer() {
 				}
 
 				broadcast(topicName, {
-					type: "metadata",
+					type: "connectionMetadata",
 					activeConnections: subs.size,
 				});
 			});
@@ -139,7 +147,7 @@ function createWsServer() {
 								topic.add(conn);
 
 								broadcast(topicName, {
-									type: "metadata",
+									type: "connectionMetadata",
 									activeConnections: topic.size,
 								});
 
@@ -155,7 +163,7 @@ function createWsServer() {
 								subs.delete(conn);
 
 								broadcast(topicName, {
-									type: "metadata",
+									type: "connectionMetadata",
 									activeConnections: subs.size,
 								});
 							}

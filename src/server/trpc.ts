@@ -3,14 +3,12 @@ import { CreateHTTPContextOptions } from "@trpc/server/adapters/standalone";
 import { CreateWSSContextFnOptions } from "@trpc/server/adapters/ws";
 import * as cookie from "cookie";
 import { prisma } from "./prisma";
-import { getRedis } from "../../redis/redis";
+import { redis } from "./redis";
 
 export const createContext = async (
 	opts: CreateHTTPContextOptions | CreateWSSContextFnOptions
 ) => {
 	// https://stackoverflow.com/a/73200295
-
-	getRedis();
 
 	return {
 		api: {
@@ -30,6 +28,8 @@ export const authedProcedure = t.procedure.use(
 		let userId = cookie.parse(ctx.api.req.headers.cookie || "")["id"];
 
 		// TODO: do not make a user if they have cookies disabled
+
+		const result = await redis.rpc("Ws", "GetHost", { slug: "test" });
 
 		if (!userId && "setHeader" in ctx.api.res) {
 			console.log("creating user");

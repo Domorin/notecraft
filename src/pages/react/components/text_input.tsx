@@ -7,6 +7,7 @@ import { WebrtcProvider } from "y-webrtc";
 import * as Y from "yjs";
 import { Spinner } from "./spinner";
 import { RouterOutput } from "@/server/routers/_app";
+import { useUpdateMetadata } from "../hooks/trpc/use_set_note_metadata";
 
 // https://remirror.io/docs/extensions/yjs-extension/
 
@@ -21,6 +22,8 @@ export function TextInput(props: {
 
 	const [connections, setConnections] = useState(0);
 
+	const setNoteMetadata = useUpdateMetadata(props.slug);
+
 	useEffect(() => {
 		const provider = new WebrtcProvider(props.slug, props.doc, {
 			signaling: ["ws://ws.localhost"], // TODO: get from environment
@@ -30,8 +33,17 @@ export function TextInput(props: {
 
 		signalingConn.on("message", (m: CustomMessage) => {
 			switch (m.type) {
-				case "metadata":
+				case "connectionMetadata":
 					setConnections(m.activeConnections);
+					break;
+				case "noteMetadataUpdate":
+					console.log("noteMetadataUpdate", m);
+					setNoteMetadata({
+						createdAt: m.createdAt,
+						updatedAt: m.updatedAt,
+						viewedAt: m.viewedAt,
+						views: m.views,
+					});
 					break;
 			}
 		});
