@@ -26,7 +26,7 @@ export function TextInput(props: {
 
 	useEffect(() => {
 		const provider = new WebrtcProvider(props.slug, props.doc, {
-			signaling: ["ws://ws.localhost"], // TODO: get from environment
+			signaling: ["ws://localhost:4444"], // TODO: get from environment
 		});
 
 		const signalingConn = provider.signalingConns[0];

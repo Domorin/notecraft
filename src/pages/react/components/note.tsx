@@ -51,15 +51,9 @@ const debouncedSaveContent = debounce(saveContent, 2000);
 function NoteWithContent(props: { noteContent: Buffer; slug: string }) {
 	const { slug, noteContent } = props;
 
-	const setNoteMetadata = useUpdateMetadata(slug);
-
 	const doc = useRef(parseYDocContent(noteContent));
 
-	const saveMutation = trpc.note.save.useMutation({
-		onSuccess: (data) => {
-			setNoteMetadata(data);
-		},
-	});
+	const saveMutation = trpc.note.save.useMutation();
 
 	useEffect(() => {
 		doc.current.on(

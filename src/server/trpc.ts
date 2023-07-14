@@ -28,9 +28,6 @@ export const authedProcedure = t.procedure.use(
 		let userId = cookie.parse(ctx.api.req.headers.cookie || "")["id"];
 
 		// TODO: do not make a user if they have cookies disabled
-
-		const result = await redis.rpc("Ws", "GetHost", { slug: "test" });
-
 		if (!userId && "setHeader" in ctx.api.res) {
 			const user = await prisma.user.create({
 				data: {},
@@ -40,8 +37,11 @@ export const authedProcedure = t.procedure.use(
 			ctx.api.res.setHeader(
 				"Set-Cookie",
 				cookie.serialize("id", userId, {
-					sameSite: "strict",
 					httpOnly: true,
+					sameSite: "strict",
+					// secure: false,
+					expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365),
+					path: "/",
 				})
 			);
 		}

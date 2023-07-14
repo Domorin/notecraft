@@ -5,6 +5,7 @@ import http from "http";
 import * as map from "lib0/map";
 import { RedisChannelType, initRedis } from "../common/redis/redis";
 import { logger } from "../common/logging/log";
+import * as cookie from "cookie";
 
 type Message =
 	| {
@@ -58,14 +59,28 @@ async function createWsServer() {
 	 * @type {Map<string, Set<any>>}
 	 */
 	const allTopics = new Map<string, Set<WebSocket>>();
+	const webSocketToUserId = new Map<WebSocket, string>();
 
 	const redis = initRedis({
 		service: "Ws",
 		rpcHandler: {
 			GetHost: (message) => {
-				console.log("ws server request received", message);
+				const connections = allTopics.get(message.slug);
+
+				if (!connections) {
+					throw new Error(
+						`No connections found for room ${message.slug}`
+					);
+				}
+				const [hostConnection] = connections;
+				const hostId = webSocketToUserId.get(hostConnection);
+
+				if (!hostId) {
+					throw new Error(`No host found for room ${message.slug}`);
+				}
+
 				return {
-					hostId: "this is the host id!",
+					hostId,
 				};
 			},
 		},
@@ -86,8 +101,10 @@ async function createWsServer() {
 		});
 	});
 
-	const onConnection = (conn: WebSocket) => {
+	const onConnection = (conn: WebSocket, userId: string) => {
 		const subscribedTopicsForUser = new Set<string>();
+		webSocketToUserId.set(conn, userId);
+
 		let closed = false;
 		// Check if connection is still alive
 		let pongReceived = true;
@@ -194,8 +211,15 @@ async function createWsServer() {
 
 	server.on("upgrade", (request, socket, head) => {
 		// You may check auth of request here..
+
+		const userId = cookie.parse(request.headers.cookie || "")["id"];
+
+		if (!userId) {
+			throw new Error("No user ID found!");
+		}
+
 		const handleAuth = (ws: WebSocket) => {
-			wss.emit("connection", ws, request);
+			wss.emit("connection", ws, userId, request);
 		};
 		wss.handleUpgrade(request, socket, head, handleAuth);
 	});

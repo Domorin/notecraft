@@ -90,6 +90,15 @@ export const noteRouter = router({
 		.mutation(async ({ input, ctx: { userId } }) => {
 			const updatedAtDate = new Date();
 
+			const roomHost = await redis.rpc("Ws", "GetHost", {
+				slug: input.slug,
+			});
+
+			// Only allow the room host to save so DB is not spammed
+			if (roomHost.hostId !== userId) {
+				return;
+			}
+
 			const note = await prisma.note.update({
 				data: {
 					content: Buffer.from(input.content),
