@@ -1,4 +1,3 @@
-import { encodeYDocContent, parseYDocContent } from "@/common/ydoc_utils";
 import { trpc } from "@/utils/trpc";
 import debounce from "lodash.debounce";
 import { DateTime } from "luxon";
@@ -9,6 +8,7 @@ import { DefaultSuspense } from "./default_suspense";
 import { Spinner } from "./spinner";
 import { TextInput } from "./text_input";
 import { useUpdateMetadata } from "../hooks/trpc/use_set_note_metadata";
+import { encodeYDocContent, parseYDocContent } from "@/lib/ydoc_utils";
 
 export function LoadableNote() {
 	const slug = usePageSlug();
@@ -40,7 +40,6 @@ function saveContent(
 	slug: string,
 	doc: Y.Doc
 ) {
-	console.log("saving");
 	mutation.mutate({
 		slug,
 		content: Array.from(encodeYDocContent(doc)),
@@ -70,8 +69,6 @@ function NoteWithContent(props: { noteContent: Buffer; slug: string }) {
 			}
 		);
 	}, []);
-
-	console.log(saveMutation.isLoading);
 
 	return (
 		<div className="flex h-full flex-col">

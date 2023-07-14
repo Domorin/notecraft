@@ -1,7 +1,6 @@
 import { RouterOutput } from "@/server/routers/_app";
-import { sleep } from "@/utils/misc";
-import { Message } from "postcss";
 import { createClient } from "redis";
+import { logger } from "../logging/log";
 
 type Service = "App" | "Ws";
 
@@ -17,8 +16,6 @@ type RPCs = {
 
 type RPCSThing<T extends Service> = Omit<RPCs, T>;
 
-type TEST = RPCSThing<"App">;
-
 type ServiceRPCs<S extends Service> = {
 	[Thing in keyof RPCs[S]]: (
 		args: RPCs[S][Thing] extends { input: Record<string, unknown> }
@@ -27,14 +24,6 @@ type ServiceRPCs<S extends Service> = {
 	) => RPCs[S][Thing] extends { output: Record<string, unknown> }
 		? RPCs[S][Thing]["output"]
 		: never;
-};
-
-type RedisContext = {
-	rpcHandler: Record<
-		string,
-		(args: Record<string, unknown>) => Promise<unknown>
-	>;
-	service: Service;
 };
 
 export const pendingMessages: Record<
@@ -80,19 +69,19 @@ export function initRedis<T extends Service>(context: {
 
 	const service = context.service;
 
-	console.log(service, "Connecting to redis...");
+	logger.info("Connecting to redis...");
 	const publisherConnectPromise = publisherClient
 		.connect()
-		.then(() => "Connected to redis publisher");
+		.then(() => logger.info("Connected to redis publisher"));
 	const subscriberConnectPromise = subscriberClient
 		.connect()
-		.then(() => "Connected to redis subscriber");
+		.then(() => logger.info("Connected to redis subscriber"));
 
 	publisherClient.on("error", (err) =>
-		console.log("Redis Client Error", err)
+		logger.error("Redis Client Error", err)
 	);
 
-	const redisHandler = {
+	const pubsubHandler = {
 		publish: async <Channel extends keyof RedisChannelType>(
 			channel: Channel,
 			message: RedisChannelType[Channel]
@@ -100,7 +89,6 @@ export function initRedis<T extends Service>(context: {
 			await publisherConnectPromise;
 
 			const redis = publisherClient;
-			console.log("isReady", redis.isReady);
 			redis.publish(channel, JSON.stringify(message));
 		},
 		subscribe: async <Channel extends keyof RedisChannelType>(
@@ -120,7 +108,7 @@ export function initRedis<T extends Service>(context: {
 		},
 	};
 
-	redisHandler.subscribe("RPCRequest", async (message) => {
+	pubsubHandler.subscribe("RPCRequest", async (message) => {
 		// This request is not for us
 		if (message.target !== context.service) {
 			return;
@@ -130,7 +118,7 @@ export function initRedis<T extends Service>(context: {
 			message.input as any
 		);
 
-		redisHandler.publish("RPCResponse", {
+		pubsubHandler.publish("RPCResponse", {
 			id: message.id,
 			source: message.source,
 			target: message.target,
@@ -138,19 +126,16 @@ export function initRedis<T extends Service>(context: {
 		});
 	});
 
-	redisHandler.subscribe("RPCResponse", async (message) => {
+	pubsubHandler.subscribe("RPCResponse", async (message) => {
 		// This response is not for us
 		if (message.source !== context.service) {
 			return;
 		}
 
-		await sleep(5000);
-
 		pendingMessages[message.id]?.resolve(message.output);
 	});
 
-	const TimeoutMS = 0;
-
+	const TimeoutMS = 30 * 1000;
 	async function rpc<
 		Target extends keyof Omit<RPCs, T>,
 		RPC extends keyof RPCs[Target] & string
@@ -160,7 +145,7 @@ export function initRedis<T extends Service>(context: {
 		input: Parameters<ServiceRPCs<Target>[RPC]>[0]
 	): Promise<ReturnType<ServiceRPCs<Target>[RPC]>> {
 		const id = getNextId();
-		redisHandler.publish("RPCRequest", {
+		pubsubHandler.publish("RPCRequest", {
 			id,
 			rpc,
 			source: service,
@@ -184,5 +169,5 @@ export function initRedis<T extends Service>(context: {
 		return promise as Promise<ReturnType<ServiceRPCs<Target>[RPC]>>;
 	}
 
-	return { client: publisherClient, pubsub: redisHandler, rpc };
+	return { client: publisherClient, pubsub: pubsubHandler, rpc };
 }

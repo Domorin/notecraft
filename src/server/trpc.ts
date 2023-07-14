@@ -32,8 +32,6 @@ export const authedProcedure = t.procedure.use(
 		const result = await redis.rpc("Ws", "GetHost", { slug: "test" });
 
 		if (!userId && "setHeader" in ctx.api.res) {
-			console.log("creating user");
-
 			const user = await prisma.user.create({
 				data: {},
 			});

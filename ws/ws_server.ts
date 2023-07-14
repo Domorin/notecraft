@@ -3,7 +3,8 @@
 import { WebSocketServer, WebSocket } from "ws";
 import http from "http";
 import * as map from "lib0/map";
-import { RedisChannelType, initRedis } from "../redis/redis";
+import { RedisChannelType, initRedis } from "../common/redis/redis";
+import { logger } from "../common/logging/log";
 
 type Message =
 	| {
@@ -52,6 +53,12 @@ async function createWsServer() {
 		response.end("okay");
 	});
 
+	/**
+	 * Map froms topic-name to set of subscribed clients.
+	 * @type {Map<string, Set<any>>}
+	 */
+	const allTopics = new Map<string, Set<WebSocket>>();
+
 	const redis = initRedis({
 		service: "Ws",
 		rpcHandler: {
@@ -63,12 +70,6 @@ async function createWsServer() {
 			},
 		},
 	});
-
-	/**
-	 * Map froms topic-name to set of subscribed clients.
-	 * @type {Map<string, Set<any>>}
-	 */
-	const allTopics = new Map<string, Set<WebSocket>>();
 
 	function broadcast(topicName: string, message: CustomMessage) {
 		const receivers = allTopics.get(topicName);
@@ -200,7 +201,7 @@ async function createWsServer() {
 	});
 	server.listen(port);
 
-	console.log("Signaling server running on localhost:", port);
+	logger.info("Signaling server running on localhost:", port);
 }
 
 createWsServer();

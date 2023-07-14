@@ -4,8 +4,8 @@ import { authedProcedure, procedure, router } from "../trpc";
 import { Words } from "../words/words";
 import { TRPCError } from "@trpc/server";
 import * as Y from "yjs";
-import { encodeYDocContent } from "@/common/ydoc_utils";
 import { redis } from "../redis";
+import { encodeYDocContent } from "@/lib/ydoc_utils";
 
 export const noteRouter = router({
 	create: authedProcedure.mutation(async ({ input, ctx: { userId } }) => {

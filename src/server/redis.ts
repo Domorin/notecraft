@@ -1,4 +1,4 @@
-import { initRedis } from "../../redis/redis";
+import { initRedis } from "../../common/redis/redis";
 
 export const redis = initRedis({
 	service: "App",

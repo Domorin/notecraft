@@ -37,7 +37,6 @@ export function TextInput(props: {
 					setConnections(m.activeConnections);
 					break;
 				case "noteMetadataUpdate":
-					console.log("noteMetadataUpdate", m);
 					setNoteMetadata({
 						createdAt: m.createdAt,
 						updatedAt: m.updatedAt,
