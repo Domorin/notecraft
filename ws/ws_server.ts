@@ -42,10 +42,10 @@ const send = (conn: WebSocket, message: Message) => {
 	}
 };
 
+const pingTimeout = 5000;
+
 async function createWsServer() {
 	const wss = new WebSocketServer({ noServer: true });
-
-	const pingTimeout = 30000;
 
 	const port = 4444;
 
