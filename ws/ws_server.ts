@@ -6,11 +6,40 @@ import * as map from "lib0/map";
 import { RedisChannelType, initRedis } from "../common/redis/redis";
 import { logger } from "../common/logging/log";
 import * as cookie from "cookie";
+import { getUsername } from "./usernames";
+
+const adjectives = [
+	"funny",
+	"beautiful",
+	"amazing",
+	"daring",
+	"crazy",
+	"curious",
+	"ugly",
+	"silly",
+	"smart",
+	"dumb",
+	"hesitant",
+];
+
+const nouns = [
+	"cat",
+	"dog",
+	"giraffe",
+	"gorilla",
+	"elephant",
+	"bird",
+	"fish",
+	"mouse",
+	"tiger",
+	"bear",
+	"firetruck",
+];
 
 type Message =
 	| {
 			type: "subscribe" | "unsubscribe";
-			topics: string[];
+			topics: [string];
 	  }
 	| { type: "publish"; topic: string; clients: number }
 	| { type: "ping" }
@@ -21,7 +50,12 @@ export type CustomMessage =
 	| { type: "connectionMetadata"; activeConnections: number }
 	| ({
 			type: "noteMetadataUpdate";
-	  } & RedisChannelType["NoteMetadataUpdate"]);
+	  } & RedisChannelType["NoteMetadataUpdate"])
+	| {
+			type: "createUser";
+			name: string;
+			color: string;
+	  };
 
 const wsReadyStateConnecting = 0;
 const wsReadyStateOpen = 1;
@@ -42,6 +76,10 @@ const send = (conn: WebSocket, message: Message) => {
 	}
 };
 
+type WebsocketUser = { socket: WebSocket; userId: string; userName: string };
+
+type AllTopicsStore = Map<string, Map<string, WebsocketUser>>;
+
 const pingTimeout = 5000;
 
 async function createWsServer() {
@@ -54,12 +92,7 @@ async function createWsServer() {
 		response.end("okay");
 	});
 
-	/**
-	 * Map froms topic-name to set of subscribed clients.
-	 * @type {Map<string, Set<any>>}
-	 */
-	const allTopics = new Map<string, Set<WebSocket>>();
-	const webSocketToUserId = new Map<WebSocket, string>();
+	const allTopics: AllTopicsStore = new Map();
 
 	const redis = initRedis({
 		service: "Ws",
@@ -72,8 +105,7 @@ async function createWsServer() {
 						`No connections found for room ${message.slug}`
 					);
 				}
-				const [hostConnection] = connections;
-				const hostId = webSocketToUserId.get(hostConnection);
+				const [hostId] = connections.keys();
 
 				if (!hostId) {
 					throw new Error(`No host found for room ${message.slug}`);
@@ -89,7 +121,7 @@ async function createWsServer() {
 	function broadcast(topicName: string, message: CustomMessage) {
 		const receivers = allTopics.get(topicName);
 		if (receivers) {
-			receivers.forEach((receiver) => send(receiver, message));
+			receivers.forEach((receiver) => send(receiver.socket, message));
 		}
 	}
 
@@ -102,8 +134,7 @@ async function createWsServer() {
 	});
 
 	const onConnection = (conn: WebSocket, userId: string) => {
-		const subscribedTopicsForUser = new Set<string>();
-		webSocketToUserId.set(conn, userId);
+		const subscribedTopicsForThisConn = new Set<string>();
 
 		let closed = false;
 		// Check if connection is still alive
@@ -126,10 +157,13 @@ async function createWsServer() {
 			pongReceived = true;
 		});
 		conn.on("close", () => {
-			subscribedTopicsForUser.forEach((topicName) => {
-				const subs = allTopics.get(topicName) || new Set();
+			console.log("closing connection!", userId);
+			subscribedTopicsForThisConn.forEach((topicName) => {
+				const subs =
+					allTopics.get(topicName) ||
+					(new Map() as Map<string, WebsocketUser>);
 
-				subs.delete(conn);
+				subs.delete(userId);
 				if (subs.size === 0) {
 					allTopics.delete(topicName);
 				}
@@ -139,7 +173,7 @@ async function createWsServer() {
 					activeConnections: subs.size,
 				});
 			});
-			subscribedTopicsForUser.clear();
+			subscribedTopicsForThisConn.clear();
 			closed = true;
 		});
 		conn.on("message", (message: object) => {
@@ -153,40 +187,65 @@ async function createWsServer() {
 
 			if (parsedMessage && parsedMessage.type && !closed) {
 				switch (parsedMessage.type) {
-					case "subscribe":
-						(parsedMessage.topics || []).forEach((topicName) => {
-							if (typeof topicName === "string") {
-								// add conn to topic
-								const topic = map.setIfUndefined(
-									allTopics,
-									topicName,
-									() => new Set()
-								);
-								topic.add(conn);
+					case "subscribe": {
+						const topicName = parsedMessage.topics[0];
+						if (topicName && typeof topicName === "string") {
+							// add conn to topic
+							let topic = allTopics.get(topicName);
+							if (!topic) {
+								topic = new Map();
+								allTopics.set(topicName, topic);
+							}
 
-								broadcast(topicName, {
-									type: "connectionMetadata",
-									activeConnections: topic.size,
+							const existingNames = [...topic.values()]
+								.filter((val) => val.userId !== userId)
+								.map((val) => {
+									return val.userName;
 								});
 
-								// add topic to conn
-								subscribedTopicsForUser.add(topicName);
-							}
-						});
-						break;
-					case "unsubscribe":
-						(parsedMessage.topics || []).forEach((topicName) => {
-							const subs = allTopics.get(topicName);
-							if (subs) {
-								subs.delete(conn);
+							const name = getUsername(existingNames);
+							topic.set(userId, {
+								socket: conn,
+								userId,
+								userName: name,
+							});
 
-								broadcast(topicName, {
-									type: "connectionMetadata",
-									activeConnections: subs.size,
-								});
-							}
-						});
+							broadcast(topicName, {
+								type: "connectionMetadata",
+								activeConnections: topic.size,
+							});
+
+							send(conn, {
+								type: "createUser",
+								name,
+								color: "#ff0000",
+							});
+
+							// add topic to conn
+							subscribedTopicsForThisConn.add(topicName);
+						}
 						break;
+					}
+					case "unsubscribe": {
+						{
+							const topicName = parsedMessage.topics[0];
+							if (topicName) {
+								const subs = allTopics.get(topicName);
+								if (subs) {
+									subs.delete(userId);
+									subscribedTopicsForThisConn.delete(
+										topicName
+									);
+
+									broadcast(topicName, {
+										type: "connectionMetadata",
+										activeConnections: subs.size,
+									});
+								}
+							}
+							break;
+						}
+					}
 					case "publish":
 						if (parsedMessage.topic) {
 							const receivers = allTopics.get(
@@ -195,7 +254,7 @@ async function createWsServer() {
 							if (receivers) {
 								parsedMessage.clients = receivers.size;
 								receivers.forEach((receiver) =>
-									send(receiver, parsedMessage)
+									send(receiver.socket, parsedMessage)
 								);
 							}
 						}

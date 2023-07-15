@@ -1,6 +1,6 @@
 import type { CustomMessage } from "../../../../ws/ws_server";
 import { Remirror, useRemirror } from "@remirror/react";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { YjsExtension } from "remirror/extensions";
 import "remirror/styles/all.css";
 import { WebrtcProvider } from "y-webrtc";
@@ -8,6 +8,8 @@ import * as Y from "yjs";
 import { Spinner } from "./spinner";
 import { RouterOutput } from "@/server/routers/_app";
 import { useUpdateMetadata } from "../hooks/trpc/use_set_note_metadata";
+import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 
 // https://remirror.io/docs/extensions/yjs-extension/
 
@@ -25,6 +27,7 @@ export function TextInput(props: {
 	const setNoteMetadata = useUpdateMetadata(props.slug);
 
 	useEffect(() => {
+		console.log("new provider!");
 		const provider = new WebrtcProvider(props.slug, props.doc, {
 			signaling: ["ws://localhost:4444"], // TODO: get from environment
 		});
@@ -33,6 +36,12 @@ export function TextInput(props: {
 
 		signalingConn.on("message", (m: CustomMessage) => {
 			switch (m.type) {
+				case "createUser":
+					provider.awareness.setLocalStateField("user", {
+						name: m.name,
+						color: m.color,
+					});
+					break;
 				case "connectionMetadata":
 					setConnections(m.activeConnections);
 					break;
@@ -82,21 +91,29 @@ function TextInputWithProvider(props: {
 				cursorBuilder: (user) => {
 					const cursor = document.createElement("span");
 					cursor.classList.add("ProseMirror-yjs-cursor");
-					cursor.setAttribute("style", `border-color: ${user.color}`);
-					const userDiv = document.createElement("div");
-					userDiv.setAttribute(
-						"style",
-						`background-color: ${user.color}`
-					);
-					userDiv.insertBefore(
-						document.createTextNode(user.name + "blargh!"),
-						null
-					);
-					const nonbreakingSpace1 = document.createTextNode("\u2060");
-					const nonbreakingSpace2 = document.createTextNode("\u2060");
-					cursor.insertBefore(nonbreakingSpace1, null);
+					// cursor.setAttribute("style", `border-color: "transparent"`);
+					const userDiv = document.createElement("span");
+					// userDiv.setAttribute(
+					// 	"style",
+					// 	`background-color: ${user.color}`
+					// );
+					// userDiv.insertBefore(
+					// 	document.createTextNode(user.name + "blargh!"),
+					// 	null
+					// );
+					// const nonbreakingSpace1 = document.createTextNode("\u2060");
+					// const nonbreakingSpace2 = document.createTextNode("\u2060");
+					// cursor.insertBefore(nonbreakingSpace1, null);
 					cursor.insertBefore(userDiv, null);
-					cursor.insertBefore(nonbreakingSpace2, null);
+
+					const root = createRoot(userDiv);
+					root.render(<Cursor color={user.color} name={user.name} />);
+
+					// const thing = ReactDOM.render(
+					// 	<Cursor color={user.color} name={user.name} />,
+					// 	userDiv
+					// );
+
 					return cursor;
 				},
 			}),
@@ -125,6 +142,21 @@ function TextInputWithProvider(props: {
 				}}
 				classNames={["h-full w-full self-stretch"]}
 			/>
+		</div>
+	);
+}
+
+function Cursor(props: { name: string; color: string }) {
+	return (
+		<div className="pointer-events-none absolute">
+			<div className="relative top-4 text-xs">
+				<div
+					className="rounded-box whitespace-nowrap px-2 py-1"
+					style={{ backgroundColor: props.color }}
+				>
+					{props.name}
+				</div>
+			</div>
 		</div>
 	);
 }
