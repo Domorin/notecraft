@@ -1,5 +1,5 @@
 import type { CustomMessage } from "../../../../ws/ws_server";
-import { Remirror, useRemirror } from "@remirror/react";
+import { I18nProvider, Remirror, useRemirror } from "@remirror/react";
 import React, { useEffect, useState } from "react";
 import { YjsExtension } from "remirror/extensions";
 import "remirror/styles/all.css";
@@ -73,8 +73,88 @@ export function TextInput(props: {
 			<div className="flex gap-2">
 				<div>{provider.connected ? "Connected" : "Not Connected"}</div>
 				<div>Connections: {connections}</div>
+				<div className="ml-auto">
+					<Presences provider={provider} />
+				</div>
 			</div>
 			<TextInputWithProvider {...props} provider={provider} />
+		</div>
+	);
+}
+
+type User = {
+	name: string;
+	color: string;
+};
+
+type AwarenessState = { user?: User };
+
+function Presences(props: { provider: WebrtcProvider }) {
+	const [states, setStates] = useState([
+		...props.provider.awareness.getStates().values(),
+	] as AwarenessState[]);
+
+	useEffect(() => {
+		props.provider.awareness.on("change", () => {
+			setStates([
+				...props.provider.awareness.getStates().values(),
+			] as AwarenessState[]);
+		});
+	});
+
+	return (
+		<div className="avatar-group -space-x-3">
+			{states
+				.filter((val) => "user" in val)
+				.map((val) => (
+					<Presence key={val.user?.name} user={val.user as User} />
+				))}
+		</div>
+	);
+}
+
+function Presence(props: { user: User }) {
+	const letters = props.user.name.split(" ").map((val) => val[0]);
+
+	// TODO: add tooltip
+	return (
+		<div className="placeholder avatar border-2 border-neutral-focus">
+			<div className="w-8" style={{ backgroundColor: props.user.color }}>
+				<span className="text-sm font-bold">{letters.join("")}</span>
+			</div>
+		</div>
+	);
+
+	// <div className="avatar-group -space-x-6">
+	// 	<div className="avatar">
+	// 		<div className="w-12">
+	// 			<img src="/images/stock/photo-1534528741775-53994a69daeb.jpg" />
+	// 		</div>
+	// 	</div>
+	// 	<div className="avatar">
+	// 		<div className="w-12">
+	// 			<img src="/images/stock/photo-1534528741775-53994a69daeb.jpg" />
+	// 		</div>
+	// 	</div>
+	// 	<div className="avatar">
+	// 		<div className="w-12">
+	// 			<img src="/images/stock/photo-1534528741775-53994a69daeb.jpg" />
+	// 		</div>
+	// 	</div>
+	// 	<div className="placeholder avatar">
+	// 		<div className="w-12 bg-neutral-focus text-neutral-content">
+	// 			<span>+99</span>
+	// 		</div>
+	// 	</div>
+	// </div>;
+
+	return (
+		<div className="flex items-center gap-2">
+			<div
+				className="h-2 w-2 rounded-full border border-primary-content"
+				style={{ backgroundColor: props.user.color }}
+			></div>
+			<div>{props.user.name}</div>
 		</div>
 	);
 }
@@ -91,28 +171,13 @@ function TextInputWithProvider(props: {
 				cursorBuilder: (user) => {
 					const cursor = document.createElement("span");
 					cursor.classList.add("ProseMirror-yjs-cursor");
-					// cursor.setAttribute("style", `border-color: "transparent"`);
+					cursor.style.borderColor = user.color;
 					const userDiv = document.createElement("span");
-					// userDiv.setAttribute(
-					// 	"style",
-					// 	`background-color: ${user.color}`
-					// );
-					// userDiv.insertBefore(
-					// 	document.createTextNode(user.name + "blargh!"),
-					// 	null
-					// );
-					// const nonbreakingSpace1 = document.createTextNode("\u2060");
-					// const nonbreakingSpace2 = document.createTextNode("\u2060");
-					// cursor.insertBefore(nonbreakingSpace1, null);
+
 					cursor.insertBefore(userDiv, null);
 
 					const root = createRoot(userDiv);
 					root.render(<Cursor color={user.color} name={user.name} />);
-
-					// const thing = ReactDOM.render(
-					// 	<Cursor color={user.color} name={user.name} />,
-					// 	userDiv
-					// );
 
 					return cursor;
 				},
@@ -150,11 +215,12 @@ function Cursor(props: { name: string; color: string }) {
 	return (
 		<div className="pointer-events-none absolute">
 			<div className="relative top-4 text-xs">
-				<div
-					className="rounded-box whitespace-nowrap px-2 py-1"
-					style={{ backgroundColor: props.color }}
-				>
-					{props.name}
+				<div className="rounded-box flex items-center gap-1 whitespace-nowrap bg-primary px-2 py-1 text-primary-content opacity-75	">
+					<div
+						className="h-2 w-2 rounded-full border border-primary-content"
+						style={{ backgroundColor: props.color }}
+					></div>
+					<div>{props.name}</div>
 				</div>
 			</div>
 		</div>
