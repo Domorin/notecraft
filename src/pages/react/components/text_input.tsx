@@ -103,7 +103,7 @@ function Presences(props: { provider: WebrtcProvider }) {
 	});
 
 	return (
-		<div className="avatar-group -space-x-3">
+		<div className="avatar-group -space-x-3 overflow-visible">
 			{states
 				.filter((val) => "user" in val)
 				.map((val) => (
@@ -116,10 +116,16 @@ function Presences(props: { provider: WebrtcProvider }) {
 function Presence(props: { user: User }) {
 	const letters = props.user.name.split(" ").map((val) => val[0]);
 
-	// TODO: add tooltip
+	// TODO: fix colors
 	return (
-		<div className="placeholder avatar border-2 border-neutral-focus">
-			<div className="w-8" style={{ backgroundColor: props.user.color }}>
+		<div
+			className="placeholder avatar tooltip overflow-visible border-2 border-neutral-focus"
+			data-tip={props.user.name}
+		>
+			<div
+				className="w-8 overflow-hidden rounded-full"
+				style={{ backgroundColor: props.user.color }}
+			>
 				<span className="text-sm font-bold">{letters.join("")}</span>
 			</div>
 		</div>

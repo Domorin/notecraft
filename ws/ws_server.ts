@@ -226,12 +226,6 @@ async function createWsServer() {
 								activeConnections: topicUserMap.size,
 							});
 
-							console.log(
-								colorPalette[
-									topic.connCount % colorPalette.length
-								]
-							);
-
 							send(conn, {
 								type: "createUser",
 								name,
