@@ -26,6 +26,7 @@ export function TextInput(props: {
 
 	const setNoteMetadata = useUpdateMetadata(props.slug);
 
+
 	useEffect(() => {
 		console.log("new provider!");
 		const provider = new WebrtcProvider(props.slug, props.doc, {
@@ -130,39 +131,6 @@ function Presence(props: { user: User }) {
 			</div>
 		</div>
 	);
-
-	// <div className="avatar-group -space-x-6">
-	// 	<div className="avatar">
-	// 		<div className="w-12">
-	// 			<img src="/images/stock/photo-1534528741775-53994a69daeb.jpg" />
-	// 		</div>
-	// 	</div>
-	// 	<div className="avatar">
-	// 		<div className="w-12">
-	// 			<img src="/images/stock/photo-1534528741775-53994a69daeb.jpg" />
-	// 		</div>
-	// 	</div>
-	// 	<div className="avatar">
-	// 		<div className="w-12">
-	// 			<img src="/images/stock/photo-1534528741775-53994a69daeb.jpg" />
-	// 		</div>
-	// 	</div>
-	// 	<div className="placeholder avatar">
-	// 		<div className="w-12 bg-neutral-focus text-neutral-content">
-	// 			<span>+99</span>
-	// 		</div>
-	// 	</div>
-	// </div>;
-
-	return (
-		<div className="flex items-center gap-2">
-			<div
-				className="h-2 w-2 rounded-full border border-primary-content"
-				style={{ backgroundColor: props.user.color }}
-			></div>
-			<div>{props.user.name}</div>
-		</div>
-	);
 }
 
 function TextInputWithProvider(props: {
@@ -221,7 +189,7 @@ function Cursor(props: { name: string; color: string }) {
 	return (
 		<div className="pointer-events-none absolute">
 			<div className="relative top-4 text-xs">
-				<div className="rounded-box flex items-center gap-1 whitespace-nowrap bg-primary px-2 py-1 text-primary-content opacity-75	">
+				<div className="rounded-box flex items-center gap-1 whitespace-nowrap bg-primary px-2 py-1 text-primary-content opacity-90">
 					<div
 						className="h-2 w-2 rounded-full border border-primary-content"
 						style={{ backgroundColor: props.color }}
