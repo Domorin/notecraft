@@ -64,6 +64,7 @@
 		"daisyui": "^3.1.6",
 		"prettier": "^2.8.8",
 		"prettier-plugin-tailwindcss": "^0.3.0",
-		"prisma": "^4.16.1"
+		"prisma": "^4.16.1",
+		"tsx": "^3.12.7"
 	}
 }

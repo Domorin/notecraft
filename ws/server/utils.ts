@@ -5,6 +5,8 @@ import * as awarenessProtocol from "y-protocols/awareness.js";
 import * as lib0 from "lib0";
 import debounce from "lodash.debounce";
 import { callbackHandler, isCallbackSet } from "./callback";
+import { WebSocket } from "ws";
+import { IncomingMessage } from "http";
 
 const encoding = lib0.encoding;
 const decoding = lib0.decoding;
@@ -46,7 +48,7 @@ export class WSSharedDoc extends Y.Doc {
 	/**
 	 * Maps from conn to set of controlled user ids. Delete all user ids from awareness when this conn is closed
 	 */
-	conns: Map<Object, Set<number>>;
+	conns: Map<WebSocket, Set<number>>;
 	name: string;
 	awareness: awarenessProtocol.Awareness;
 	constructor(name: string) {
@@ -57,10 +59,16 @@ export class WSSharedDoc extends Y.Doc {
 		this.awareness = new awarenessProtocol.Awareness(this);
 		this.awareness.setLocalState(null);
 
+		this.awareness.setLocalStateField("user", {
+			name: "hello",
+			color: "#ffffff",
+		});
+
 		/**
 		 * @param changes
 		 * @param conn Origin is the connection that made the change
 		 */
+
 		const awarenessChangeHandler = (
 			{
 				added,
@@ -71,12 +79,11 @@ export class WSSharedDoc extends Y.Doc {
 				updated: Array<number>;
 				removed: Array<number>;
 			},
-			conn: object | null
+			conn: WebSocket | null
 		) => {
 			const changedClients = added.concat(updated, removed);
 			if (conn !== null) {
-				const connControlledIDs =
-					/** @type {Set<number>} */ this.conns.get(conn);
+				const connControlledIDs = this.conns.get(conn);
 				if (connControlledIDs !== undefined) {
 					added.forEach((clientID) => {
 						connControlledIDs.add(clientID);
@@ -85,6 +92,13 @@ export class WSSharedDoc extends Y.Doc {
 						connControlledIDs.delete(clientID);
 					});
 				}
+			}
+			const awarenessStates = this.awareness.getStates();
+
+			for (const val of [...awarenessStates.values()]) {
+				val.user = {
+					name: "test",
+				};
 			}
 			// broadcast awareness update
 			const encoder = encoding.createEncoder();
@@ -97,6 +111,7 @@ export class WSSharedDoc extends Y.Doc {
 				)
 			);
 			const buff = encoding.toUint8Array(encoder);
+
 			this.conns.forEach((_, c) => {
 				send(this, c, buff);
 			});
@@ -128,7 +143,11 @@ export const getYDoc = (docname: string, gc: boolean = true): WSSharedDoc =>
 		return doc;
 	});
 
-const messageListener = (conn: any, doc: WSSharedDoc, message: Uint8Array) => {
+const messageListener = (
+	conn: WebSocket,
+	doc: WSSharedDoc,
+	message: Uint8Array
+) => {
 	try {
 		const encoder = encoding.createEncoder();
 		const decoder = decoding.createDecoder(message);
@@ -160,7 +179,7 @@ const messageListener = (conn: any, doc: WSSharedDoc, message: Uint8Array) => {
 	}
 };
 
-const closeConn = (doc: WSSharedDoc, conn: any) => {
+const closeConn = (doc: WSSharedDoc, conn: WebSocket) => {
 	if (doc.conns.has(conn)) {
 		const controlledIds = doc.conns.get(conn);
 
@@ -178,7 +197,7 @@ const closeConn = (doc: WSSharedDoc, conn: any) => {
 	conn.close();
 };
 
-const send = (doc: WSSharedDoc, conn: any, m: Uint8Array) => {
+const send = (doc: WSSharedDoc, conn: WebSocket, m: Uint8Array) => {
 	if (
 		conn.readyState !== wsReadyStateConnecting &&
 		conn.readyState !== wsReadyStateOpen
@@ -194,12 +213,12 @@ const send = (doc: WSSharedDoc, conn: any, m: Uint8Array) => {
 	}
 };
 
-const pingTimeout = 30000;
+const pingTimeout = 5000;
 
 export const setupWSConnection = (
-	conn: any,
-	req: any,
-	{ docName = req.url.slice(1).split("?")[0], gc = true }: any = {}
+	conn: WebSocket,
+	req: IncomingMessage,
+	{ docName = req.url?.slice(1).split("?")[0], gc = true }: any = {}
 ) => {
 	console.log("setting up WS connection");
 
@@ -246,6 +265,13 @@ export const setupWSConnection = (
 		syncProtocol.writeSyncStep1(encoder, doc);
 		send(doc, conn, encoding.toUint8Array(encoder));
 		const awarenessStates = doc.awareness.getStates();
+
+		for (const val of [...awarenessStates.values()]) {
+			val.user = {
+				name: "test",
+			};
+		}
+
 		if (awarenessStates.size > 0) {
 			const encoder = encoding.createEncoder();
 			encoding.writeVarUint(encoder, messageAwareness);
@@ -256,6 +282,8 @@ export const setupWSConnection = (
 					Array.from(awarenessStates.keys())
 				)
 			);
+
+			console.log("sendingAwarenessUpdate", awarenessStates);
 			send(doc, conn, encoding.toUint8Array(encoder));
 		}
 	}

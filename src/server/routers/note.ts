@@ -17,7 +17,16 @@ export const noteRouter = router({
 			data: {
 				slug,
 				content: Buffer.from(encodeYDocContent(ydoc)),
-				creatorId: userId,
+				creator: {
+					connectOrCreate: {
+						create: {
+							id: userId,
+						},
+						where: {
+							id: userId,
+						},
+					},
+				},
 			},
 		});
 		return page;
