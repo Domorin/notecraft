@@ -62,7 +62,7 @@ function NoteWithContent(props: { noteContent: Buffer; slug: string }) {
 				debouncedSaveContent(saveMutation, slug, doc);
 			}
 		);
-	}, []);
+	}, [saveMutation, slug]);
 
 	return (
 		<div className="flex h-full flex-col">

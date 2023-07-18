@@ -10,6 +10,7 @@ import { RouterOutput } from "@/server/routers/_app";
 import { useUpdateMetadata } from "../hooks/trpc/use_set_note_metadata";
 import ReactDOM from "react-dom";
 import { createRoot } from "react-dom/client";
+import { WebsocketProvider } from "y-websocket";
 
 // https://remirror.io/docs/extensions/yjs-extension/
 
@@ -18,7 +19,7 @@ export function TextInput(props: {
 	doc: Y.Doc;
 	setContent: (content: string) => void;
 }) {
-	const [provider, setProvider] = useState<WebrtcProvider | undefined>(
+	const [provider, setProvider] = useState<WebsocketProvider | undefined>(
 		undefined
 	);
 
@@ -26,44 +27,44 @@ export function TextInput(props: {
 
 	const setNoteMetadata = useUpdateMetadata(props.slug);
 
-
 	useEffect(() => {
 		console.log("new provider!");
-		const provider = new WebrtcProvider(props.slug, props.doc, {
-			signaling: ["ws://localhost:4444"], // TODO: get from environment
-		});
-
-		const signalingConn = provider.signalingConns[0];
-
-		signalingConn.on("message", (m: CustomMessage) => {
-			switch (m.type) {
-				case "createUser":
-					provider.awareness.setLocalStateField("user", {
-						name: m.name,
-						color: m.color,
-					});
-					break;
-				case "connectionMetadata":
-					setConnections(m.activeConnections);
-					break;
-				case "noteMetadataUpdate":
-					setNoteMetadata({
-						createdAt: m.createdAt,
-						updatedAt: m.updatedAt,
-						viewedAt: m.viewedAt,
-						views: m.views,
-					});
-					break;
-			}
-		});
-
+		const provider = new WebsocketProvider("ws://localhost:4444", props.slug, props.doc);
 		setProvider(provider);
+
+
+
+		// const signalingConn = provider.signalingConns[0];
+
+		// signalingConn.on("message", (m: CustomMessage) => {
+		// 	switch (m.type) {
+		// 		case "createUser":
+		// 			provider.awareness.setLocalStateField("user", {
+		// 				name: m.name,
+		// 				color: m.color,
+		// 			});
+		// 			break;
+		// 		case "connectionMetadata":
+		// 			setConnections(m.activeConnections);
+		// 			break;
+		// 		case "noteMetadataUpdate":
+		// 			setNoteMetadata({
+		// 				createdAt: m.createdAt,
+		// 				updatedAt: m.updatedAt,
+		// 				viewedAt: m.viewedAt,
+		// 				views: m.views,
+		// 			});
+		// 			break;
+		// 	}
+		// });
+
 
 		return () => {
 			props.doc.destroy();
 			provider?.destroy();
 		};
-	}, [props.slug]);
+	}, [props.doc, props.slug]);
+
 
 	if (!provider) {
 		return <Spinner />;
@@ -72,7 +73,6 @@ export function TextInput(props: {
 	return (
 		<div className="flex flex-col">
 			<div className="flex gap-2">
-				<div>{provider.connected ? "Connected" : "Not Connected"}</div>
 				<div>Connections: {connections}</div>
 				<div className="ml-auto">
 					<Presences provider={provider} />
@@ -90,7 +90,7 @@ type User = {
 
 type AwarenessState = { user?: User };
 
-function Presences(props: { provider: WebrtcProvider }) {
+function Presences(props: { provider: WebsocketProvider }) {
 	const [states, setStates] = useState([
 		...props.provider.awareness.getStates().values(),
 	] as AwarenessState[]);
@@ -136,7 +136,7 @@ function Presence(props: { user: User }) {
 function TextInputWithProvider(props: {
 	slug: string;
 	setContent: (content: string) => void;
-	provider: WebrtcProvider;
+	provider: WebsocketProvider;
 }) {
 	const { manager, state } = useRemirror({
 		extensions: () => [
