@@ -96,8 +96,8 @@ export function initRedis<T extends Service>(context: {
 			callback: (message: RedisChannelType[Channel]) => void
 		) => {
 			await subscriberConnectPromise;
-
 			const redis = subscriberClient;
+
 			redis.subscribe(channel, (message) => {
 				const parsedMessage = JSON.parse(
 					message

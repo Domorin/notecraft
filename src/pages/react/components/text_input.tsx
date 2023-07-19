@@ -1,18 +1,18 @@
-import type { CustomMessage } from "../../../../ws/ws_server";
 import { I18nProvider, Remirror, useRemirror } from "@remirror/react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { YjsExtension } from "remirror/extensions";
 import "remirror/styles/all.css";
 import { WebrtcProvider } from "y-webrtc";
 import * as Y from "yjs";
 import { Spinner } from "./spinner";
 import { RouterOutput } from "@/server/routers/_app";
-import { useUpdateMetadata } from "../hooks/trpc/use_set_note_metadata";
+import { useUpdateMetadata } from "../hooks/trpc/use_update_metadata";
 import ReactDOM from "react-dom";
 import { createRoot } from "react-dom/client";
 import { WebsocketProvider } from "y-websocket";
 import { CustomAwareness } from "../../../../common/yjs/custom_awareness";
 import { CustomProvider } from "../../../../common/yjs/custom_provider";
+import type { CustomMessage, UserPresence } from "../../../../ws/server/types";
 
 // https://remirror.io/docs/extensions/yjs-extension/
 
@@ -24,43 +24,30 @@ export function TextInput(props: {
 	const [provider, setProvider] = useState<CustomProvider | undefined>(
 		undefined
 	);
-
-	const [connections, setConnections] = useState(0);
-
+	const [presences, setPresences] = useState([] as UserPresence[]);
+	const setNoteMetadata = useUpdateMetadata(props.slug);
 
 	useEffect(() => {
 		const provider = new CustomProvider("ws://localhost:4444", props.slug, props.doc, {
-			disableBc: true
+			disableBc: true,
+			customMessageHandler: (m: CustomMessage) => {
+				switch (m.type) {
+					case "presencesUpdated":
+						setPresences(m.users);
+						break;
+					case "noteMetadataUpdate":
+						setNoteMetadata({
+							createdAt: m.createdAt,
+							updatedAt: m.updatedAt,
+							viewedAt: m.viewedAt,
+							views: m.views,
+						});
+						break;
+				}
+			}
+
 		});
 		setProvider(provider);
-
-
-
-		// provider.ws?.addEventListener("message", (ev: MessageEvent<any>) => {
-		// 	console.log(ev);
-		// 	// switch (m.type) {
-		// 	// 	case "createUser":
-		// 	// 		provider.awareness.setLocalStateField("user", {
-		// 	// 			name: m.name,
-		// 	// 			color: m.color,
-		// 	// 		});
-		// 	// 		break;
-		// 	// 	case "connectionMetadata":
-		// 	// 		setConnections(m.activeConnections);
-		// 	// 		break;
-		// 	// 	case "noteMetadataUpdate":
-		// 	// 		setNoteMetadata({
-		// 	// 			createdAt: m.createdAt,
-		// 	// 			updatedAt: m.updatedAt,
-		// 	// 			viewedAt: m.viewedAt,
-		// 	// 			views: m.views,
-		// 	// 		});
-		// 	// 		break;
-		// 	// }
-		// }, undefined);
-
-
-
 
 
 		return () => {
@@ -74,51 +61,33 @@ export function TextInput(props: {
 		return <Spinner />;
 	}
 
+
 	return (
 		<div className="flex flex-col">
 			<div className="flex gap-2">
-				<div>Connections: {connections}</div>
 				<div className="ml-auto">
-					<Presences provider={provider} />
+					<Presences presences={presences} />
 				</div>
 			</div>
-			<TextInputWithProvider {...props} provider={provider} />
+			<TextInputWithProvider {...props} provider={provider} presences={presences} />
 		</div>
 	);
 }
 
-type User = {
-	name: string;
-	color: string;
-};
 
-type AwarenessState = { user?: User };
 
-function Presences(props: { provider: CustomProvider }) {
-	const [states, setStates] = useState([
-		...props.provider.awareness.getStates().values(),
-	] as AwarenessState[]);
-
-	useEffect(() => {
-		props.provider.awareness.on("change", (val) => {
-			setStates([
-				...props.provider.awareness.getStates().values(),
-			] as AwarenessState[]);
-		});
-	});
+function Presences(props: { presences: UserPresence[] }) {
 
 	return (
 		<div className="avatar-group -space-x-3 overflow-visible">
-			{states
-				.filter((val) => "user" in val)
-				.map((val) => (
-					<Presence key={val.user?.name} user={val.user as User} />
-				))}
+			{props.presences.map((val) => (
+				<Presence key={val.name} user={val} />
+			))}
 		</div>
 	);
 }
 
-function Presence(props: { user: User }) {
+function Presence(props: { user: UserPresence }) {
 	const letters = props.user.name.split(" ").map((val) => val[0]);
 
 	// TODO: fix colors
@@ -141,21 +110,41 @@ function TextInputWithProvider(props: {
 	slug: string;
 	setContent: (content: string) => void;
 	provider: CustomProvider;
+	presences: UserPresence[];
 }) {
+
+	// This needs to be a ref so cursorBuilder gets the correct value
+	const ref = useRef(props.presences);
+
+	if (props.presences !== ref.current) {
+		ref.current = props.presences;
+	}
+
+
 	const { manager, state } = useRemirror({
 		extensions: () => [
 			new YjsExtension({
 				getProvider: () => props.provider,
 				cursorBuilder: (user) => {
+					const presences = ref.current;
+
 					const cursor = document.createElement("span");
+					const userId = user.name.split(" ")[1];
+					const presence = presences.find((val) => val.clientId === Number.parseInt(userId));
+
+					if (!presence) {
+						return cursor;
+					}
+
+
 					cursor.classList.add("ProseMirror-yjs-cursor");
-					cursor.style.borderColor = user.color;
+					cursor.style.borderColor = presence.color;
 					const userDiv = document.createElement("span");
 
 					cursor.insertBefore(userDiv, null);
 
 					const root = createRoot(userDiv);
-					root.render(<Cursor color={user.color} name={user.name} />);
+					root.render(<Cursor color={presence.color} name={presence.name} />);
 
 					return cursor;
 				},
@@ -190,6 +179,8 @@ function TextInputWithProvider(props: {
 }
 
 function Cursor(props: { name: string; color: string }) {
+
+	// TODO: prevent selection of name
 	return (
 		<div className="pointer-events-none absolute">
 			<div className="relative top-4 text-xs">

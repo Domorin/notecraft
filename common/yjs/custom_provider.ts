@@ -20,17 +20,22 @@ import {
 	encodeAwarenessUpdate,
 	CustomAwareness,
 } from "./custom_awareness";
+import type { CustomMessage } from "../../ws/server/types";
 
 export const messageSync = 0;
 export const messageQueryAwareness = 3;
 export const messageAwareness = 1;
 export const messageAuth = 2;
 
-/**
- *                       encoder,          decoder,          provider,          emitSynced, messageType
- * @type {Array<function(encoding.Encoder, decoding.Decoder, CustomProvider, boolean,    number):void>}
- */
-const messageHandlers = [];
+const messageHandlers: Array<
+	(
+		arg0: encoding.Encoder,
+		arg1: decoding.Decoder,
+		arg2: CustomProvider,
+		arg3: boolean,
+		arg4: number
+	) => void
+> = [];
 
 messageHandlers[messageSync] = (
 	encoder,
@@ -101,26 +106,20 @@ messageHandlers[messageAuth] = (
 // @todo - this should depend on awareness.outdatedTime
 const messageReconnectTimeout = 30000;
 
-/**
- * @param {CustomProvider} provider
- * @param {string} reason
- */
-const permissionDeniedHandler = (provider, reason) =>
+const permissionDeniedHandler = (provider: CustomProvider, reason: string) =>
 	console.warn(`Permission denied to access ${provider.url}.\n${reason}`);
 
-/**
- * @param {CustomProvider} provider
- * @param {Uint8Array} buf
- * @param {boolean} emitSynced
- * @return {encoding.Encoder}
- */
-const readMessage = (provider, buf, emitSynced) => {
+const readMessage = (
+	provider: CustomProvider,
+	buf: Uint8Array,
+	emitSynced: boolean
+): encoding.Encoder => {
 	const decoder = decoding.createDecoder(buf);
 	const encoder = encoding.createEncoder();
 	const messageType = decoding.readVarUint(decoder);
 	const messageHandler = provider.messageHandlers[messageType];
 
-	if (/** @type {any} */ (messageHandler)) {
+	if (/** @type {any} */ messageHandler) {
 		messageHandler(encoder, decoder, provider, emitSynced, messageType);
 	} else {
 		console.error("Unable to compute message");
@@ -128,10 +127,16 @@ const readMessage = (provider, buf, emitSynced) => {
 	return encoder;
 };
 
-/**
- * @param {CustomProvider} provider
- */
-const setupWS = (provider) => {
+function tryParseCustomMessage(data: unknown): CustomMessage | undefined {
+	try {
+		const message = JSON.parse(data as string) as CustomMessage;
+		return "type" in message ? message : undefined;
+	} catch (e) {
+		return undefined;
+	}
+}
+
+const setupWS = (provider: CustomProvider) => {
 	if (provider.shouldConnect && provider.ws === null) {
 		const websocket = new provider._WS(provider.url);
 		websocket.binaryType = "arraybuffer";
@@ -141,6 +146,14 @@ const setupWS = (provider) => {
 		provider.synced = false;
 
 		websocket.onmessage = (event) => {
+			if (provider.customMessageHandler) {
+				const customMessage = tryParseCustomMessage(event.data);
+				if (customMessage) {
+					provider.customMessageHandler(customMessage);
+					return;
+				}
+			}
+
 			provider.wsLastMessageReceived = time.getUnixTime();
 			const encoder = readMessage(
 				provider,
@@ -224,11 +237,7 @@ const setupWS = (provider) => {
 	}
 };
 
-/**
- * @param {CustomProvider} provider
- * @param {ArrayBuffer} buf
- */
-const broadcastMessage = (provider, buf) => {
+const broadcastMessage = (provider: CustomProvider, buf: ArrayBuffer) => {
 	const ws = provider.ws;
 	if (provider.wsconnected && ws && ws.readyState === ws.OPEN) {
 		ws.send(buf);
@@ -251,24 +260,74 @@ const broadcastMessage = (provider, buf) => {
  *
  * @extends {Observable<string>}
  */
-export class CustomProvider extends Observable {
+export class CustomProvider extends Observable<string> {
+	maxBackoffTime: number;
+	bcChannel: string;
+	url: string;
+	roomname: string;
+	doc: Y.Doc;
+	_WS: {
+		new (
+			url: string | URL,
+			protocols?: string | string[] | undefined
+		): WebSocket;
+		prototype: WebSocket;
+		readonly CONNECTING: 0;
+		readonly OPEN: 1;
+		readonly CLOSING: 2;
+		readonly CLOSED: 3;
+	};
+	awareness: CustomAwareness;
+	wsconnected: boolean;
+	wsconnecting: boolean;
+	bcconnected: boolean;
+	disableBc: boolean;
+	wsUnsuccessfulReconnects: number;
+	messageHandlers: ((
+		arg0: encoding.Encoder,
+		arg1: decoding.Decoder,
+		arg2: CustomProvider,
+		arg3: boolean,
+		arg4: number
+	) => void)[];
+	_synced: boolean;
+	ws: WebSocket | null;
+	wsLastMessageReceived: number;
+	shouldConnect: boolean;
+	private _resyncInterval: NodeJS.Timer | null;
+	private _bcSubscriber: (
+		data: any,
+		origin: any
+		/* eslint-env browser */
+	) => void;
+	private _updateHandler: (update: Uint8Array, origin: any) => void;
+	private _awarenessUpdateHandler: (
+		{
+			added,
+			updated,
+			removed,
+		}: {
+			added: any;
+			updated: any;
+			removed: any; // eslint-disable-line
+		},
+		_origin: any
+	) => void;
+	private _unloadHandler: () => void;
+	private _checkInterval: NodeJS.Timer;
+
+	customMessageHandler: ((message: CustomMessage) => void) | undefined;
+
 	/**
-	 * @param {string} serverUrl
-	 * @param {string} roomname
-	 * @param {Y.Doc} doc
-	 * @param {object} opts
-	 * @param {boolean} [opts.connect]
-	 * @param {CustomAwareness} [opts.awareness]
-	 * @param {Object<string,string>} [opts.params]
 	 * @param {typeof WebSocket} [opts.WebSocketPolyfill] Optionall provide a WebSocket polyfill
 	 * @param {number} [opts.resyncInterval] Request server state every `resyncInterval` milliseconds
 	 * @param {number} [opts.maxBackoffTime] Maximum amount of time to wait before trying to reconnect (we try to reconnect using exponential backoff)
 	 * @param {boolean} [opts.disableBc] Disable cross-tab BroadcastChannel communication
 	 */
 	constructor(
-		serverUrl,
-		roomname,
-		doc,
+		serverUrl: string,
+		roomname: string,
+		doc: Y.Doc,
 		{
 			connect = true,
 			awareness = new CustomAwareness(doc),
@@ -277,6 +336,16 @@ export class CustomProvider extends Observable {
 			resyncInterval = -1,
 			maxBackoffTime = 2500,
 			disableBc = false,
+			customMessageHandler = undefined,
+		}: {
+			connect?: boolean;
+			awareness?: CustomAwareness;
+			params?: { [s: string]: string };
+			WebSocketPolyfill?: typeof WebSocket;
+			resyncInterval?: number;
+			maxBackoffTime?: number;
+			disableBc?: boolean;
+			customMessageHandler?: (message: CustomMessage) => void;
 		} = {}
 	) {
 		super();
@@ -284,6 +353,8 @@ export class CustomProvider extends Observable {
 		while (serverUrl[serverUrl.length - 1] === "/") {
 			serverUrl = serverUrl.slice(0, serverUrl.length - 1);
 		}
+		this.customMessageHandler = customMessageHandler;
+
 		const encodedParams = url.encodeQueryParams(params);
 		this.maxBackoffTime = maxBackoffTime;
 		this.bcChannel = serverUrl + "/" + roomname;
@@ -302,44 +373,27 @@ export class CustomProvider extends Observable {
 		this.disableBc = disableBc;
 		this.wsUnsuccessfulReconnects = 0;
 		this.messageHandlers = messageHandlers.slice();
-		/**
-		 * @type {boolean}
-		 */
+
 		this._synced = false;
-		/**
-		 * @type {WebSocket?}
-		 */
 		this.ws = null;
 		this.wsLastMessageReceived = 0;
-		/**
-		 * Whether to connect to other peers or not
-		 * @type {boolean}
-		 */
+
 		this.shouldConnect = connect;
 
-		/**
-		 * @type {number}
-		 */
-		this._resyncInterval = 0;
+		this._resyncInterval = null;
 		if (resyncInterval > 0) {
-			this._resyncInterval = /** @type {any} */ (
-				setInterval(() => {
-					if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-						// resend sync step 1
-						const encoder = encoding.createEncoder();
-						encoding.writeVarUint(encoder, messageSync);
-						syncProtocol.writeSyncStep1(encoder, doc);
-						this.ws.send(encoding.toUint8Array(encoder));
-					}
-				}, resyncInterval)
-			);
+			this._resyncInterval = /** @type {any} */ setInterval(() => {
+				if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+					// resend sync step 1
+					const encoder = encoding.createEncoder();
+					encoding.writeVarUint(encoder, messageSync);
+					syncProtocol.writeSyncStep1(encoder, doc);
+					this.ws.send(encoding.toUint8Array(encoder));
+				}
+			}, resyncInterval);
 		}
 
-		/**
-		 * @param {ArrayBuffer} data
-		 * @param {any} origin
-		 */
-		this._bcSubscriber = (data, origin) => {
+		this._bcSubscriber = (data: ArrayBuffer, origin: any) => {
 			if (origin !== this) {
 				const encoder = readMessage(this, new Uint8Array(data), false);
 				if (encoding.length(encoder) > 1) {
@@ -353,10 +407,8 @@ export class CustomProvider extends Observable {
 		};
 		/**
 		 * Listens to Yjs updates and sends them to remote peers (ws and broadcastchannel)
-		 * @param {Uint8Array} update
-		 * @param {any} origin
 		 */
-		this._updateHandler = (update, origin) => {
+		this._updateHandler = (update: Uint8Array, origin: any) => {
 			if (origin !== this) {
 				const encoder = encoding.createEncoder();
 				encoding.writeVarUint(encoder, messageSync);
@@ -365,10 +417,7 @@ export class CustomProvider extends Observable {
 			}
 		};
 		this.doc.on("update", this._updateHandler);
-		/**
-		 * @param {any} changed
-		 * @param {any} _origin
-		 */
+
 		this._awarenessUpdateHandler = (
 			{ added, updated, removed },
 			_origin
@@ -395,19 +444,17 @@ export class CustomProvider extends Observable {
 			process.on("exit", this._unloadHandler);
 		}
 		awareness.on("update", this._awarenessUpdateHandler);
-		this._checkInterval = /** @type {any} */ (
-			setInterval(() => {
-				if (
-					this.wsconnected &&
-					messageReconnectTimeout <
-						time.getUnixTime() - this.wsLastMessageReceived
-				) {
-					// no message received in a long time - not even your own awareness
-					// updates (which are updated every 15 seconds)
-					/** @type {WebSocket} */ (this.ws).close();
-				}
-			}, messageReconnectTimeout / 10)
-		);
+		this._checkInterval = /** @type {any} */ setInterval(() => {
+			if (
+				this.wsconnected &&
+				messageReconnectTimeout <
+					time.getUnixTime() - this.wsLastMessageReceived
+			) {
+				// no message received in a long time - not even your own awareness
+				// updates (which are updated every 15 seconds)
+				this.ws?.close();
+			}
+		}, messageReconnectTimeout / 10);
 		if (connect) {
 			this.connect();
 		}
@@ -429,7 +476,7 @@ export class CustomProvider extends Observable {
 	}
 
 	destroy() {
-		if (this._resyncInterval !== 0) {
+		if (this._resyncInterval) {
 			clearInterval(this._resyncInterval);
 		}
 		clearInterval(this._checkInterval);

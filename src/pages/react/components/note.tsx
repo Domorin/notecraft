@@ -7,7 +7,7 @@ import { usePageSlug } from "../hooks/use_page_id";
 import { DefaultSuspense } from "./default_suspense";
 import { Spinner } from "./spinner";
 import { TextInput } from "./text_input";
-import { useUpdateMetadata } from "../hooks/trpc/use_set_note_metadata";
+import { useUpdateMetadata } from "../hooks/trpc/use_update_metadata";
 import { encodeYDocContent, parseYDocContent } from "@/lib/ydoc_utils";
 
 export function LoadableNote() {

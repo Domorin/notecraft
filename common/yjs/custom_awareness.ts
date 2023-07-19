@@ -276,14 +276,6 @@ export const applyAwarenessUpdate = (
 		const prevState = awareness.states.get(clientID);
 		const currClock = clientMeta === undefined ? 0 : clientMeta.clock;
 
-		// Hacky way to handle user state
-		if (state?.user && awareness.getLocalState()) {
-			awareness.states.set(clientID, {
-				...awareness.getLocalState(),
-				user: state.user,
-			});
-		}
-
 		if (
 			currClock < clock ||
 			(currClock === clock &&
