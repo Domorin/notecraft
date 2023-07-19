@@ -1,12 +1,18 @@
 import * as Y from "yjs";
 import * as syncProtocol from "y-protocols/sync.js";
-import * as awarenessProtocol from "y-protocols/awareness.js";
 
 import * as lib0 from "lib0";
 import debounce from "lodash.debounce";
 import { callbackHandler, isCallbackSet } from "./callback";
 import { WebSocket } from "ws";
 import { IncomingMessage } from "http";
+import {
+	CustomAwareness,
+	applyAwarenessUpdate,
+	encodeAwarenessUpdate,
+	removeAwarenessStates,
+} from "../../common/yjs/custom_awareness";
+import { getUsername } from "./usernames";
 
 const encoding = lib0.encoding;
 const decoding = lib0.decoding;
@@ -49,25 +55,17 @@ export class WSSharedDoc extends Y.Doc {
 	 * Maps from conn to set of controlled user ids. Delete all user ids from awareness when this conn is closed
 	 */
 	conns: Map<WebSocket, Set<number>>;
+	names: Record<number, string>;
 	name: string;
-	awareness: awarenessProtocol.Awareness;
+	awareness: CustomAwareness;
 	constructor(name: string) {
 		super({ gc: gcEnabled });
 		this.name = name;
 
 		this.conns = new Map();
-		this.awareness = new awarenessProtocol.Awareness(this);
+		this.names = {};
+		this.awareness = new CustomAwareness(this);
 		this.awareness.setLocalState(null);
-
-		this.awareness.setLocalStateField("user", {
-			name: "hello",
-			color: "#ffffff",
-		});
-
-		/**
-		 * @param changes
-		 * @param conn Origin is the connection that made the change
-		 */
 
 		const awarenessChangeHandler = (
 			{
@@ -95,20 +93,25 @@ export class WSSharedDoc extends Y.Doc {
 			}
 			const awarenessStates = this.awareness.getStates();
 
-			for (const val of [...awarenessStates.values()]) {
-				val.user = {
-					name: "test",
+			for (const [key, value] of awarenessStates) {
+				let name = this.names[key];
+				if (!name) {
+					this.names[key] = getUsername(Object.values(this.names));
+					name = this.names[key];
+				}
+
+				value["user"] = {
+					name: this.names[key],
+					color: "#ff0000",
 				};
 			}
+
 			// broadcast awareness update
 			const encoder = encoding.createEncoder();
 			encoding.writeVarUint(encoder, messageAwareness);
 			encoding.writeVarUint8Array(
 				encoder,
-				awarenessProtocol.encodeAwarenessUpdate(
-					this.awareness,
-					changedClients
-				)
+				encodeAwarenessUpdate(this.awareness, changedClients)
 			);
 			const buff = encoding.toUint8Array(encoder);
 
@@ -165,7 +168,7 @@ const messageListener = (
 				}
 				break;
 			case messageAwareness: {
-				awarenessProtocol.applyAwarenessUpdate(
+				applyAwarenessUpdate(
 					doc.awareness,
 					decoding.readVarUint8Array(decoder),
 					conn
@@ -188,11 +191,7 @@ const closeConn = (doc: WSSharedDoc, conn: WebSocket) => {
 		}
 
 		doc.conns.delete(conn);
-		awarenessProtocol.removeAwarenessStates(
-			doc.awareness,
-			Array.from(controlledIds),
-			null
-		);
+		removeAwarenessStates(doc.awareness, Array.from(controlledIds), null);
 	}
 	conn.close();
 };
@@ -266,24 +265,17 @@ export const setupWSConnection = (
 		send(doc, conn, encoding.toUint8Array(encoder));
 		const awarenessStates = doc.awareness.getStates();
 
-		for (const val of [...awarenessStates.values()]) {
-			val.user = {
-				name: "test",
-			};
-		}
-
 		if (awarenessStates.size > 0) {
 			const encoder = encoding.createEncoder();
 			encoding.writeVarUint(encoder, messageAwareness);
 			encoding.writeVarUint8Array(
 				encoder,
-				awarenessProtocol.encodeAwarenessUpdate(
+				encodeAwarenessUpdate(
 					doc.awareness,
 					Array.from(awarenessStates.keys())
 				)
 			);
 
-			console.log("sendingAwarenessUpdate", awarenessStates);
 			send(doc, conn, encoding.toUint8Array(encoder));
 		}
 	}

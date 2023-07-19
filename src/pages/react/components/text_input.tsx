@@ -11,6 +11,8 @@ import { useUpdateMetadata } from "../hooks/trpc/use_set_note_metadata";
 import ReactDOM from "react-dom";
 import { createRoot } from "react-dom/client";
 import { WebsocketProvider } from "y-websocket";
+import { CustomAwareness } from "../../../../common/yjs/custom_awareness";
+import { CustomProvider } from "../../../../common/yjs/custom_provider";
 
 // https://remirror.io/docs/extensions/yjs-extension/
 
@@ -19,44 +21,46 @@ export function TextInput(props: {
 	doc: Y.Doc;
 	setContent: (content: string) => void;
 }) {
-	const [provider, setProvider] = useState<WebsocketProvider | undefined>(
+	const [provider, setProvider] = useState<CustomProvider | undefined>(
 		undefined
 	);
 
 	const [connections, setConnections] = useState(0);
 
-	const setNoteMetadata = useUpdateMetadata(props.slug);
 
 	useEffect(() => {
-		console.log("new provider!");
-		const provider = new WebsocketProvider("ws://localhost:4444", props.slug, props.doc);
+		const provider = new CustomProvider("ws://localhost:4444", props.slug, props.doc, {
+			disableBc: true
+		});
 		setProvider(provider);
 
 
 
-		// const signalingConn = provider.signalingConns[0];
+		// provider.ws?.addEventListener("message", (ev: MessageEvent<any>) => {
+		// 	console.log(ev);
+		// 	// switch (m.type) {
+		// 	// 	case "createUser":
+		// 	// 		provider.awareness.setLocalStateField("user", {
+		// 	// 			name: m.name,
+		// 	// 			color: m.color,
+		// 	// 		});
+		// 	// 		break;
+		// 	// 	case "connectionMetadata":
+		// 	// 		setConnections(m.activeConnections);
+		// 	// 		break;
+		// 	// 	case "noteMetadataUpdate":
+		// 	// 		setNoteMetadata({
+		// 	// 			createdAt: m.createdAt,
+		// 	// 			updatedAt: m.updatedAt,
+		// 	// 			viewedAt: m.viewedAt,
+		// 	// 			views: m.views,
+		// 	// 		});
+		// 	// 		break;
+		// 	// }
+		// }, undefined);
 
-		// signalingConn.on("message", (m: CustomMessage) => {
-		// 	switch (m.type) {
-		// 		case "createUser":
-		// 			provider.awareness.setLocalStateField("user", {
-		// 				name: m.name,
-		// 				color: m.color,
-		// 			});
-		// 			break;
-		// 		case "connectionMetadata":
-		// 			setConnections(m.activeConnections);
-		// 			break;
-		// 		case "noteMetadataUpdate":
-		// 			setNoteMetadata({
-		// 				createdAt: m.createdAt,
-		// 				updatedAt: m.updatedAt,
-		// 				viewedAt: m.viewedAt,
-		// 				views: m.views,
-		// 			});
-		// 			break;
-		// 	}
-		// });
+
+
 
 
 		return () => {
@@ -90,13 +94,13 @@ type User = {
 
 type AwarenessState = { user?: User };
 
-function Presences(props: { provider: WebsocketProvider }) {
+function Presences(props: { provider: CustomProvider }) {
 	const [states, setStates] = useState([
 		...props.provider.awareness.getStates().values(),
 	] as AwarenessState[]);
 
 	useEffect(() => {
-		props.provider.awareness.on("change", () => {
+		props.provider.awareness.on("change", (val) => {
 			setStates([
 				...props.provider.awareness.getStates().values(),
 			] as AwarenessState[]);
@@ -136,7 +140,7 @@ function Presence(props: { user: User }) {
 function TextInputWithProvider(props: {
 	slug: string;
 	setContent: (content: string) => void;
-	provider: WebsocketProvider;
+	provider: CustomProvider;
 }) {
 	const { manager, state } = useRemirror({
 		extensions: () => [
