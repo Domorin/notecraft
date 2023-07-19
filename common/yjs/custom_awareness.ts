@@ -271,11 +271,19 @@ export const applyAwarenessUpdate = (
 		const clientID = decoding.readVarUint(decoder);
 		let clock = decoding.readVarUint(decoder);
 		const state = JSON.parse(decoding.readVarString(decoder));
-		console.log("Applying awareness update", state);
 
 		const clientMeta = awareness.meta.get(clientID);
 		const prevState = awareness.states.get(clientID);
 		const currClock = clientMeta === undefined ? 0 : clientMeta.clock;
+
+		// Hacky way to handle user state
+		if (state?.user && awareness.getLocalState()) {
+			awareness.states.set(clientID, {
+				...awareness.getLocalState(),
+				user: state.user,
+			});
+		}
+
 		if (
 			currClock < clock ||
 			(currClock === clock &&
@@ -288,7 +296,7 @@ export const applyAwarenessUpdate = (
 					clientID === awareness.clientID &&
 					awareness.getLocalState() != null
 				) {
-					// remote client removed the local state. Do not remote state. Broadcast a message indicating
+					// remote client removed the local state. Do not remove state. Broadcast a message indicating
 					// that this client still exists by increasing the clock
 					clock++;
 				} else {
