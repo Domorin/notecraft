@@ -76,8 +76,6 @@ export class WSSharedDoc extends Y.Doc {
 		this.awareness = new CustomAwareness(this);
 		this.awareness.setLocalState(null);
 
-		setInterval(() => console.log(this.conns.size), 1000);
-
 		const awarenessChangeHandler = (
 			{
 				added,
