@@ -16,21 +16,16 @@ import { getUsername } from "./usernames";
 import { RedisChannelType } from "../../common/redis/redis";
 import { CustomMessage, UserPresence } from "./types";
 
-const hexColors: string[] = [
+const hexColors = [
 	"#51604B",
 	"#6D8165",
 	"#93AE88",
 	"#C4BC84",
 	"#D6D2B5",
-	"#FAF8E8",
-	"#C07560",
 	"#767A8A",
 	"#A1B9C5",
-	"#C2C2C2",
 	"#776F5F",
 	"#49453E",
-	"#C0A989",
-	"#F3CFCF",
 	"#D48C8C",
 ];
 
@@ -188,11 +183,14 @@ export class WSSharedDoc extends Y.Doc {
 	};
 
 	addConnection(conn: WebSocket, userId: string) {
+		console.log("settingcolor", this.conns.size % hexColors.length);
 		this.conns.set(conn, {
 			userId,
 			clientInfo: {
-				name: getUsername([]),
-				color: hexColors[Math.floor(Math.random() * hexColors.length)],
+				name: getUsername(
+					[...this.conns.values()].map((val) => val.clientInfo.name)
+				),
+				color: hexColors[this.conns.size % hexColors.length],
 				clientId: undefined,
 			},
 		});
