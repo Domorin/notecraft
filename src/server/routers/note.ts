@@ -7,6 +7,9 @@ import * as Y from "yjs";
 import { redis } from "../redis";
 import { encodeYDocContent } from "@/lib/ydoc_utils";
 
+const zodListType = z.enum(["Created", "Viewed"]);
+export type ListType = z.infer<typeof zodListType>;
+
 export const noteRouter = router({
 	create: authedProcedure.mutation(async ({ input, ctx: { userId } }) => {
 		const slug = await Words.getUniquePageSlug();
@@ -153,12 +156,13 @@ export const noteRouter = router({
 			})
 		)
 		.query(async ({ input, ctx: { userId } }) => {
-			return prisma.note.findMany({
+			const result = await prisma.note.findMany({
 				select: {
 					slug: true,
 					createdAt: true,
 					updatedAt: true,
 					views: true,
+					viewedAt: true,
 				},
 				orderBy: {
 					updatedAt: "desc",
@@ -169,5 +173,13 @@ export const noteRouter = router({
 					},
 				},
 			});
+
+			return input.slugs
+				.map((slug) => {
+					return result.find((note) => note.slug === slug);
+				})
+				.filter(
+					(val): val is (typeof result)[number] => val !== undefined
+				);
 		}),
 });

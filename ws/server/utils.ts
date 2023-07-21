@@ -183,7 +183,6 @@ export class WSSharedDoc extends Y.Doc {
 	};
 
 	addConnection(conn: WebSocket, userId: string) {
-		console.log("settingcolor", this.conns.size % hexColors.length);
 		this.conns.set(conn, {
 			userId,
 			clientInfo: {
