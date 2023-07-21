@@ -8,9 +8,7 @@ export function useNoteListRecentsQuery() {
 	// This query should only be used for sorting, hence the `select` call only returning slugs
 	return trpc.note.listSlugs.useQuery(
 		{
-			slugs: Object.keys(recents).sort((a, b) => {
-				return recents[b].getTime() - recents[a].getTime();
-			}),
+			slugs: Object.keys(recents),
 		},
 		{
 			queryFn: async () => {
@@ -29,7 +27,12 @@ export function useNoteListRecentsQuery() {
 
 				return notes;
 			},
-			select: (data) => data.map((val) => val.slug),
+			select: (data) =>
+				data
+					.map((val) => val.slug)
+					.sort((a, b) => {
+						return recents[b].getTime() - recents[a].getTime();
+					}),
 		}
 	);
 }
