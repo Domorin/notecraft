@@ -6,6 +6,7 @@ import { TRPCError } from "@trpc/server";
 import * as Y from "yjs";
 import { redis } from "../redis";
 import { encodeYDocContent } from "@/lib/ydoc_utils";
+import { titleLimiter } from "@/lib/validators";
 
 const zodListType = z.enum(["Created", "Viewed"]);
 export type ListType = z.infer<typeof zodListType>;
@@ -47,6 +48,7 @@ export const noteRouter = router({
 					createdAt: true,
 					viewedAt: true,
 					views: true,
+					title: true,
 				},
 			});
 
@@ -92,6 +94,35 @@ export const noteRouter = router({
 
 			return note.content;
 		}),
+	updateTitle: authedProcedure
+		.input(
+			z.object({
+				slug: z.string(),
+				title: titleLimiter,
+			})
+		)
+		.mutation(async ({ input, ctx: { userId } }) => {
+			const note = await prisma.note.update({
+				data: {
+					title: input.title,
+					updatedAt: new Date(),
+				},
+				where: {
+					slug: input.slug,
+				},
+			});
+
+			redis.pubsub.publish("NoteMetadataUpdate", {
+				createdAt: note.createdAt.toISOString(),
+				updatedAt: note.updatedAt.toISOString(),
+				slug: note.slug,
+				viewedAt: note.viewedAt?.toISOString(),
+				views: note.views,
+				title: note.title,
+			});
+
+			return note;
+		}),
 	save: authedProcedure
 		.input(
 			z.object({
@@ -128,6 +159,7 @@ export const noteRouter = router({
 				slug: note.slug,
 				viewedAt: note.viewedAt?.toISOString(),
 				views: note.views,
+				title: note.title,
 			});
 
 			return note;
@@ -140,6 +172,7 @@ export const noteRouter = router({
 				updatedAt: true,
 				viewedAt: true,
 				views: true,
+				title: true,
 			},
 			orderBy: {
 				updatedAt: "desc",
@@ -163,6 +196,7 @@ export const noteRouter = router({
 					updatedAt: true,
 					views: true,
 					viewedAt: true,
+					title: true,
 				},
 				orderBy: {
 					updatedAt: "desc",

@@ -17,16 +17,16 @@ import { RedisChannelType } from "../../common/redis/redis";
 import { CustomMessage, UserPresence } from "./types";
 
 const hexColors = [
-	"#51604B",
-	"#6D8165",
-	"#93AE88",
-	"#C4BC84",
+	"#D48C8C",
+	"#49453E",
 	"#D6D2B5",
+	"#C4BC84",
+	"#93AE88",
 	"#767A8A",
 	"#A1B9C5",
 	"#776F5F",
-	"#49453E",
-	"#D48C8C",
+	"#6D8165",
+	"#51604B",
 ];
 
 const encoding = lib0.encoding;
@@ -60,12 +60,14 @@ export class WSSharedDoc extends Y.Doc {
 	 */
 	// conns: Map<WebSocket, Set<number>>;
 	conns: Map<WebSocket, { userId: string; clientInfo: UserPresence }>;
+	connCount: number;
 
 	name: string;
 	awareness: CustomAwareness;
 	constructor(name: string) {
 		super({ gc: gcEnabled });
 		this.name = name;
+		this.connCount = 0;
 
 		this.conns = new Map();
 		this.awareness = new CustomAwareness(this);
@@ -189,7 +191,7 @@ export class WSSharedDoc extends Y.Doc {
 				name: getUsername(
 					[...this.conns.values()].map((val) => val.clientInfo.name)
 				),
-				color: hexColors[this.conns.size % hexColors.length],
+				color: hexColors[this.connCount++ % hexColors.length],
 				clientId: undefined,
 			},
 		});
@@ -278,11 +280,17 @@ export class WSSharedDoc extends Y.Doc {
 			const controlledId = this.conns.get(conn)?.clientInfo?.clientId;
 			this.conns.delete(conn);
 
+			if (this.conns.size === 0) {
+				docs.delete(this.name);
+			}
+
 			if (controlledId) {
 				removeAwarenessStates(this.awareness, [controlledId], null);
 			}
 			this.broadcastPresenceUpdate();
 		}
+
+		console.log(docs.size);
 		conn.close();
 	};
 }

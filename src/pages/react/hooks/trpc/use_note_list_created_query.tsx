@@ -1,4 +1,5 @@
 import { trpc } from "@/utils/trpc";
+import { DateTime } from "luxon";
 
 export function useNoteListCreatedQuery() {
 	const context = trpc.useContext();
@@ -22,6 +23,10 @@ export function useNoteListCreatedQuery() {
 
 			return notes;
 		},
-		select: (data) => data.map((val) => val.slug),
+		select: (data) =>
+			data.map((val) => ({
+				slug: val.slug,
+				date: DateTime.fromISO(val.updatedAt),
+			})),
 	});
 }

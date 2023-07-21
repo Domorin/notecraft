@@ -1,5 +1,5 @@
 import { LoadableNote } from "./note";
-import { Sidebar } from "./sidebar";
+import { Sidebar } from "./sidebar/sidebar";
 import { ThemePicker } from "./theme_picker";
 
 export default function MainPage() {

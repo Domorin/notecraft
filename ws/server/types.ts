@@ -5,6 +5,7 @@ export type UserPresence = {
 	clientId: number | undefined;
 	name: string;
 	color: string;
+	isYou?: boolean;
 };
 
 export type CustomMessage =

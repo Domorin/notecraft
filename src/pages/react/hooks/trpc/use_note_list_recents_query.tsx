@@ -1,5 +1,6 @@
 import { trpc } from "@/utils/trpc";
 import { useNoteListRecent } from "../use_recent_local_storage";
+import { DateTime } from "luxon";
 
 export function useNoteListRecentsQuery() {
 	const context = trpc.useContext();
@@ -29,9 +30,12 @@ export function useNoteListRecentsQuery() {
 			},
 			select: (data) =>
 				data
-					.map((val) => val.slug)
+					.map((val) => ({
+						slug: val.slug,
+						date: DateTime.fromJSDate(recents[val.slug]),
+					}))
 					.sort((a, b) => {
-						return recents[b].getTime() - recents[a].getTime();
+						return b.date.toMillis() - a.date.toMillis();
 					}),
 		}
 	);

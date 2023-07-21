@@ -29,7 +29,7 @@ function initWSServer() {
 					);
 				}
 
-				const hostId = [...connections.values()][0].userId;
+				const hostId = [...connections.values()][0]?.userId;
 
 				if (!hostId) {
 					throw new Error(`No host found for room ${message.slug}`);
