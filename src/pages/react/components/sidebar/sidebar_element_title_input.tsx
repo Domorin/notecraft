@@ -18,10 +18,20 @@ export function SidebarElementTitleInput(props: {
 
 	useEffect(() => {
 		inputRef.current?.focus();
+		inputRef.current?.select();
 	}, [inputRef]);
 
 	return (
-		<div className="flex w-full gap-2">
+		<form
+			className="flex w-full gap-2"
+			onSubmit={() => {
+				mutation.mutate({
+					slug: props.metadata.slug,
+					title: input,
+				});
+				props.closeInput();
+			}}
+		>
 			<input
 				ref={inputRef}
 				className="w-full bg-inherit"
@@ -40,13 +50,7 @@ export function SidebarElementTitleInput(props: {
 			<div>
 				<button
 					className="btn-ghost btn-xs"
-					onClick={() => {
-						mutation.mutate({
-							slug: props.metadata.slug,
-							title: input,
-						});
-						props.closeInput();
-					}}
+					type="submit"
 					disabled={!titleLimiter.safeParse(input).success}
 				>
 					<FontAwesomeIcon icon={faCheck} />
@@ -55,6 +59,6 @@ export function SidebarElementTitleInput(props: {
 					<FontAwesomeIcon icon={faXmark} />
 				</button>
 			</div>
-		</div>
+		</form>
 	);
 }

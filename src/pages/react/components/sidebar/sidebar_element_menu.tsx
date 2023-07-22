@@ -43,6 +43,7 @@ export function SidebarElementMenu(props: {
 			<ul
 				className="dropdown-content menu rounded-box z-[1] w-fit min-w-[14rem] bg-base-300 py-2 text-base-content shadow"
 				ref={ref}
+				onClick={(e) => e.preventDefault()}
 			>
 				<li>
 					<div className="flex items-center gap-2">

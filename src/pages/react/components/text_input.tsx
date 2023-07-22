@@ -14,6 +14,7 @@ import { CustomAwareness } from "../../../../common/yjs/custom_awareness";
 import { CustomProvider } from "../../../../common/yjs/custom_provider";
 import type { CustomMessage, UserPresence } from "../../../../ws/server/types";
 import classNames from "classnames";
+import { WysiwygEditor } from "./markdown_editor";
 
 // https://remirror.io/docs/extensions/yjs-extension/
 
@@ -66,7 +67,7 @@ export function TextInput(props: {
 	}
 
 	return (
-		<div className="flex flex-col">
+		<div className="flex h-full flex-col">
 			<div className="flex gap-2">
 				<div className="ml-auto">
 					<Presences
@@ -75,7 +76,12 @@ export function TextInput(props: {
 					/>
 				</div>
 			</div>
-			<TextInputWithProvider
+			{/* <TextInputWithProvider
+				{...props}
+				provider={provider}
+				presences={presences}
+			/> */}
+			<WysiwygEditor
 				{...props}
 				provider={provider}
 				presences={presences}
