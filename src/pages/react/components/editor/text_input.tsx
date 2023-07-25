@@ -1,15 +1,18 @@
 import React, { useEffect, useRef, useState } from "react";
 import { WebrtcProvider } from "y-webrtc";
 import * as Y from "yjs";
-import { Spinner } from "./spinner";
+import { Spinner } from "../spinner";
 import { RouterOutput } from "@/server/routers/_app";
-import { useUpdateMetadata } from "../hooks/trpc/use_update_metadata";
+import { useUpdateMetadata } from "../../hooks/trpc/use_update_metadata";
 import ReactDOM from "react-dom";
 import { createRoot } from "react-dom/client";
 import { WebsocketProvider } from "y-websocket";
-import { CustomAwareness } from "../../../../common/yjs/custom_awareness";
-import { CustomProvider } from "../../../../common/yjs/custom_provider";
-import type { CustomMessage, UserPresence } from "../../../../ws/server/types";
+import { CustomAwareness } from "../../../../../common/yjs/custom_awareness";
+import { CustomProvider } from "../../../../../common/yjs/custom_provider";
+import type {
+	CustomMessage,
+	UserPresence,
+} from "../../../../../ws/server/types";
 import classNames from "classnames";
 import { WysiwygEditor } from "./markdown_editor";
 
@@ -55,7 +58,7 @@ export function TextInput(props: {
 			props.doc.destroy();
 			provider?.destroy();
 		};
-	}, [props.doc, props.slug]);
+	}, [props.doc, props.slug, setNoteMetadata]);
 
 	if (!provider) {
 		return <Spinner />;
@@ -134,22 +137,5 @@ function UserPresence(props: { user: UserPresence }) {
 			color={props.user.color}
 			tooltip={props.user.name}
 		/>
-	);
-}
-
-function Cursor(props: { name: string; color: string }) {
-	// TODO: prevent selection of name
-	return (
-		<div className="pointer-events-none absolute">
-			<div className="relative top-4 text-xs">
-				<div className="rounded-box flex items-center gap-1 whitespace-nowrap bg-primary px-2 py-1 text-primary-content opacity-90">
-					<div
-						className="h-2 w-2 rounded-full border border-primary-content"
-						style={{ backgroundColor: props.color }}
-					></div>
-					<div>{props.name}</div>
-				</div>
-			</div>
-		</div>
 	);
 }

@@ -21,6 +21,8 @@
 }
 
 .ProseMirror {
+	height: 100%;
+
 	> * + * {
 		margin-top: 0.75em;
 	}
@@ -66,7 +68,7 @@
 	}
 
 	pre {
-		@apply w-full rounded-sm border border-base-content border-opacity-20 bg-base-300 px-1 font-mono text-base-content;
+		@apply w-full rounded-sm border border-base-content border-opacity-20 bg-base-300 p-2 font-mono text-base-content;
 	}
 
 	img {
@@ -79,6 +81,6 @@
 	}
 
 	blockquote {
-		@apply rounded-sm border border-base-content border-opacity-20 pl-4;
+		@apply rounded-sm border-l-4 border-accent bg-accent  bg-opacity-20 p-4;
 	}
 }

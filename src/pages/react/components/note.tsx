@@ -6,7 +6,7 @@ import * as Y from "yjs";
 import { usePageSlug } from "../hooks/use_page_id";
 import { DefaultSuspense } from "./default_suspense";
 import { Spinner } from "./spinner";
-import { TextInput } from "./text_input";
+import { TextInput } from "./editor/text_input";
 import { useUpdateMetadata } from "../hooks/trpc/use_update_metadata";
 import { encodeYDocContent, parseYDocContent } from "@/lib/ydoc_utils";
 import { useNoteListRecent } from "../hooks/use_recent_local_storage";
