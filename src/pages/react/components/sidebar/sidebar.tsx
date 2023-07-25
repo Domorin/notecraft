@@ -27,7 +27,7 @@ export function Sidebar() {
 					/>
 				</div>
 			</div>
-			<div className="h-full w-full">
+			<div className="h-full w-full overflow-y-auto overflow-x-clip">
 				<SidebarListNotes active={currentList} />
 			</div>
 			<div className="flex flex-col items-center border-t border-neutral">

@@ -25,7 +25,7 @@ export function SidebarListItem(props: { slug: string; active: boolean }) {
 	return (
 		<span
 			className={classNames(
-				"group flex w-full min-w-0 items-center whitespace-nowrap rounded-none px-4 py-2 text-sm ",
+				"group flex w-full min-w-0 items-center whitespace-nowrap rounded-none text-sm",
 				{
 					"bg-neutral text-neutral-content": props.active,
 					"hover:bg-base-content hover:bg-opacity-10": !props.active,
@@ -33,13 +33,15 @@ export function SidebarListItem(props: { slug: string; active: boolean }) {
 			)}
 		>
 			{showInput ? (
-				<SidebarElementTitleInput
-					metadata={metadata}
-					closeInput={() => setShowInput(false)}
-				/>
+				<div className="px-4 py-2">
+					<SidebarElementTitleInput
+						metadata={metadata}
+						closeInput={() => setShowInput(false)}
+					/>
+				</div>
 			) : (
 				<Link
-					className="flex w-full items-center"
+					className="flex w-full items-center px-4 py-2"
 					title={pageTitle}
 					href={`/${props.slug}`}
 				>

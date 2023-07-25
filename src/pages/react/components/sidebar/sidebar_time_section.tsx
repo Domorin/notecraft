@@ -8,7 +8,9 @@ export function SidebarTimeSection(props: { title: string; slugs: string[] }) {
 		<>
 			{props.slugs.length > 0 && (
 				<>
-					<li className="px-4 py-2 text-xs opacity-40">Today</li>
+					<li className="px-4 py-2 text-xs opacity-40">
+						{props.title}
+					</li>
 					{props.slugs.map((val) => (
 						<li key={val} className="w-full">
 							<SidebarListItem

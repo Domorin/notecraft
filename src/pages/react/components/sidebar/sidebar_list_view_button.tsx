@@ -8,7 +8,7 @@ export function SidebarListViewButton(props: {
 }) {
 	return (
 		<button
-			className={classNames("btn-sm btn flex-1 rounded-none", {
+			className={classNames("btn flex-1 rounded-none", {
 				"btn-primary": props.type === props.currentList,
 			})}
 			onClick={() => props.setCurrentList(props.type)}
