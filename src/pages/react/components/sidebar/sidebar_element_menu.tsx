@@ -1,3 +1,4 @@
+import { RouterOutput } from "@/server/routers/_app";
 import {
 	faEdit,
 	faEllipsis,
@@ -6,11 +7,10 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import classNames from "classnames";
-import React, { useEffect, useRef, useState } from "react";
-import { RouterOutput } from "@/server/routers/_app";
-import { useCopyToClipboard, useOnClickOutside } from "usehooks-ts";
-import { getRelativeTimeText } from "./sidebar";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useCopyToClipboard, useOnClickOutside } from "usehooks-ts";
+import { DateTime } from "luxon";
 
 type MenuProps = {
 	openTitleInput: () => void;
@@ -120,10 +120,30 @@ function MenuPopup(
 			</li>
 			<div className="divider my-0"></div>
 			<li className="px-2 text-xs opacity-40">
-				{`Edited ${getRelativeTimeText(props.metadata.updatedAt)}`}
+				{`Edited ${getTimeText(props.metadata.updatedAt)}`}
 				<br />
-				{`Viewed ${getRelativeTimeText(props.metadata.viewedAt)}`}
+				{`Viewed ${getTimeText(props.metadata.viewedAt)}`}
 			</li>
 		</ul>
 	);
+}
+
+export function getRelativeTimeText(iso: string) {
+	const date = DateTime.fromISO(iso);
+
+	const updatedAtDiffNow = Math.abs(date.diffNow().toMillis());
+	return updatedAtDiffNow < 1000 * 60
+		? "less than a minute ago"
+		: date.toRelative({
+				round: true,
+		  });
+}
+
+export function getTimeText(iso: string) {
+	const date = DateTime.fromISO(iso);
+
+	return date.toLocaleString({
+		dateStyle: "medium",
+		timeStyle: "short",
+	});
 }

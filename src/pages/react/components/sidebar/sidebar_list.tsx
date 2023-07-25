@@ -12,7 +12,7 @@ export function SidebarList(props: {
 		.minus({ days: 7 })
 		.set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
 	const thirtyDaysAgo = now
-		.minus({ days: 7 })
+		.minus({ days: 30 })
 		.set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
 
 	const todaysSlugs: string[] = [];
@@ -24,7 +24,7 @@ export function SidebarList(props: {
 	props.slugs.forEach((val) => {
 		if (now.hasSame(val.date, "day")) {
 			todaysSlugs.push(val.slug);
-		} else if (now.hasSame(yesterday, "day")) {
+		} else if (yesterday.hasSame(val.date, "day")) {
 			yesterdaysSlugs.push(val.slug);
 		} else if (val.date > sevenDaysAgo) {
 			lastSevenDaysSlugs.push(val.slug);

@@ -42,14 +42,3 @@ export function Sidebar() {
 		</div>
 	);
 }
-
-export function getRelativeTimeText(iso: string) {
-	const date = DateTime.fromISO(iso);
-
-	const updatedAtDiffNow = Math.abs(date.diffNow().toMillis());
-	return updatedAtDiffNow < 1000 * 60
-		? "less than a minute ago"
-		: date.toRelative({
-				round: true,
-		  });
-}
