@@ -54,11 +54,11 @@ export function SidebarList(props: {
 						slugs={yesterdaysSlugs}
 					/>
 					<SidebarTimeSection
-						title="Previous 7 days"
+						title="Previous 7 Days"
 						slugs={lastSevenDaysSlugs}
 					/>
 					<SidebarTimeSection
-						title="Previous 30 days"
+						title="Previous 30 Days"
 						slugs={lastThirtyDaysSlugs}
 					/>
 					<SidebarTimeSection title="Past" slugs={remainingSlugs} />
