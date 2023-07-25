@@ -1,7 +1,4 @@
-import { I18nProvider, Remirror, useRemirror } from "@remirror/react";
 import React, { useEffect, useRef, useState } from "react";
-import { YjsExtension } from "remirror/extensions";
-import "remirror/styles/all.css";
 import { WebrtcProvider } from "y-webrtc";
 import * as Y from "yjs";
 import { Spinner } from "./spinner";
@@ -15,8 +12,6 @@ import { CustomProvider } from "../../../../common/yjs/custom_provider";
 import type { CustomMessage, UserPresence } from "../../../../ws/server/types";
 import classNames from "classnames";
 import { WysiwygEditor } from "./markdown_editor";
-
-// https://remirror.io/docs/extensions/yjs-extension/
 
 export function TextInput(props: {
 	slug: string;
@@ -139,79 +134,6 @@ function UserPresence(props: { user: UserPresence }) {
 			color={props.user.color}
 			tooltip={props.user.name}
 		/>
-	);
-}
-
-function TextInputWithProvider(props: {
-	slug: string;
-	setContent: (content: string) => void;
-	provider: CustomProvider;
-	presences: UserPresence[];
-}) {
-	// This needs to be a ref so cursorBuilder gets the correct value
-	const ref = useRef(props.presences);
-
-	if (props.presences !== ref.current) {
-		ref.current = props.presences;
-	}
-
-	const { manager, state } = useRemirror({
-		extensions: () => [
-			new YjsExtension({
-				getProvider: () => props.provider,
-				cursorBuilder: (user) => {
-					const presences = ref.current;
-
-					const cursor = document.createElement("span");
-					const userId = user.name.split(" ")[1];
-					const presence = presences.find(
-						(val) => val.clientId === Number.parseInt(userId)
-					);
-
-					if (!presence) {
-						return cursor;
-					}
-
-					cursor.classList.add("ProseMirror-yjs-cursor");
-					cursor.style.borderColor = presence.color;
-					const userDiv = document.createElement("span");
-
-					cursor.insertBefore(userDiv, null);
-
-					const root = createRoot(userDiv);
-					root.render(
-						<Cursor color={presence.color} name={presence.name} />
-					);
-
-					return cursor;
-				},
-			}),
-		],
-		// Set the initial content.
-		// content: props.initial_text,
-
-		// Place the cursor at the start of the document. This can also be set to
-		// `end`, `all` or a numbered position.
-		selection: "end",
-
-		// Set the string handler which means the content provided will be
-		// automatically handled as html.
-		// `markdown` is also available when the `MarkdownExtension`
-		// is added to the editor.
-		stringHandler: "text",
-	});
-
-	return (
-		<div className="remirror-theme flex h-full w-full items-stretch">
-			<Remirror
-				manager={manager}
-				initialContent={state}
-				onChange={(e) => {
-					props.setContent(e.state.doc.textContent);
-				}}
-				classNames={["h-full w-full self-stretch"]}
-			/>
-		</div>
 	);
 }
 

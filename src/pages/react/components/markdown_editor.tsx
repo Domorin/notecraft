@@ -1,18 +1,8 @@
-import React, { FC, PropsWithChildren, useCallback, useRef } from "react";
-import {
-	PlaceholderExtension,
-	YjsExtension,
-	wysiwygPreset,
-} from "remirror/extensions";
-import { TableExtension } from "@remirror/extension-react-tables";
-import {
-	EditorComponent,
-	Remirror,
-	TableComponents,
-	ThemeProvider,
-	useRemirror,
-} from "@remirror/react";
-import { AllStyledComponent } from "@remirror/styles/emotion";
+import Collaboration from "@tiptap/extension-collaboration";
+import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
+import { EditorContent, useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import { useRef } from "react";
 import { createRoot } from "react-dom/client";
 import { CustomProvider } from "../../../../common/yjs/custom_provider";
 import { UserPresence } from "../../../../ws/server/types";
@@ -31,30 +21,45 @@ export function WysiwygEditor(props: {
 		ref.current = props.presences;
 	}
 
-	const extensions = useCallback(
-		() => [
-			new YjsExtension({
-				getProvider: () => props.provider,
-				cursorBuilder: (user) => {
+	const editor = useEditor({
+		extensions: [
+			StarterKit.configure({
+				history: false,
+			}),
+			Collaboration.configure({
+				document: props.provider.doc,
+			}),
+			CollaborationCursor.configure({
+				provider: props.provider,
+				user: {
+					id: props.provider.doc.clientID,
+				},
+				render: (user: { id: string }) => {
 					const presences = ref.current;
 
-					const cursor = document.createElement("span");
-					const userId = user.name.split(" ")[1];
+					const userId = user.id;
 					const presence = presences.find(
 						(val) => val.clientId === Number.parseInt(userId)
 					);
+
+					const cursor = document.createElement("span");
 
 					if (!presence) {
 						return cursor;
 					}
 
-					cursor.classList.add("ProseMirror-yjs-cursor");
+					console.log(user);
+					cursor.classList.add(
+						"relative",
+						"border",
+						"ml-[-1px]",
+						"mr-[-1px]",
+						"pointer-events-none",
+						"select-none"
+					);
 					cursor.style.borderColor = presence.color;
-					const userDiv = document.createElement("span");
 
-					cursor.insertBefore(userDiv, null);
-
-					const root = createRoot(userDiv);
+					const root = createRoot(cursor);
 					root.render(
 						<Cursor color={presence.color} name={presence.name} />
 					);
@@ -62,50 +67,21 @@ export function WysiwygEditor(props: {
 					return cursor;
 				},
 			}),
-			new PlaceholderExtension({ placeholder: "PLACEHOLDER!!" }),
-			new TableExtension(),
-			...wysiwygPreset(),
 		],
-		[]
-	);
+	});
 
-	const { manager, state } = useRemirror({ extensions });
-
-	// manager={manager}
-	// 			initialContent={state}
-	// 			onChange={(e) => {
-	// 				props.setContent(e.state.doc.textContent);
-	// 			}}
-	// 			classNames={["h-full w-full self-stretch"]}
-
-	return (
-		<Remirror
-			manager={manager}
-			initialContent={state}
-			onChange={(e) => {
-				props.setContent(e.state.doc.textContent);
-			}}
-			classNames={["h-full w-full self-stretch blargh"]}
-		>
-			{/* TODO: wtf are these */}
-			<EditorComponent />
-			<TableComponents />
-		</Remirror>
-	);
+	return <EditorContent className="h-full w-full min-w-0" editor={editor} />;
 }
 
 function Cursor(props: { name: string; color: string }) {
 	// TODO: prevent selection of name
 	return (
-		<div className="pointer-events-none absolute">
-			<div className="relative top-4 text-xs">
-				<div className="rounded-box flex items-center gap-1 whitespace-nowrap bg-primary px-2 py-1 text-primary-content opacity-90">
-					<div
-						className="h-2 w-2 rounded-full border border-primary-content"
-						style={{ backgroundColor: props.color }}
-					></div>
-					<div>{props.name}</div>
-				</div>
+		<div className="pointer-events-none absolute -top-6 left-[-1px] select-none text-xs">
+			<div
+				style={{ backgroundColor: props.color }}
+				className="rounded-box box-content flex select-none items-center gap-1 whitespace-nowrap rounded-bl-none px-2 py-1 text-primary-content opacity-90"
+			>
+				<div className="select-none">{props.name}</div>
 			</div>
 		</div>
 	);

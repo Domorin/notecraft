@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.background-gradient {
+	background-color: theme("colors.base-100");
+	background-image: radial-gradient(
+			at 10% 90%,
+			rgb(245, 245, 245) 0,
+			transparent 54%
+		),
+		radial-gradient(at 1% 14%, theme("colors.primary") 0, transparent 85%),
+		radial-gradient(at 39% 87%, theme("colors.base-300") 0, transparent 48%),
+		radial-gradient(at 25% 24%, theme("colors.base-100") 0, transparent 91%),
+		radial-gradient(at 98% 23%, theme("colors.base-200") 0, transparent 65%),
+		radial-gradient(
+			at 83% 88%,
+			theme("colors.secondary") 0,
+			transparent 57%
+		);
+}
+
+.ProseMirror {
+	> * + * {
+		margin-top: 0.75em;
+	}
+
+	ul {
+		list-style: disc;
+	}
+	ol {
+		list-style: decimal;
+	}
+
+	ul,
+	ol {
+		padding: 0rem 1rem;
+	}
+
+	h1 {
+		@apply text-5xl font-bold;
+	}
+
+	h2 {
+		@apply text-4xl font-bold;
+	}
+
+	h3 {
+		@apply text-3xl font-bold;
+	}
+
+	h4 {
+		@apply text-2xl font-bold;
+	}
+
+	h5 {
+		@apply text-xl font-bold;
+	}
+
+	h6 {
+		@apply text-lg font-bold;
+	}
+
+	:not(pre) > code {
+		@apply rounded-sm border border-base-content border-opacity-20 bg-base-300 px-1 font-mono text-base-content;
+	}
+
+	pre {
+		@apply w-full rounded-sm border border-base-content border-opacity-20 bg-base-300 px-1 font-mono text-base-content;
+	}
+
+	img {
+		max-width: 100%;
+		height: auto;
+	}
+
+	hr {
+		margin: 1rem 0;
+	}
+
+	blockquote {
+		@apply rounded-sm border border-base-content border-opacity-20 pl-4;
+	}
+}
