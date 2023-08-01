@@ -1,4 +1,3 @@
-import classNames from "classnames";
 import { useEffect, useState } from "react";
 import * as Y from "yjs";
 import { CustomProvider } from "../../../../../common/yjs/custom_provider";
@@ -9,6 +8,7 @@ import type {
 import { useUpdateMetadata } from "../../hooks/trpc/use_update_metadata";
 import { Spinner } from "../spinner";
 import { WysiwygEditor } from "./markdown_editor";
+import { Presences, Presence } from "./presences";
 
 export function TextInput(props: {
 	slug: string;
@@ -74,57 +74,5 @@ export function TextInput(props: {
 				presences={presences}
 			/>
 		</div>
-	);
-}
-
-function Presences(props: { presences: UserPresence[]; clientId: number }) {
-	return (
-		<div className="avatar-group -space-x-3 overflow-visible">
-			{props.presences
-				.map((val) => <UserPresence key={val.name} user={val} />)
-				.slice(0, 5)}
-			{props.presences.length > 5 && (
-				<Presence name={`+${props.presences.length - 5}`} />
-			)}
-		</div>
-	);
-}
-
-function Presence(props: {
-	name: string;
-	tooltip?: string;
-	color?: string;
-	className?: string;
-}) {
-	return (
-		<div
-			className="placeholder avatar tooltip overflow-visible border-2 border-neutral-focus"
-			data-tip={props.tooltip}
-		>
-			<div
-				className={classNames("w-8 overflow-hidden rounded-full", {
-					"bg-neutral text-neutral-content": !props.color,
-				})}
-				style={
-					props.color ? { backgroundColor: props.color } : undefined
-				}
-			>
-				<span className="text-sm font-bold text-white">
-					{props.name}
-				</span>
-			</div>
-		</div>
-	);
-}
-
-function UserPresence(props: { user: UserPresence }) {
-	const letters = props.user.name.split(" ").map((val) => val[0]);
-
-	return (
-		<Presence
-			name={letters.join("")}
-			color={props.user.color}
-			tooltip={props.user.name}
-		/>
 	);
 }

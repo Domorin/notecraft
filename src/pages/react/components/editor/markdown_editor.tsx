@@ -63,7 +63,6 @@ export function WysiwygEditor(props: {
 						return cursor;
 					}
 
-					console.log(user);
 					cursor.classList.add(
 						"relative",
 						"border",
