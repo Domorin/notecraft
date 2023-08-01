@@ -1,6 +1,6 @@
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
-import { EditorContent, useEditor } from "@tiptap/react";
+import { BubbleMenu, EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useRef } from "react";
 import { createRoot } from "react-dom/client";
@@ -44,7 +44,6 @@ export function WysiwygEditor(props: {
 			Collaboration.configure({
 				document: props.provider.doc,
 			}),
-
 			CollaborationCursor.configure({
 				provider: props.provider,
 				user: {
@@ -94,8 +93,8 @@ export function WysiwygEditor(props: {
 
 	return (
 		<div className="flex h-full flex-col">
-			<div className="flex w-full">
-				<div className="join ml-auto">
+			<BubbleMenu editor={editor}>
+				<div className="join overflow-hidden border border-neutral bg-base-300">
 					<EditorButton
 						editor={editor}
 						icon={faBold}
@@ -161,7 +160,7 @@ export function WysiwygEditor(props: {
 						}
 					/>
 				</div>
-			</div>
+			</BubbleMenu>
 			<EditorContent
 				className="h-full w-full min-w-0 bg-base-100"
 				editor={editor}
