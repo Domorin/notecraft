@@ -5,24 +5,34 @@ import { logger } from "../logging/log";
 type Service = "App" | "Ws";
 
 type RPCs = {
-	App: {};
+	App: {
+		GetNotePermissions: {
+			input: {
+				slug: string;
+			};
+			output: {
+				allowAnyoneToEdit: boolean;
+				creatorId: string;
+			};
+		};
+	};
 	Ws: {
 		GetHost: {
 			input: { slug: string };
-			output: { hostId: string };
+			output: { hostId: string | undefined };
 		};
 	};
 };
-
-type RPCSThing<T extends Service> = Omit<RPCs, T>;
 
 type ServiceRPCs<S extends Service> = {
 	[Thing in keyof RPCs[S]]: (
 		args: RPCs[S][Thing] extends { input: Record<string, unknown> }
 			? RPCs[S][Thing]["input"]
 			: never
-	) => RPCs[S][Thing] extends { output: Record<string, unknown> }
-		? RPCs[S][Thing]["output"]
+	) => RPCs[S][Thing] extends {
+		output: Record<string, unknown>;
+	}
+		? Promise<RPCs[S][Thing]["output"]>
 		: never;
 };
 

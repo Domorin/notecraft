@@ -16,6 +16,7 @@ import { getUsername } from "./usernames";
 import { RedisChannelType } from "../../common/redis/redis";
 import { CustomMessage, UserPresence } from "./types";
 import { logger } from "../../common/logging/log";
+import { WsRedisType } from "./server";
 
 const hexColors = [
 	"#D48C8C",
@@ -62,13 +63,18 @@ export class WSSharedDoc extends Y.Doc {
 	// conns: Map<WebSocket, Set<number>>;
 	conns: Map<WebSocket, { userId: string; clientInfo: UserPresence }>;
 	connCount: number;
+	allowEveryoneToEdit: boolean;
+	creatorId: string;
 
 	name: string;
 	awareness: CustomAwareness;
-	constructor(name: string) {
+	constructor(name: string, allowEveryoneToEdit: boolean, creatorId: string) {
 		super({ gc: gcEnabled });
 		this.name = name;
 		this.connCount = 0;
+
+		this.allowEveryoneToEdit = allowEveryoneToEdit;
+		this.creatorId = creatorId;
 
 		this.conns = new Map();
 		this.awareness = new CustomAwareness(this);
@@ -139,7 +145,24 @@ export class WSSharedDoc extends Y.Doc {
 		}
 	}
 
-	updateHandler = (update: Uint8Array, origin: any) => {
+	updateHandler = (update: Uint8Array, origin: WebSocket) => {
+		// TODO: origin is a websocket connection that originates the update.
+
+		const user = this.conns.get(origin);
+
+		if (!user) {
+			logger.warn("No user found in updateHandler");
+			return;
+		}
+
+		const canEdit =
+			this.allowEveryoneToEdit || user.userId === this.creatorId;
+
+		if (!canEdit) {
+			logger.warn("Edit attempt by user who can not edit");
+			return;
+		}
+
 		const encoder = encoding.createEncoder();
 		encoding.writeVarUint(encoder, messageSync);
 		syncProtocol.writeUpdate(encoder, update);
@@ -303,17 +326,32 @@ export class WSSharedDoc extends Y.Doc {
  * @param docname - the name of the Y.Doc to find or create
  * @param gc - whether to allow gc on the doc (applies only when created)
  */
-export const getYDoc = (docname: string, gc: boolean = true): WSSharedDoc =>
-	map.setIfUndefined(docs, docname, () => {
-		const doc = new WSSharedDoc(docname);
-		doc.gc = gc;
-		docs.set(docname, doc);
-		return doc;
+export const getOrCreateYDoc = async (
+	docname: string,
+	redis: WsRedisType,
+	gc: boolean = true
+): Promise<WSSharedDoc> => {
+	const existingDoc = docs.get(docname);
+	if (existingDoc) {
+		return existingDoc;
+	}
+
+	const permissions = await redis.rpc("App", "GetNotePermissions", {
+		slug: docname,
 	});
 
-const pingTimeout = 5000;
+	const newDoc = new WSSharedDoc(
+		docname,
+		permissions.allowAnyoneToEdit,
+		permissions.creatorId
+	);
+	newDoc.gc = gc;
+	docs.set(docname, newDoc);
+	return newDoc;
+};
 
-export const setupWSConnection = (
+export const setupWSConnection = async (
+	redis: WsRedisType,
 	conn: WebSocket,
 	userId: string,
 	req: IncomingMessage,
@@ -323,7 +361,9 @@ export const setupWSConnection = (
 
 	conn.binaryType = "arraybuffer";
 	// get doc, initialize if it does not exist yet
-	const doc = getYDoc(docName, gc);
+	const doc = await getOrCreateYDoc(docName, redis, gc);
 	doc.addConnection(conn, userId);
 	// listen and reply to events
 };
+
+const pingTimeout = 5000;

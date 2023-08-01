@@ -14,7 +14,6 @@ import { createPortal } from "react-dom";
 import { useCopyToClipboard, useOnClickOutside } from "usehooks-ts";
 import { DateTime } from "luxon";
 import { useUpdateEditPermissionsMutation } from "../../hooks/trpc/use_update_edit_permissions_mutation";
-import { useGetNoteMetadata } from "../../hooks/trpc/use_note_metadata";
 
 type MenuProps = {
 	openTitleInput: () => void;

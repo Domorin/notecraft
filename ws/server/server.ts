@@ -1,15 +1,18 @@
 import { WebSocketServer, WebSocket } from "ws";
-import http from "http";
+import http, { IncomingMessage } from "http";
 import * as cookie from "cookie";
 
 const wss = new WebSocketServer({ noServer: true });
-import { docs, setupWSConnection } from "./utils";
+import { docs, getOrCreateYDoc, setupWSConnection } from "./utils";
 import { initRedis } from "../../common/redis/redis";
 import { CustomMessage } from "./types";
+import { logger } from "../../common/logging/log";
 
 // TODO: from envirment
 export const host = "localhost";
 const port = 4444;
+
+export type WsRedisType = ReturnType<typeof initRedis<"Ws">>;
 
 function initWSServer() {
 	const server = http.createServer((request, response) => {
@@ -20,13 +23,14 @@ function initWSServer() {
 	const redis = initRedis({
 		service: "Ws",
 		rpcHandler: {
-			GetHost: (message) => {
+			GetHost: async (message) => {
 				const connections = docs.get(message.slug)?.conns;
 
 				if (!connections) {
-					throw new Error(
-						`No connections found for room ${message.slug}`
+					logger.warn(
+						"Trying to get host before connection is established"
 					);
+					return { hostId: undefined };
 				}
 
 				const hostId = [...connections.values()][0]?.userId;
@@ -54,7 +58,9 @@ function initWSServer() {
 		});
 	});
 
-	wss.on("connection", setupWSConnection);
+	wss.on("connection", (a: WebSocket, b: string, c: IncomingMessage) =>
+		setupWSConnection(redis, a, b, c)
+	);
 
 	server.on("upgrade", (request, socket, head) => {
 		// You may check auth of request here..

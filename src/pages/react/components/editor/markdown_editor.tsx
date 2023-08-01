@@ -20,6 +20,7 @@ import {
 	faUnderline,
 } from "@fortawesome/free-solid-svg-icons";
 import Underline from "@tiptap/extension-underline";
+import { trpc } from "@/utils/trpc";
 
 export interface WysiwygEditorProps extends Partial<any> {}
 
@@ -30,6 +31,8 @@ export function WysiwygEditor(props: {
 	presences: UserPresence[];
 }) {
 	const ref = useRef(props.presences);
+
+	const metadata_query = trpc.note.metadata.useQuery({ slug: props.slug });
 
 	if (props.presences !== ref.current) {
 		ref.current = props.presences;
@@ -84,11 +87,14 @@ export function WysiwygEditor(props: {
 		],
 	});
 
-	if (!editor) {
+	if (!editor || !metadata_query.isSuccess) {
 		return <></>;
 	}
 
-	editor?.isActive("bold");
+	editor.setEditable(
+		metadata_query.data.allowAnyoneToEdit ||
+			metadata_query.data.isCreatedByYou
+	);
 
 	return (
 		<div className="flex h-full w-full flex-col">
