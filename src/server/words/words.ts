@@ -27,7 +27,7 @@ export namespace Words {
 		return slugs.join("-");
 	}
 
-	export async function getUniquePageSlug() {
+	export async function getUniqueNoteSlug() {
 		let existing_slug: Prisma.NoteGetPayload<{}> | null = null;
 		let i = 0;
 		do {

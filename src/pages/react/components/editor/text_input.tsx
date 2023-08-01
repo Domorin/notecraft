@@ -1,19 +1,13 @@
-import React, { useEffect, useRef, useState } from "react";
-import { WebrtcProvider } from "y-webrtc";
+import classNames from "classnames";
+import { useEffect, useState } from "react";
 import * as Y from "yjs";
-import { Spinner } from "../spinner";
-import { RouterOutput } from "@/server/routers/_app";
-import { useUpdateMetadata } from "../../hooks/trpc/use_update_metadata";
-import ReactDOM from "react-dom";
-import { createRoot } from "react-dom/client";
-import { WebsocketProvider } from "y-websocket";
-import { CustomAwareness } from "../../../../../common/yjs/custom_awareness";
 import { CustomProvider } from "../../../../../common/yjs/custom_provider";
 import type {
 	CustomMessage,
 	UserPresence,
 } from "../../../../../ws/server/types";
-import classNames from "classnames";
+import { useUpdateMetadata } from "../../hooks/trpc/use_update_metadata";
+import { Spinner } from "../spinner";
 import { WysiwygEditor } from "./markdown_editor";
 
 export function TextInput(props: {
@@ -40,13 +34,8 @@ export function TextInput(props: {
 							setPresences(m.users);
 							break;
 						case "noteMetadataUpdate":
-							setNoteMetadata({
-								createdAt: m.createdAt,
-								updatedAt: m.updatedAt,
-								viewedAt: m.viewedAt,
-								views: m.views,
-								title: m.title,
-							});
+							const { type, ...val } = m;
+							setNoteMetadata(val);
 							break;
 					}
 				},
@@ -64,7 +53,6 @@ export function TextInput(props: {
 		return <Spinner />;
 	}
 
-
 	return (
 		<div className="flex h-full w-full flex-col">
 			{/* <TextInputWithProvider
@@ -73,7 +61,7 @@ export function TextInput(props: {
 				presences={presences}
 			/> */}
 			<div className="relative">
-				<div className="presence absolute right-0 z-10 m-4 opacity-25 transition-all hover:opacity-100">
+				<div className="presence absolute right-0 z-[1] m-4 opacity-25 transition-all hover:opacity-100">
 					<Presences
 						presences={presences}
 						clientId={props.doc.clientID}

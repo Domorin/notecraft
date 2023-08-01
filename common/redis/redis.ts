@@ -40,7 +40,10 @@ export function getNextId() {
 }
 
 export type RedisChannelType = {
-	NoteMetadataUpdate: RouterOutput["note"]["metadata"];
+	NoteMetadataUpdate: Omit<
+		RouterOutput["note"]["metadata"],
+		"isCreatedByYou"
+	>;
 	RPCRequest: {
 		id: number;
 		rpc: string;

@@ -3,6 +3,8 @@ import {
 	faEdit,
 	faEllipsis,
 	faLink,
+	faLock,
+	faLockOpen,
 	faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -11,6 +13,8 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useCopyToClipboard, useOnClickOutside } from "usehooks-ts";
 import { DateTime } from "luxon";
+import { useUpdateEditPermissionsMutation } from "../../hooks/trpc/use_update_edit_permissions_mutation";
+import { useGetNoteMetadata } from "../../hooks/trpc/use_note_metadata";
 
 type MenuProps = {
 	openTitleInput: () => void;
@@ -76,13 +80,21 @@ function MenuPopup(
 		return () => window.removeEventListener("resize", setPosition);
 	}, [props.parentRef, ref]);
 
+	const disabled =
+		!props.metadata.isCreatedByYou && !props.metadata.allowAnyoneToEdit;
+
 	return (
 		<ul
 			className="dropdown-content menu rounded-box absolute z-[1] ml-2 mt-2 w-fit min-w-[14rem] bg-base-300 py-2 text-base-content shadow"
 			ref={ref}
 			onClick={(e) => e.preventDefault()}
 		>
-			<li>
+			<li
+				className={classNames({
+					"disabled [&>*]:hover:!cursor-not-allowed [&>*]:hover:!bg-inherit [&>*]:hover:!text-inherit":
+						disabled,
+				})}
+			>
 				<div className="flex items-center gap-2">
 					<div className="flex w-6 justify-center">
 						<FontAwesomeIcon icon={faTrash} />
@@ -90,10 +102,15 @@ function MenuPopup(
 					Delete
 				</div>
 			</li>
-			<li>
+			<li
+				className={classNames({
+					"disabled [&>*]:hover:!cursor-not-allowed [&>*]:hover:!bg-inherit [&>*]:hover:!text-inherit":
+						disabled,
+				})}
+			>
 				<div
 					className="flex items-center gap-2"
-					onClick={props.openTitleInput}
+					onClick={!disabled ? props.openTitleInput : undefined}
 				>
 					<div className="flex w-6 justify-center">
 						<FontAwesomeIcon icon={faEdit} />
@@ -118,6 +135,17 @@ function MenuPopup(
 					Copy Link
 				</div>
 			</li>
+			<li
+				className={classNames({
+					"disabled [&>*]:hover:!cursor-not-allowed [&>*]:hover:!bg-inherit [&>*]:hover:!text-inherit":
+						disabled,
+				})}
+			>
+				<AllowAnyoneToEditOption
+					metadata={props.metadata}
+					disabled={disabled}
+				/>
+			</li>
 			<div className="divider my-0"></div>
 			<li className="px-2 text-xs opacity-40">
 				{`Edited ${getTimeText(props.metadata.updatedAt)}`}
@@ -125,6 +153,42 @@ function MenuPopup(
 				{`Viewed ${getTimeText(props.metadata.viewedAt)}`}
 			</li>
 		</ul>
+	);
+}
+
+export function AllowAnyoneToEditOption(props: {
+	metadata: RouterOutput["note"]["metadata"];
+	disabled: boolean;
+}) {
+	const mutation = useUpdateEditPermissionsMutation(props.metadata.slug);
+
+	const isChecked = props.metadata.allowAnyoneToEdit;
+
+	return (
+		<div
+			className="flex items-center gap-4"
+			onClick={() => {
+				if (props.disabled) return;
+				mutation.mutate({
+					allowAnyoneToEdit: !isChecked,
+					slug: props.metadata.slug,
+				});
+			}}
+		>
+			<div className="flex items-center gap-2">
+				<div className="flex w-6 justify-center">
+					<FontAwesomeIcon icon={isChecked ? faLockOpen : faLock} />
+				</div>
+				Allow anyone to edit
+			</div>
+			<input
+				disabled={props.disabled}
+				type="checkbox"
+				className="toggle-primary toggle toggle-sm ml-auto"
+				readOnly
+				checked={isChecked}
+			/>
+		</div>
 	);
 }
 

@@ -35,7 +35,7 @@ async function MockNotes(id: string) {
 
 		const date = now.minus({ hours: i * hoursIncrement }).toJSDate();
 
-		const slug = await Words.getUniquePageSlug();
+		const slug = await Words.getUniqueNoteSlug();
 
 		promises.push(
 			prisma.note.create({

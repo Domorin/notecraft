@@ -7,17 +7,121 @@ import * as Y from "yjs";
 import { redis } from "../redis";
 import { encodeYDocContent } from "@/lib/ydoc_utils";
 import { titleLimiter } from "@/lib/validators";
+import { Prisma } from "@prisma/client";
+import { data } from "autoprefixer";
 
 const zodListType = z.enum(["Created", "Viewed"]);
 export type ListType = z.infer<typeof zodListType>;
 
+type NoteFindUniqueParams = Parameters<typeof prisma.note.findUnique>[0];
+type NoteSelectParameters = NoteFindUniqueParams["select"];
+
+const NoteMetadataParameters = {
+	slug: true,
+	updatedAt: true,
+	createdAt: true,
+	viewedAt: true,
+	views: true,
+	title: true,
+	allowAnyoneToEdit: true,
+	creatorId: true,
+} satisfies NoteSelectParameters;
+
+async function getNoteMetadataWithCreatorId(slug: string) {
+	const metadata = await prisma.note.findUnique({
+		where: {
+			slug,
+		},
+		select: { ...NoteMetadataParameters, creatorId: true },
+	});
+
+	if (!metadata) {
+		throw new TRPCError({
+			code: "NOT_FOUND",
+			message: "Note not found",
+		});
+	}
+
+	return metadata;
+}
+
+type PrismaNoteMetadata = Prisma.NoteGetPayload<{
+	select: typeof NoteMetadataParameters;
+}>;
+
+type f = Prisma.NoteUpdateArgs;
+
+/**
+ * This function is to ensure creatorId is not leaked to the client.
+ * If a user get's access to a user's id, they can see all the notes they've created
+ * Not a huge deal since all notes are public, but still shouldn't make it that easy
+ */
+function parseNoteMetadataForWeb(
+	metadataWithCreatorId: PrismaNoteMetadata & { creatorId: string },
+	userId: string
+) {
+	const { creatorId, ...metadata } = metadataWithCreatorId;
+
+	return {
+		...metadata,
+		isCreatedByYou: creatorId === userId,
+	};
+}
+
+async function updateNoteMetadataForWeb(
+	userId: string,
+	params: {
+		data: Prisma.NoteUpdateInput;
+		where: Prisma.NoteWhereUniqueInput;
+	}
+) {
+	const note = await prisma.note.findUnique({
+		where: params.where,
+	});
+
+	if (!note) {
+		throw new TRPCError({
+			code: "NOT_FOUND",
+			message: "Note not found",
+		});
+	}
+
+	if (!note.allowAnyoneToEdit && note.creatorId !== userId) {
+		throw new TRPCError({
+			code: "UNAUTHORIZED",
+			message: "You can not edit this note",
+		});
+	}
+
+	const updateResult = await prisma.note.update({
+		// ...params,
+		data: params.data,
+		where: params.where,
+		select: NoteMetadataParameters,
+	});
+
+	const parsedNote = parseNoteMetadataForWeb(updateResult, userId);
+
+	redis.pubsub.publish("NoteMetadataUpdate", {
+		createdAt: parsedNote.createdAt.toISOString(),
+		updatedAt: parsedNote.updatedAt.toISOString(),
+		slug: parsedNote.slug,
+		viewedAt: parsedNote.viewedAt?.toISOString(),
+		views: parsedNote.views,
+		title: parsedNote.title,
+		allowAnyoneToEdit: parsedNote.allowAnyoneToEdit,
+	});
+
+	return parsedNote;
+}
+
 export const noteRouter = router({
 	create: authedProcedure.mutation(async ({ input, ctx: { userId } }) => {
-		const slug = await Words.getUniquePageSlug();
+		const slug = await Words.getUniqueNoteSlug();
 
 		const ydoc = new Y.Doc();
 
-		const page = await prisma.note.create({
+		const note = await prisma.note.create({
 			data: {
 				slug,
 				content: Buffer.from(encodeYDocContent(ydoc)),
@@ -33,7 +137,7 @@ export const noteRouter = router({
 				},
 			},
 		});
-		return page;
+		return parseNoteMetadataForWeb(note, userId);
 	}),
 	metadata: authedProcedure
 		.input(z.object({ slug: z.string() }))
@@ -42,14 +146,7 @@ export const noteRouter = router({
 				where: {
 					slug: input.slug,
 				},
-				select: {
-					slug: true,
-					updatedAt: true,
-					createdAt: true,
-					viewedAt: true,
-					views: true,
-					title: true,
-				},
+				select: NoteMetadataParameters,
 			});
 
 			if (!metadata) {
@@ -59,7 +156,7 @@ export const noteRouter = router({
 				});
 			}
 
-			return metadata;
+			return parseNoteMetadataForWeb(metadata, userId);
 		}),
 	content: authedProcedure
 		.input(z.object({ slug: z.string() }))
@@ -102,26 +199,29 @@ export const noteRouter = router({
 			})
 		)
 		.mutation(async ({ input, ctx: { userId } }) => {
-			const note = await prisma.note.update({
-				data: {
-					title: input.title,
-					updatedAt: new Date(),
-				},
+			return updateNoteMetadataForWeb(userId, {
+				data: { title: input.title, updatedAt: new Date() },
 				where: {
 					slug: input.slug,
 				},
 			});
-
-			redis.pubsub.publish("NoteMetadataUpdate", {
-				createdAt: note.createdAt.toISOString(),
-				updatedAt: note.updatedAt.toISOString(),
-				slug: note.slug,
-				viewedAt: note.viewedAt?.toISOString(),
-				views: note.views,
-				title: note.title,
+		}),
+	updateEditPermissions: authedProcedure
+		.input(
+			z.object({
+				slug: z.string(),
+				allowAnyoneToEdit: z.boolean(),
+			})
+		)
+		.mutation(async ({ input, ctx: { userId } }) => {
+			return updateNoteMetadataForWeb(userId, {
+				where: {
+					slug: input.slug,
+				},
+				data: {
+					allowAnyoneToEdit: input.allowAnyoneToEdit,
+				},
 			});
-
-			return note;
 		}),
 	save: authedProcedure
 		.input(
@@ -142,7 +242,7 @@ export const noteRouter = router({
 				return;
 			}
 
-			const note = await prisma.note.update({
+			return updateNoteMetadataForWeb(userId, {
 				data: {
 					content: Buffer.from(input.content),
 					updatedAt: updatedAtDate,
@@ -152,35 +252,21 @@ export const noteRouter = router({
 					slug: input.slug,
 				},
 			});
-
-			redis.pubsub.publish("NoteMetadataUpdate", {
-				createdAt: note.createdAt.toISOString(),
-				updatedAt: note.updatedAt.toISOString(),
-				slug: note.slug,
-				viewedAt: note.viewedAt?.toISOString(),
-				views: note.views,
-				title: note.title,
-			});
-
-			return note;
 		}),
 	listCreated: authedProcedure.query(async ({ input, ctx: { userId } }) => {
-		return prisma.note.findMany({
-			select: {
-				slug: true,
-				createdAt: true,
-				updatedAt: true,
-				viewedAt: true,
-				views: true,
-				title: true,
-			},
-			orderBy: {
-				updatedAt: "desc",
-			},
-			where: {
-				creatorId: userId,
-			},
-		});
+		return prisma.note
+			.findMany({
+				select: NoteMetadataParameters,
+				orderBy: {
+					updatedAt: "desc",
+				},
+				where: {
+					creatorId: userId,
+				},
+			})
+			.then((val) =>
+				val.map((note) => parseNoteMetadataForWeb(note, userId))
+			);
 	}),
 	listSlugs: authedProcedure
 		.input(
@@ -190,17 +276,7 @@ export const noteRouter = router({
 		)
 		.query(async ({ input, ctx: { userId } }) => {
 			const result = await prisma.note.findMany({
-				select: {
-					slug: true,
-					createdAt: true,
-					updatedAt: true,
-					views: true,
-					viewedAt: true,
-					title: true,
-				},
-				orderBy: {
-					updatedAt: "desc",
-				},
+				select: NoteMetadataParameters,
 				where: {
 					slug: {
 						in: input.slugs,
@@ -208,12 +284,14 @@ export const noteRouter = router({
 				},
 			});
 
+			// Order slugs by the input order and filter out slogs we can not find
 			return input.slugs
 				.map((slug) => {
 					return result.find((note) => note.slug === slug);
 				})
 				.filter(
 					(val): val is (typeof result)[number] => val !== undefined
-				);
+				)
+				.map((val) => parseNoteMetadataForWeb(val, userId));
 		}),
 });

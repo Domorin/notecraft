@@ -59,7 +59,7 @@ export function ThemePicker() {
 			<summary className="btn m-1">
 				<FontAwesomeIcon icon={faPalette} /> theme
 			</summary>
-			<ul className="dropdown-content menu rounded-box z-[1] max-h-80 w-52 flex-nowrap overflow-scroll bg-base-100 p-2 shadow">
+			<ul className="dropdown-content menu rounded-box z-[10] max-h-80 w-52 flex-nowrap overflow-scroll bg-base-100 p-2 shadow">
 				{themes.map((theme) => (
 					<li key={theme} onClick={() => updateTheme(theme)}>
 						<a

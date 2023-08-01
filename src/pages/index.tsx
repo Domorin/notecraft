@@ -21,6 +21,8 @@ export default function IndexPage() {
 						viewedAt: data.viewedAt,
 						views: data.views,
 						title: data.title,
+						allowAnyoneToEdit: data.allowAnyoneToEdit,
+						isCreatedByYou: data.isCreatedByYou,
 					},
 					...slugs,
 				];
