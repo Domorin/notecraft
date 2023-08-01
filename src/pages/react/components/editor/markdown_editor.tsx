@@ -92,7 +92,7 @@ export function WysiwygEditor(props: {
 	editor?.isActive("bold");
 
 	return (
-		<div className="flex h-full flex-col">
+		<div className="flex h-full w-full flex-col">
 			<BubbleMenu editor={editor}>
 				<div className="join overflow-hidden border border-neutral bg-base-300">
 					<EditorButton
@@ -162,7 +162,7 @@ export function WysiwygEditor(props: {
 				</div>
 			</BubbleMenu>
 			<EditorContent
-				className="h-full w-full min-w-0 bg-base-100"
+				className="rounded-box h-full w-full min-w-0 bg-base-100"
 				editor={editor}
 			/>
 		</div>

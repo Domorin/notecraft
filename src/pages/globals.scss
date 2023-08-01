@@ -21,7 +21,14 @@
 }
 
 .ProseMirror {
+	@apply rounded-box px-12 py-12;
 	height: 100%;
+	width: 100%;
+	overflow-y: auto;
+
+	&:focus-visible {
+		outline: none;
+	}
 
 	> * + * {
 		margin-top: 0.75em;

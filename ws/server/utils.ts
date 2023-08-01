@@ -15,6 +15,7 @@ import {
 import { getUsername } from "./usernames";
 import { RedisChannelType } from "../../common/redis/redis";
 import { CustomMessage, UserPresence } from "./types";
+import { logger } from "../../common/logging/log";
 
 const hexColors = [
 	"#D48C8C",
@@ -94,7 +95,8 @@ export class WSSharedDoc extends Y.Doc {
 				const connDescriptor = this.conns.get(conn);
 
 				if (!connDescriptor) {
-					throw new Error("No conn descriptor found!");
+					logger.warn("No conn descriptor found!");
+					return;
 				}
 
 				if (addId) {

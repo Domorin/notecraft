@@ -64,21 +64,22 @@ export function TextInput(props: {
 		return <Spinner />;
 	}
 
+
 	return (
-		<div className="flex h-full flex-col">
-			<div className="flex gap-2">
-				<div className="ml-auto">
+		<div className="flex h-full w-full flex-col">
+			{/* <TextInputWithProvider
+				{...props}
+				provider={provider}
+				presences={presences}
+			/> */}
+			<div className="relative">
+				<div className="presence absolute right-0 z-10 m-4 opacity-25 transition-all hover:opacity-100">
 					<Presences
 						presences={presences}
 						clientId={props.doc.clientID}
 					/>
 				</div>
 			</div>
-			{/* <TextInputWithProvider
-				{...props}
-				provider={provider}
-				presences={presences}
-			/> */}
 			<WysiwygEditor
 				{...props}
 				provider={provider}

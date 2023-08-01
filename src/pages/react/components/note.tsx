@@ -71,7 +71,7 @@ function NoteWithContent(props: { noteContent: Buffer; slug: string }) {
 	}, [saveMutation, slug]);
 
 	return (
-		<div className="flex h-full flex-col">
+		<div className="flex h-full w-full flex-col">
 			<TextInput
 				key={props.slug}
 				slug={props.slug}
@@ -85,10 +85,14 @@ function NoteWithContent(props: { noteContent: Buffer; slug: string }) {
 					// );
 				}}
 			/>
-			<NoteEditDisplaySuspense
-				slug={props.slug}
-				isSaving={saveMutation.isLoading}
-			/>
+			<div className="relative w-full">
+				<div className="r-0 absolute flex w-full">
+					<NoteEditDisplaySuspense
+						slug={props.slug}
+						isSaving={saveMutation.isLoading}
+					/>
+				</div>
+			</div>
 		</div>
 	);
 }
