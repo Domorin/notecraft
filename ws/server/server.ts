@@ -24,7 +24,8 @@ function initWSServer() {
 		service: "Ws",
 		rpcHandler: {
 			GetHost: async (message) => {
-				const connections = docs.get(message.slug)?.conns;
+				const doc = docs.get(message.slug);
+				const connections = doc?.conns;
 
 				if (!connections) {
 					logger.warn(
@@ -33,7 +34,14 @@ function initWSServer() {
 					return { hostId: undefined };
 				}
 
-				const hostId = [...connections.values()][0]?.userId;
+				const connectionsArray = [...connections.values()];
+
+				// Prioritize the creator of the note as the host if they are present
+				const hostId = (
+					connectionsArray.find(
+						(val) => val.userId === doc.creatorId
+					) ?? connectionsArray[0]
+				)?.userId;
 
 				if (!hostId) {
 					throw new Error(`No host found for room ${message.slug}`);
@@ -52,6 +60,11 @@ function initWSServer() {
 
 	// Subscribe to NoteMetadataUpdate from redis; broadcast to all connections
 	redis.pubsub.subscribe("NoteMetadataUpdate", (message) => {
+		const doc = docs.get(message.slug);
+		if (doc) {
+			doc.allowEveryoneToEdit = message.allowAnyoneToEdit;
+		}
+
 		docBroadcastAll(message.slug, {
 			type: "noteMetadataUpdate",
 			...message,
