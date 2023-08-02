@@ -14,6 +14,9 @@ import { createPortal } from "react-dom";
 import { useCopyToClipboard, useOnClickOutside } from "usehooks-ts";
 import { DateTime } from "luxon";
 import { useUpdateEditPermissionsMutation } from "../../hooks/trpc/use_update_edit_permissions_mutation";
+import { Router } from "next/router";
+import { useDeleteNoteMutation } from "../../hooks/trpc/use_delete_note_mutation";
+import { Spinner } from "../spinner";
 
 type MenuProps = {
 	openTitleInput: () => void;
@@ -60,6 +63,7 @@ function MenuPopup(
 ) {
 	const ref = useRef(null as HTMLUListElement | null);
 	const [_, setCopied] = useCopyToClipboard();
+	const deleteMutation = useDeleteNoteMutation(props.metadata.slug);
 
 	useOnClickOutside(ref, props.close);
 
@@ -80,7 +84,8 @@ function MenuPopup(
 	}, [props.parentRef, ref]);
 
 	const disabled =
-		!props.metadata.isCreatedByYou && !props.metadata.allowAnyoneToEdit;
+		deleteMutation.isLoading ||
+		(!props.metadata.isCreatedByYou && !props.metadata.allowAnyoneToEdit);
 
 	return (
 		<ul
@@ -94,12 +99,11 @@ function MenuPopup(
 						disabled,
 				})}
 			>
-				<div className="flex items-center gap-2">
-					<div className="flex w-6 justify-center">
-						<FontAwesomeIcon icon={faTrash} />
-					</div>
-					Delete
-				</div>
+				<DeleteNoteOption
+					deleteMutation={deleteMutation}
+					disabled={disabled}
+					metadata={props.metadata}
+				/>
 			</li>
 			<li
 				className={classNames({
@@ -155,7 +159,34 @@ function MenuPopup(
 	);
 }
 
-export function AllowAnyoneToEditOption(props: {
+function DeleteNoteOption(props: {
+	deleteMutation: ReturnType<typeof useDeleteNoteMutation>;
+	metadata: RouterOutput["note"]["metadata"];
+	disabled: boolean;
+}) {
+	return (
+		<div
+			className="flex items-center gap-2"
+			onClick={() =>
+				props.deleteMutation.mutate({
+					slug: props.metadata.slug,
+				})
+			}
+		>
+			<div className="flex w-6 justify-center">
+				<FontAwesomeIcon icon={faTrash} />
+			</div>
+			<div>Delete</div>
+			{props.deleteMutation.isLoading && (
+				<div className="ml-auto">
+					<Spinner size="xs" />
+				</div>
+			)}
+		</div>
+	);
+}
+
+function AllowAnyoneToEditOption(props: {
 	metadata: RouterOutput["note"]["metadata"];
 	disabled: boolean;
 }) {

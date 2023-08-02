@@ -9,6 +9,7 @@ import { encodeYDocContent } from "@/lib/ydoc_utils";
 import { titleLimiter } from "@/lib/validators";
 import { Prisma } from "@prisma/client";
 import { data } from "autoprefixer";
+import { sleep } from "@/lib/misc";
 
 const zodListType = z.enum(["Created", "Viewed"]);
 export type ListType = z.infer<typeof zodListType>;
@@ -26,24 +27,6 @@ const NoteMetadataParameters = {
 	allowAnyoneToEdit: true,
 	creatorId: true,
 } satisfies NoteSelectParameters;
-
-async function getNoteMetadataWithCreatorId(slug: string) {
-	const metadata = await prisma.note.findUnique({
-		where: {
-			slug,
-		},
-		select: { ...NoteMetadataParameters, creatorId: true },
-	});
-
-	if (!metadata) {
-		throw new TRPCError({
-			code: "NOT_FOUND",
-			message: "Note not found",
-		});
-	}
-
-	return metadata;
-}
 
 type PrismaNoteMetadata = Prisma.NoteGetPayload<{
 	select: typeof NoteMetadataParameters;
@@ -293,5 +276,43 @@ export const noteRouter = router({
 					(val): val is (typeof result)[number] => val !== undefined
 				)
 				.map((val) => parseNoteMetadataForWeb(val, userId));
+		}),
+	delete: authedProcedure
+		.input(
+			z.object({
+				slug: z.string(),
+			})
+		)
+		.mutation(async ({ input, ctx: { userId } }) => {
+			await sleep(2000);
+			const note = await prisma.note.findUnique({
+				where: {
+					slug: input.slug,
+				},
+				select: {
+					creatorId: true,
+					slug: true,
+					id: true,
+				},
+			});
+
+			if (!note) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Note not found",
+				});
+			}
+
+			if (note.creatorId !== userId) {
+				throw new TRPCError({
+					code: "UNAUTHORIZED",
+					message: "You are not the creator of this note",
+				});
+			}
+			await prisma.note.delete({
+				where: {
+					slug: input.slug,
+				},
+			});
 		}),
 });

@@ -1,6 +1,9 @@
-import { httpBatchLink } from "@trpc/client";
+import { TRPCClientError, httpBatchLink } from "@trpc/client";
 import { createTRPCNext } from "@trpc/next";
 import type { AppRouter } from "../server/routers/_app";
+import { toast } from "react-hot-toast";
+import { Router } from "next/router";
+import { router } from "@/server/trpc";
 
 function getBaseUrl() {
 	if (typeof window !== "undefined")
@@ -25,6 +28,35 @@ function getBaseUrl() {
 export const trpc = createTRPCNext<AppRouter>({
 	config(opts) {
 		return {
+			queryClientConfig: {
+				defaultOptions: {
+					queries: {
+						retry: (failureCount, error) => {
+							const shouldRetryAgain = failureCount < 3;
+
+							if (error instanceof TRPCClientError) {
+								// NOT_FOUND errors are handled separately; we will redirect them
+								if (error.data.code !== "NOT_FOUND") {
+									toast.error(error.message);
+								}
+								return false;
+							}
+							return shouldRetryAgain;
+						},
+					},
+					mutations: {
+						retry: (failureCount, error) => {
+							const shouldRetryAgain = failureCount < 3;
+
+							if (error instanceof TRPCClientError) {
+								toast.error(error.message);
+								return false;
+							}
+							return shouldRetryAgain;
+						},
+					},
+				},
+			},
 			links: [
 				httpBatchLink({
 					/**
