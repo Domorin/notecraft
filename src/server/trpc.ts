@@ -38,7 +38,6 @@ export const authedProcedure = t.procedure.use(
 
 		if (shouldCreateNewUser && "setHeader" in ctx.api.res) {
 			// TODO: do not make a user if they have cookies disabled
-			// TODO: they can send in a messed up cookie and create a new user with a messed up ID, is it fine?
 			const user = await prisma.user.create({
 				data: {},
 			});

@@ -6,10 +6,30 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import { SidebarListViewButton } from "./sidebar_list_view_button";
 import { SidebarListNotes } from "./sidebar_lists";
+import { trpc } from "@/utils/trpc";
+import { usePageSlug } from "../../hooks/use_page_id";
 
 export function Sidebar() {
 	const [currentList, setCurrentList] = useState("Created" as ListType);
 	const router = useRouter();
+	const slug = usePageSlug();
+
+	const [currentSlug, setCurrentSlug] = useState(
+		undefined as string | undefined
+	);
+
+	const metadata_query = trpc.note.metadata.useQuery(
+		{ slug: slug! },
+		{ enabled: !!slug }
+	);
+
+	// Update list view when slug changes
+	if (metadata_query.data && currentSlug !== metadata_query.data.slug) {
+		if (!metadata_query.data.isCreatedByYou) {
+			setCurrentSlug(metadata_query.data.slug);
+			setCurrentList("Viewed");
+		}
+	}
 
 	return (
 		<div className="flex h-full w-full flex-col border-r border-neutral">
