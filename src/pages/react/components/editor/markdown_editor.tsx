@@ -17,6 +17,7 @@ import {
 	faList,
 	faQuoteLeft,
 	faStrikethrough,
+	faTasks,
 	faUnderline,
 } from "@fortawesome/free-solid-svg-icons";
 import Underline from "@tiptap/extension-underline";
@@ -167,6 +168,14 @@ export function WysiwygEditor(props: {
 						icon={faStrikethrough}
 						onClick={() =>
 							editor?.chain().focus().toggleStrike().run()
+						}
+					/>
+					<EditorButton
+						label="tasklist"
+						editor={editor}
+						icon={faTasks}
+						onClick={() =>
+							editor?.chain().focus().toggleTaskList().run()
 						}
 					/>
 				</div>
