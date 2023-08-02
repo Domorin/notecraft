@@ -1,7 +1,7 @@
 import { trpc } from "@/utils/trpc";
 import debounce from "lodash.debounce";
 import { DateTime } from "luxon";
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import * as Y from "yjs";
 import { usePageSlug } from "../hooks/use_page_id";
 import { DefaultSuspense } from "./default_suspense";
@@ -46,7 +46,9 @@ function saveContent(
 	});
 }
 
-const debouncedSaveContent = debounce(saveContent, 2000);
+const debouncedSaveContent = debounce(saveContent, 2000, {
+	maxWait: 5000,
+});
 
 function NoteWithContent(props: { noteContent: Buffer; slug: string }) {
 	const { slug, noteContent } = props;
@@ -85,7 +87,7 @@ function NoteWithContent(props: { noteContent: Buffer; slug: string }) {
 				}}
 			/>
 			<div className="relative w-full">
-				<div className="r-0 absolute flex w-full">
+				<div className="absolute flex w-full">
 					<NoteEditDisplaySuspense
 						slug={props.slug}
 						isSaving={saveMutation.isLoading}
@@ -98,9 +100,9 @@ function NoteWithContent(props: { noteContent: Buffer; slug: string }) {
 
 function NoteEditDisplaySuspense(props: { slug: string; isSaving: boolean }) {
 	return (
-		<DefaultSuspense>
+		<Suspense fallback={<></>}>
 			<NoteEditDisplay {...props} />
-		</DefaultSuspense>
+		</Suspense>
 	);
 }
 

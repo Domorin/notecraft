@@ -3,7 +3,6 @@ import { CreateHTTPContextOptions } from "@trpc/server/adapters/standalone";
 import { CreateWSSContextFnOptions } from "@trpc/server/adapters/ws";
 import * as cookie from "cookie";
 import { prisma } from "./prisma";
-import { redis } from "./redis";
 
 export const createContext = async (
 	opts: CreateHTTPContextOptions | CreateWSSContextFnOptions
@@ -44,14 +43,16 @@ export const authedProcedure = t.procedure.use(
 				data: {},
 			});
 			userId = user.id;
+		}
 
+		if ("setHeader" in ctx.api.res) {
 			ctx.api.res.setHeader(
 				"Set-Cookie",
 				cookie.serialize("id", userId, {
 					httpOnly: true,
 					sameSite: "strict",
 					// secure: false,
-					expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365),
+					maxAge: 60 * 60 * 24 * 365,
 					path: "/",
 				})
 			);

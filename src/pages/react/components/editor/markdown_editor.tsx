@@ -21,6 +21,9 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Underline from "@tiptap/extension-underline";
 import { trpc } from "@/utils/trpc";
+import { RouterOutput } from "@/server/routers/_app";
+import TaskItem from "@tiptap/extension-task-item";
+import TaskList from "@tiptap/extension-task-list";
 
 export interface WysiwygEditorProps extends Partial<any> {}
 
@@ -29,10 +32,9 @@ export function WysiwygEditor(props: {
 	setContent: (content: string) => void;
 	provider: CustomProvider;
 	presences: UserPresence[];
+	metadata: RouterOutput["note"]["metadata"];
 }) {
 	const ref = useRef(props.presences);
-
-	const metadata_query = trpc.note.metadata.useQuery({ slug: props.slug });
 
 	if (props.presences !== ref.current) {
 		ref.current = props.presences;
@@ -84,16 +86,19 @@ export function WysiwygEditor(props: {
 					return cursor;
 				},
 			}),
+			TaskList,
+			TaskItem.configure({
+				nested: true,
+			}),
 		],
 	});
 
-	if (!editor || !metadata_query.isSuccess) {
+	if (!editor) {
 		return <></>;
 	}
 
 	editor.setEditable(
-		metadata_query.data.allowAnyoneToEdit ||
-			metadata_query.data.isCreatedByYou
+		props.metadata.allowAnyoneToEdit || props.metadata.isCreatedByYou
 	);
 
 	return (
