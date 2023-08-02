@@ -32,16 +32,13 @@ export const trpc = createTRPCNext<AppRouter>({
 				defaultOptions: {
 					queries: {
 						retry: (failureCount, error) => {
-							const shouldRetryAgain = failureCount < 3;
-
 							if (error instanceof TRPCClientError) {
-								// NOT_FOUND errors are handled separately; we will redirect them
-								if (error.data.code !== "NOT_FOUND") {
-									toast.error(error.message);
+								// If not found, don't retry
+								if (error.data.code === "NOT_FOUND") {
+									return false;
 								}
-								return false;
 							}
-							return shouldRetryAgain;
+							return failureCount < 3;
 						},
 					},
 					mutations: {
@@ -49,10 +46,12 @@ export const trpc = createTRPCNext<AppRouter>({
 							const shouldRetryAgain = failureCount < 3;
 
 							if (error instanceof TRPCClientError) {
-								toast.error(error.message);
-								return false;
+								// If not found, don't retry
+								if (error.data.code === "NOT_FOUND") {
+									return false;
+								}
 							}
-							return shouldRetryAgain;
+							return failureCount < 3;
 						},
 					},
 				},

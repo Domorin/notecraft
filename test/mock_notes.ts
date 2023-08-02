@@ -5,9 +5,6 @@ import { DateTime } from "luxon";
 import * as Y from "yjs";
 
 async function MockNotes(id: string) {
-	console.log("HELLO?");
-	console.log("id", id);
-
 	if (process.env.NODE_ENV !== "development") {
 		throw new Error("Can only mock notes in development mode");
 	}

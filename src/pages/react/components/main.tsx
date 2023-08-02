@@ -1,11 +1,14 @@
 import { faX } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import toast, { Toaster, resolveValue } from "react-hot-toast";
+import { NotFoundPage } from "./not_found_page";
 import { LoadableNote } from "./note";
 import { Sidebar } from "./sidebar/sidebar";
 import { ThemePicker } from "./theme_picker";
-import { usePageSlug } from "../hooks/use_page_id";
-import { NotFoundPage } from "./not_found_page";
+import { useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/router";
+import { TRPCClientError } from "@trpc/client";
 
 export default function MainPage(props: { is_not_found?: boolean }) {
 	return (
