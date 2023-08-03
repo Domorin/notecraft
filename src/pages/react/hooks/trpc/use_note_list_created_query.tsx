@@ -8,7 +8,8 @@ export function useNoteListCreatedQuery() {
 
 	// Though the listCreated query returns a list of metadata, we consider the canonical data to be in the `metadata` query.
 	// This query should only be used for sorting, hence the `select` call only returning slugs
-	return useQuery(getQueryKey(trpc.note.listCreated, undefined), {
+
+	return useQuery(getQueryKey(trpc.note.listCreated, undefined, "query"), {
 		queryFn: async () => {
 			const notes = await context.client.note.listCreated.query(
 				undefined

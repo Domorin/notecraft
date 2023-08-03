@@ -19,9 +19,9 @@ export function useNoteListRecent() {
 		parsedRecents[key] = new Date(val);
 	}
 
-	return [
-		parsedRecents,
-		(slug: string) =>
+	return {
+		recents: parsedRecents,
+		add: (slug: string) =>
 			setRecents((val) => {
 				const newVal = { ...val };
 				newVal[slug] = new Date();
@@ -40,5 +40,11 @@ export function useNoteListRecent() {
 
 				return newVal;
 			}),
-	] as const;
+		remove: (slug: string) =>
+			setRecents((val) => {
+				const newVal = { ...val };
+				delete newVal[slug];
+				return newVal;
+			}),
+	};
 }

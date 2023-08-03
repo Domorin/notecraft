@@ -5,44 +5,42 @@ import { useQuery } from "@tanstack/react-query";
 import { getQueryKey } from "@trpc/react-query";
 
 export function useNoteListRecentsQuery() {
-	const context = trpc.useContext();
-	const { recents, sync } = useNoteListRecent();
+	const { recents, add, remove } = useNoteListRecent();
 
-	// TODO: figure out how to deal with recents
-	// useQueries might work, but itll fuck up with the shitty error handling business
-	// We could always pass meta tag to the error callback to tell it to not redirect
-	// trpc.useQueries((t) => )
+	const recentSlugs = Object.keys(recents);
 
-	// Though the listCreated query returns a list of metadata, we consider the canonical data to be in the `metadata` query.
-	// This query should only be used for sorting, hence the `select` call only returning slugs
-	return useQuery(getQueryKey(trpc.note.listSlugs, recents), {
-		queryFn: async () => {
-			const notes = await context.client.note.listSlugs.query({
-				slugs: Object.keys(recents),
-			});
+	console.log(recentSlugs);
 
-			sync(notes.map((val) => val.slug));
-
-			notes.forEach((val) =>
-				context.note.metadata.setData(
-					{
-						slug: val.slug,
-					},
-					val
-				)
-			);
-
-			return notes;
-		},
-		select: (data) => {
-			return data
-				.map((val) => ({
-					slug: val.slug,
-					date: DateTime.fromJSDate(recents[val.slug]),
-				}))
-				.sort((a, b) => {
-					return b.date.toMillis() - a.date.toMillis();
-				});
-		},
+	const queries = trpc.useQueries((t) => {
+		return recentSlugs.map((val) =>
+			t.note.metadata(
+				{ slug: val },
+				{ refetchOnMount: false, meta: { slug: val } }
+			)
+		);
 	});
+
+	const isLoading = queries.some((val) => val.isLoading);
+	const successfulQueries = queries.flatMap((val) =>
+		val.isSuccess ? [val] : []
+	);
+	// Remove not found pages from local storage
+
+	queries.forEach((val, index) => {
+		if (!val.isError) {
+			return;
+		}
+
+		if (val.error.data?.code === "NOT_FOUND") {
+			remove(recentSlugs[index]);
+		}
+	});
+
+	return {
+		isLoading,
+		queries: successfulQueries.map((val) => ({
+			slug: val.data.slug,
+			date: DateTime.fromJSDate(recents[val.data.slug]),
+		})),
+	};
 }

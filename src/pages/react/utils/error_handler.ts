@@ -17,12 +17,13 @@ export type CustomMetadata = {
 	redirectUrl?: string;
 	toastMessage?: string;
 };
-
 export function createErrorMetadata(type: CustomMetadata) {
 	return type;
 }
 
 export function isCustomMetadata(type: unknown): type is CustomMetadata {
+	if (!type) return false;
+
 	return "trigger" in (type as CustomMetadata);
 }
 

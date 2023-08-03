@@ -9,10 +9,12 @@ import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/router";
 import { TRPCClientError } from "@trpc/client";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 export default function MainPage(props: { is_not_found?: boolean }) {
 	return (
 		<div className="flex h-screen items-center justify-center bg-base-300">
+			<ReactQueryDevtools />
 			<Toaster position="bottom-center">
 				{(t) => (
 					<div className="rounded-box flex gap-2 bg-error p-2 pl-4 text-base text-error-content">

@@ -251,32 +251,6 @@ export const noteRouter = router({
 				val.map((note) => parseNoteMetadataForWeb(note, userId))
 			);
 	}),
-	listSlugs: authedProcedure
-		.input(
-			z.object({
-				slugs: z.string().array(),
-			})
-		)
-		.query(async ({ input, ctx: { userId } }) => {
-			const result = await prisma.note.findMany({
-				select: NoteMetadataParameters,
-				where: {
-					slug: {
-						in: input.slugs,
-					},
-				},
-			});
-
-			// Order slugs by the input order and filter out slogs we can not find
-			return input.slugs
-				.map((slug) => {
-					return result.find((note) => note.slug === slug);
-				})
-				.filter(
-					(val): val is (typeof result)[number] => val !== undefined
-				)
-				.map((val) => parseNoteMetadataForWeb(val, userId));
-		}),
 	delete: authedProcedure
 		.input(
 			z.object({

@@ -17,25 +17,25 @@ export function useDeleteNote() {
 			context.note.listCreated.setData(undefined, (data) =>
 				data?.filter((val) => val.slug !== slug)
 			);
+			queryClient.removeQueries(
+				getQueryKey(
+					trpc.note.content,
+					{
+						slug: slug,
+					},
+					"query"
+				)
+			);
+			queryClient.removeQueries(
+				getQueryKey(
+					trpc.note.metadata,
+					{
+						slug: slug,
+					},
+					"query"
+				)
+			);
 			remove(slug);
-			queryClient.setQueriesData(
-				getQueryKey(trpc.note.listSlugs, undefined),
-				(data) => {
-					const typedData = data as RouterOutput["note"]["listSlugs"];
-					return typedData.filter((val) => val.slug !== slug);
-				}
-			);
-
-			queryClient.removeQueries(
-				getQueryKey(trpc.note.content, {
-					slug: slug,
-				})
-			);
-			queryClient.removeQueries(
-				getQueryKey(trpc.note.metadata, {
-					slug: slug,
-				})
-			);
 		},
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[]

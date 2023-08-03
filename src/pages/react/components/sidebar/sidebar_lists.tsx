@@ -3,6 +3,7 @@ import { useNoteListCreatedQuery } from "../../hooks/trpc/use_note_list_created_
 import { ListType } from "@/server/routers/note";
 import { useNoteListRecentsQuery } from "../../hooks/trpc/use_note_list_recents_query";
 import { SidebarList } from "./sidebar_list";
+import { queryFirst } from "lib0/indexeddb";
 
 export function SidebarListNotes(props: { active: ListType }) {
 	switch (props.active) {
@@ -15,13 +16,13 @@ export function SidebarListNotes(props: { active: ListType }) {
 	}
 }
 function SidebarListRecents() {
-	const query = useNoteListRecentsQuery();
+	const { isLoading, queries } = useNoteListRecentsQuery();
 
-	if (!query.isSuccess) {
+	if (isLoading) {
 		return <Spinner />;
 	}
 
-	return <SidebarList slugs={query.data} />;
+	return <SidebarList slugs={queries} />;
 }
 function SidebarListCreated() {
 	const noteListQuery = useNoteListCreatedQuery();
