@@ -1,5 +1,4 @@
-import { RedisChannelType } from "../../common/redis/redis";
-// TODO: probably move this to common
+import { RedisChannelType } from "../redis/redis";
 
 export type UserPresence = {
 	clientId: number | undefined;

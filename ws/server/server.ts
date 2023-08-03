@@ -5,8 +5,8 @@ import * as cookie from "cookie";
 const wss = new WebSocketServer({ noServer: true });
 import { docs, getOrCreateYDoc, setupWSConnection } from "./utils";
 import { initRedis } from "../../common/redis/redis";
-import { CustomMessage } from "./types";
 import { logger } from "../../common/logging/log";
+import { CustomMessage } from "../../common/ws/types";
 
 // TODO: from envirment
 export const host = "localhost";

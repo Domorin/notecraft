@@ -20,7 +20,7 @@ import {
 	encodeAwarenessUpdate,
 	CustomAwareness,
 } from "./custom_awareness";
-import type { CustomMessage } from "../../ws/server/types";
+import { CustomMessage } from "../ws/types";
 
 export const messageSync = 0;
 export const messageQueryAwareness = 3;

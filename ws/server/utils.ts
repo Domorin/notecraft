@@ -14,9 +14,9 @@ import {
 } from "../../common/yjs/custom_awareness";
 import { getUsername } from "./usernames";
 import { RedisChannelType } from "../../common/redis/redis";
-import { CustomMessage, UserPresence } from "./types";
 import { logger } from "../../common/logging/log";
 import { WsRedisType } from "./server";
+import { CustomMessage, UserPresence } from "../../common/ws/types";
 
 const hexColors = [
 	"#D48C8C",
@@ -146,8 +146,6 @@ export class WSSharedDoc extends Y.Doc {
 	}
 
 	updateHandler = (update: Uint8Array, origin: WebSocket) => {
-		// TODO: origin is a websocket connection that originates the update.
-
 		const user = this.conns.get(origin);
 
 		if (!user) {

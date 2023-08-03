@@ -1,16 +1,14 @@
 import { useEffect, useState } from "react";
 import * as Y from "yjs";
 import { CustomProvider } from "../../../../../common/yjs/custom_provider";
-import type {
-	CustomMessage,
-	UserPresence,
-} from "../../../../../ws/server/types";
+
 import { useUpdateMetadata } from "../../hooks/trpc/use_update_metadata";
 import { Spinner } from "../spinner";
 import { WysiwygEditor } from "./markdown_editor";
 import { Presences, Presence } from "./presences";
 import { trpc } from "@/utils/trpc";
 import { useNoteMetadataQuery } from "../../hooks/trpc/use_note_metadata_query";
+import { CustomMessage, UserPresence } from "../../../../../common/ws/types";
 
 export function TextInput(props: {
 	slug: string;

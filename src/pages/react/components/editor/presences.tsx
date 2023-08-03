@@ -1,6 +1,6 @@
 import classNames from "classnames";
-import type { UserPresence } from "../../../../../ws/server/types";
 import fontColorContrast from "font-color-contrast";
+import { UserPresence } from "../../../../../common/ws/types";
 
 export function Presences(props: {
 	presences: UserPresence[];
@@ -9,7 +9,7 @@ export function Presences(props: {
 	return (
 		<div className="avatar-group -space-x-3 overflow-visible">
 			{props.presences
-				.map((val) => <UserPresence key={val.name} user={val} />)
+				.map((val) => <UserPresenceIcon key={val.name} user={val} />)
 				.slice(0, 5)}
 			{props.presences.length > 5 && (
 				<Presence name={`+${props.presences.length - 5}`} />
@@ -49,7 +49,7 @@ export function Presence(props: {
 	);
 }
 
-function UserPresence(props: { user: UserPresence }) {
+function UserPresenceIcon(props: { user: UserPresence }) {
 	const letters = props.user.name.split(" ").map((val) => val[0]);
 
 	return (
