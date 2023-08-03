@@ -46,8 +46,6 @@ export const trpc = createTRPCNext<AppRouter>({
 			queryClientConfig: {
 				defaultOptions: {
 					queries: {
-						// TODO: remove this probably
-						refetchOnMount: false,
 						retry: (failureCount, error) => {
 							if (error instanceof TRPCClientError) {
 								// If not found, don't retry
@@ -60,8 +58,6 @@ export const trpc = createTRPCNext<AppRouter>({
 					},
 					mutations: {
 						retry: (failureCount, error) => {
-							const shouldRetryAgain = failureCount < 3;
-
 							if (error instanceof TRPCClientError) {
 								// If not found, don't retry
 								if (error.data?.code === "NOT_FOUND") {

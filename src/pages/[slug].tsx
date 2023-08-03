@@ -23,7 +23,12 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
 	// Server side prefetch only note's content
 	// We can prefetch other things as well, but content is most important and we do not want to increase time to first byte
-	await helpers.note.content.prefetch({ slug: context.query.slug as string });
+	await Promise.all([
+		helpers.note.content.prefetch({ slug: context.query.slug as string }),
+		helpers.note.metadata.prefetch({
+			slug: context.query.slug as string,
+		}),
+	]);
 	return {
 		props: {
 			trpcState: helpers.dehydrate(),
