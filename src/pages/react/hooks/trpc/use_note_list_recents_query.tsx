@@ -11,10 +11,7 @@ export function useNoteListRecentsQuery() {
 
 	const queries = trpc.useQueries((t) => {
 		return recentSlugs.map((val) =>
-			t.note.metadata(
-				{ slug: val },
-				{ refetchOnMount: false, meta: { slug: val } }
-			)
+			t.note.metadata({ slug: val }, { refetchOnMount: false })
 		);
 	});
 

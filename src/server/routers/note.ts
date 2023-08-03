@@ -31,6 +31,15 @@ type PrismaNoteMetadata = Prisma.NoteGetPayload<{
 
 const ZodNoteContent = z.array(z.number().min(0).max(255));
 
+export type CustomError = {
+	code: "NOT_FOUND";
+	message?: string;
+};
+
+function CreateCustomError(error: CustomError) {
+	return error;
+}
+
 /**
  * This function is to ensure creatorId is not leaked to the client.
  * If a user get's access to a user's id, they can see all the notes they've created
@@ -183,10 +192,7 @@ export const noteRouter = router({
 			});
 
 			if (!note) {
-				throw new TRPCError({
-					code: "NOT_FOUND",
-					message: "Note not found",
-				});
+				return CreateCustomError({ code: "NOT_FOUND" });
 			}
 
 			await prisma.note.update({
