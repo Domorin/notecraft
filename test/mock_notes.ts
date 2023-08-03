@@ -3,6 +3,7 @@ import { Words } from "@/server/words/words";
 import { Note, PrismaClient } from "@prisma/client";
 import { DateTime } from "luxon";
 import * as Y from "yjs";
+import { logger } from "../common/logging/log";
 
 async function MockNotes(id: string) {
 	if (process.env.NODE_ENV !== "development") {
@@ -41,7 +42,6 @@ async function MockNotes(id: string) {
 					slug: `MOCK_${slug}`,
 					createdAt: date,
 					updatedAt: date,
-					viewedAt: date,
 					creator: {
 						connect: {
 							id,
@@ -54,7 +54,7 @@ async function MockNotes(id: string) {
 
 	await Promise.all(promises);
 
-	console.log(`Successfully created ${promises.length} notes.`);
+	logger.info(`Successfully created ${promises.length} notes.`);
 }
 
 MockNotes(process.argv[2]);

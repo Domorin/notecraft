@@ -10,6 +10,7 @@ import { Spinner } from "../spinner";
 import { WysiwygEditor } from "./markdown_editor";
 import { Presences, Presence } from "./presences";
 import { trpc } from "@/utils/trpc";
+import { useNoteMetadataQuery } from "../../hooks/trpc/use_note_metadata_query";
 
 export function TextInput(props: {
 	slug: string;
@@ -21,7 +22,7 @@ export function TextInput(props: {
 	);
 	const [presences, setPresences] = useState([] as UserPresence[]);
 	const setNoteMetadata = useUpdateMetadata(props.slug);
-	const metadata_query = trpc.note.metadata.useQuery({ slug: props.slug });
+	const metadata_query = useNoteMetadataQuery(props.slug);
 
 	useEffect(() => {
 		const provider = new CustomProvider(

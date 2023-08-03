@@ -315,7 +315,6 @@ export class WSSharedDoc extends Y.Doc {
 			this.broadcastPresenceUpdate();
 		}
 
-		console.log(docs.size);
 		conn.close();
 	};
 }
@@ -357,7 +356,7 @@ export const setupWSConnection = async (
 	req: IncomingMessage,
 	{ docName = req.url?.slice(1).split("?")[0], gc = true }: any = {}
 ) => {
-	console.log("setting up WS connection");
+	logger.info("setting up WS connection");
 
 	conn.binaryType = "arraybuffer";
 	// get doc, initialize if it does not exist yet

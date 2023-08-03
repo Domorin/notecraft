@@ -5,11 +5,10 @@ import { useState } from "react";
 import { SidebarElementMenu } from "./sidebar_element_menu";
 import { SidebarElementTitleInput } from "./sidebar_element_title_input";
 import { getNoteTitle } from "../../utils/get_note_title";
+import { useNoteMetadataQuery } from "../../hooks/trpc/use_note_metadata_query";
 
 export function SidebarListItem(props: { slug: string; active: boolean }) {
-	const metadataQuery = trpc.note.metadata.useQuery({
-		slug: props.slug,
-	});
+	const metadataQuery = useNoteMetadataQuery(props.slug);
 
 	const metadata = metadataQuery.data;
 

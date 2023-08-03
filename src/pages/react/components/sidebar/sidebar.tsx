@@ -3,11 +3,14 @@ import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { DateTime } from "luxon";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { createContext, useState } from "react";
 import { SidebarListViewButton } from "./sidebar_list_view_button";
 import { SidebarListNotes } from "./sidebar_lists";
 import { trpc } from "@/utils/trpc";
 import { usePageSlug } from "../../hooks/use_page_id";
+import { useNoteMetadataQuery } from "../../hooks/trpc/use_note_metadata_query";
+
+export const SidebarActiveListContext = createContext<ListType>("Created");
 
 export function Sidebar() {
 	const [currentList, setCurrentList] = useState("Created" as ListType);
@@ -18,10 +21,7 @@ export function Sidebar() {
 		undefined as string | undefined
 	);
 
-	const metadata_query = trpc.note.metadata.useQuery(
-		{ slug: slug! },
-		{ enabled: !!slug }
-	);
+	const metadata_query = useNoteMetadataQuery(slug!);
 
 	// Update list view when slug changes
 	if (metadata_query.data && currentSlug !== metadata_query.data.slug) {
@@ -48,7 +48,9 @@ export function Sidebar() {
 				</div>
 			</div>
 			<div className="h-full w-full overflow-y-auto overflow-x-clip">
-				<SidebarListNotes active={currentList} />
+				<SidebarActiveListContext.Provider value={currentList}>
+					<SidebarListNotes active={currentList} />
+				</SidebarActiveListContext.Provider>
 			</div>
 			<div className="flex flex-col items-center border-t border-neutral">
 				<button

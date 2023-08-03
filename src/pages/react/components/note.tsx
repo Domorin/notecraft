@@ -9,6 +9,10 @@ import { Spinner } from "./spinner";
 import { TextInput } from "./editor/text_input";
 import { encodeYDocContent, parseYDocContent } from "@/lib/ydoc_utils";
 import { useNoteListRecent } from "../hooks/use_recent_local_storage";
+import { useNoteMetadataQuery } from "../hooks/trpc/use_note_metadata_query";
+import { RouterOutput } from "@/server/routers/_app";
+import { createErrorMetadata } from "../utils/error_handler";
+import { useQueries } from "@tanstack/react-query";
 
 export function LoadableNote() {
 	const slug = usePageSlug();
@@ -21,7 +25,18 @@ export function LoadableNote() {
 }
 
 export function Note(props: { slug: string }) {
-	const contentQuery = trpc.note.content.useQuery({ slug: props.slug });
+	const contentQuery = trpc.note.content.useQuery(
+		{ slug: props.slug },
+		{
+			meta: createErrorMetadata({
+				type: "ContentLoadFailed",
+				errorMessage: "Failed to load note content",
+				slug: props.slug,
+				trigger: ["NOT_FOUND"],
+				redirectUrl: "not-found",
+			}),
+		}
+	);
 
 	if (!contentQuery.isSuccess) {
 		return <Spinner />;
@@ -53,9 +68,10 @@ const debouncedSaveContent = debounce(saveContent, 2000, {
 function NoteWithContent(props: { noteContent: Buffer; slug: string }) {
 	const { slug, noteContent } = props;
 
-	const [_, setRecent] = useNoteListRecent();
+	const { add } = useNoteListRecent();
 	useEffect(() => {
-		setRecent(slug);
+		add(slug);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const doc = useRef(parseYDocContent(noteContent));
@@ -99,17 +115,21 @@ function NoteWithContent(props: { noteContent: Buffer; slug: string }) {
 }
 
 function NoteEditDisplaySuspense(props: { slug: string; isSaving: boolean }) {
-	return (
-		<Suspense fallback={<></>}>
-			<NoteEditDisplay {...props} />
-		</Suspense>
-	);
+	const metadata_query = useNoteMetadataQuery(props.slug);
+
+	if (!metadata_query.isSuccess) {
+		return <></>;
+	}
+
+	return <NoteEditDisplay {...props} metadata={metadata_query.data} />;
 }
 
-function NoteEditDisplay(props: { slug: string; isSaving: boolean }) {
-	const [metadata, status] = trpc.note.metadata.useSuspenseQuery({
-		slug: props.slug,
-	});
+function NoteEditDisplay(props: {
+	slug: string;
+	isSaving: boolean;
+	metadata: RouterOutput["note"]["metadata"];
+}) {
+	const { metadata } = props;
 
 	const updatedAt = DateTime.fromISO(metadata.updatedAt);
 	const [dateText, setDateText] = useState(updatedAt.toRelative());

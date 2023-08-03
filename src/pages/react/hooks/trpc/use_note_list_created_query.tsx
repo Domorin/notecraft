@@ -1,4 +1,6 @@
 import { trpc } from "@/utils/trpc";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { getQueryKey } from "@trpc/react-query";
 import { DateTime } from "luxon";
 
 export function useNoteListCreatedQuery() {
@@ -6,7 +8,7 @@ export function useNoteListCreatedQuery() {
 
 	// Though the listCreated query returns a list of metadata, we consider the canonical data to be in the `metadata` query.
 	// This query should only be used for sorting, hence the `select` call only returning slugs
-	return trpc.note.listCreated.useQuery(undefined, {
+	return useQuery(getQueryKey(trpc.note.listCreated, undefined), {
 		queryFn: async () => {
 			const notes = await context.client.note.listCreated.query(
 				undefined

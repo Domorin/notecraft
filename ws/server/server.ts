@@ -92,7 +92,7 @@ function initWSServer() {
 	});
 
 	server.listen(port, () => {
-		console.log(`running at '${host}' on port ${port}`);
+		logger.info(`running at '${host}' on port ${port}`);
 	});
 }
 
