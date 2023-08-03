@@ -6,11 +6,12 @@ import { useNoteMetadataQuery } from "../../hooks/trpc/use_note_metadata_query";
 import { usePageSlug } from "../../hooks/use_page_id";
 import { SidebarListViewButton } from "./sidebar_list_view_button";
 import { SidebarListNotes } from "./sidebar_lists";
+import dynamic from "next/dynamic";
 
 export type ListType = "Created" | "Recents";
 export const SidebarActiveListContext = createContext<ListType>("Created");
 
-export function Sidebar() {
+export default function Sidebar() {
 	const [currentList, setCurrentList] = useState("Created" as ListType);
 	const router = useRouter();
 	const slug = usePageSlug();

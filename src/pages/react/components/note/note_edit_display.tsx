@@ -38,7 +38,9 @@ function NoteEditDisplay(props: {
 
 	return (
 		<div className="ml-auto flex gap-2 text-sm opacity-50">
-			<div>{props.isSaving ? "Saving..." : `Saved ${dateText}`}</div>
+			<div suppressHydrationWarning>
+				{props.isSaving ? "Saving..." : `Saved ${dateText}`}
+			</div>
 			<div>{metadata.views} Views</div>
 		</div>
 	);

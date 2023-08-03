@@ -1,28 +1,26 @@
+import dynamic from "next/dynamic";
 import { useNoteListCreatedQuery } from "../../hooks/trpc/use_note_list_created_query";
-import { useNoteListRecentsQuery } from "../../hooks/trpc/use_note_list_recents_query";
 import { Spinner } from "../spinner";
 import { ListType } from "./sidebar";
 import { SidebarList } from "./sidebar_list";
+
+// Disable SSR because this directly uses local storage
+const SidebarListRecentsNoSSR = dynamic(
+	() => import("./sidebar_list_recents"),
+	{ ssr: false }
+);
 
 export function SidebarListNotes(props: { active: ListType }) {
 	switch (props.active) {
 		case "Created":
 			return <SidebarListCreated />;
 		case "Recents":
-			return <SidebarListRecents />;
+			return <SidebarListRecentsNoSSR />;
 		default:
 			throw new Error("hi");
 	}
 }
-function SidebarListRecents() {
-	const { isLoading, queries } = useNoteListRecentsQuery();
 
-	if (isLoading) {
-		return <Spinner />;
-	}
-
-	return <SidebarList slugs={queries} />;
-}
 function SidebarListCreated() {
 	const noteListQuery = useNoteListCreatedQuery();
 
