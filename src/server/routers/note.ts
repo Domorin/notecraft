@@ -71,7 +71,7 @@ async function updateNoteMetadataForWeb(
 		(params.requireCreator && note.creatorId === userId) ||
 		(!params.requireCreator && note.allowAnyoneToEdit);
 
-	if (canEdit) {
+	if (!canEdit) {
 		throw new TRPCError({
 			code: "UNAUTHORIZED",
 			message: "You can not edit this note",
@@ -88,10 +88,10 @@ async function updateNoteMetadataForWeb(
 	const parsedNote = parseNoteMetadataForWeb(updateResult, userId);
 
 	redis.pubsub.publish("NoteMetadataUpdate", {
-		createdAt: parsedNote.createdAt.toISOString(),
-		updatedAt: parsedNote.updatedAt.toISOString(),
+		createdAt: parsedNote.createdAt,
+		updatedAt: parsedNote.updatedAt,
 		slug: parsedNote.slug,
-		viewedAt: parsedNote.viewedAt?.toISOString(),
+		viewedAt: parsedNote.viewedAt,
 		views: parsedNote.views,
 		title: parsedNote.title,
 		allowAnyoneToEdit: parsedNote.allowAnyoneToEdit,
@@ -201,7 +201,7 @@ export const noteRouter = router({
 				},
 			});
 
-			return note.content;
+			return Array.from(note.content);
 		}),
 	updateTitle: authedProcedure
 		.input(
@@ -290,7 +290,6 @@ export const noteRouter = router({
 			})
 		)
 		.mutation(async ({ input, ctx: { userId } }) => {
-			await sleep(2000);
 			const note = await prisma.note.findUnique({
 				where: {
 					slug: input.slug,

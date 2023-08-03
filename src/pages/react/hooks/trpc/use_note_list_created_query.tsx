@@ -29,7 +29,7 @@ export function useNoteListCreatedQuery() {
 		select: (data) =>
 			data.map((val) => ({
 				slug: val.slug,
-				date: DateTime.fromISO(val.updatedAt),
+				date: DateTime.fromJSDate(val.updatedAt),
 			})),
 	});
 }

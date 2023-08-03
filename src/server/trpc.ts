@@ -3,6 +3,7 @@ import { CreateHTTPContextOptions } from "@trpc/server/adapters/standalone";
 import { CreateWSSContextFnOptions } from "@trpc/server/adapters/ws";
 import * as cookie from "cookie";
 import { prisma } from "./prisma";
+import superjson from "superjson";
 
 export const createContext = async (
 	opts: CreateHTTPContextOptions | CreateWSSContextFnOptions
@@ -25,7 +26,9 @@ function isValidUserId(userId: string) {
 	return userId === match?.[0];
 }
 
-const t = initTRPC.context<typeof createContext>().create();
+const t = initTRPC.context<typeof createContext>().create({
+	transformer: superjson,
+});
 // Base router and procedure helpers
 export const router = t.router;
 export const procedure = t.procedure;

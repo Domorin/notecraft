@@ -17,6 +17,7 @@ import { RedisChannelType } from "../../common/redis/redis";
 import { logger } from "../../common/logging/log";
 import { WsRedisType } from "./server";
 import { CustomMessage, UserPresence } from "../../common/ws/types";
+import SuperJSON from "superjson";
 
 const hexColors = [
 	"#D48C8C",

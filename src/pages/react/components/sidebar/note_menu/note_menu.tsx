@@ -192,8 +192,8 @@ export function getRelativeTimeText(iso: string) {
 		  });
 }
 
-export function getTimeText(iso: string) {
-	const date = DateTime.fromISO(iso);
+export function getTimeText(iso: Date) {
+	const date = DateTime.fromJSDate(iso);
 
 	return date.toLocaleString({
 		dateStyle: "medium",

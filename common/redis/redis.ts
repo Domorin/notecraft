@@ -1,6 +1,7 @@
 import { RouterOutput } from "@/server/routers/_app";
 import { createClient } from "redis";
 import { logger } from "../logging/log";
+import SuperJSON from "superjson";
 
 type Service = "App" | "Ws";
 
@@ -102,7 +103,7 @@ export function initRedis<T extends Service>(context: {
 			await publisherConnectPromise;
 
 			const redis = publisherClient;
-			redis.publish(channel, JSON.stringify(message));
+			redis.publish(channel, SuperJSON.stringify(message));
 		},
 		subscribe: async <Channel extends keyof RedisChannelType>(
 			channel: Channel,
@@ -112,7 +113,7 @@ export function initRedis<T extends Service>(context: {
 			const redis = subscriberClient;
 
 			redis.subscribe(channel, (message) => {
-				const parsedMessage = JSON.parse(
+				const parsedMessage = SuperJSON.parse(
 					message
 				) as RedisChannelType[Channel];
 
