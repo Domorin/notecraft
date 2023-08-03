@@ -61,7 +61,7 @@ function MenuPopup(
 	const [_, setCopied] = useCopyToClipboard();
 
 	const deleteMutation = useDeleteNoteMutation(props.metadata.slug);
-	const duplicateMutation = useCreateNoteMutation();
+	const duplicateMutation = useCreateNoteMutation(props.close);
 	const activeListContext = useActiveListContext();
 
 	useOnClickOutside(ref, props.close);
@@ -82,6 +82,8 @@ function MenuPopup(
 		return () => window.removeEventListener("resize", setPosition);
 	}, [props.parentRef, ref]);
 
+	const isCreatedByYou = props.metadata.isCreatedByYou;
+
 	const disabled =
 		deleteMutation.isLoading ||
 		duplicateMutation.isLoading ||
@@ -93,17 +95,19 @@ function MenuPopup(
 			ref={ref}
 			onClick={(e) => e.preventDefault()}
 		>
-			<li
-				className={classNames({
-					"disabled [&>*]:hover:!cursor-not-allowed [&>*]:hover:!bg-inherit [&>*]:hover:!text-inherit":
-						disabled,
-				})}
-			>
-				<AllowAnyoneToEditOption
-					metadata={props.metadata}
-					disabled={disabled}
-				/>
-			</li>
+			{isCreatedByYou && (
+				<li
+					className={classNames({
+						"disabled [&>*]:hover:!cursor-not-allowed [&>*]:hover:!bg-inherit [&>*]:hover:!text-inherit":
+							disabled,
+					})}
+				>
+					<AllowAnyoneToEditOption
+						metadata={props.metadata}
+						disabled={disabled}
+					/>
+				</li>
+			)}
 			<li
 				className={classNames({
 					"disabled [&>*]:hover:!cursor-not-allowed [&>*]:hover:!bg-inherit [&>*]:hover:!text-inherit":
@@ -120,18 +124,20 @@ function MenuPopup(
 					Rename
 				</div>
 			</li>
-			<li
-				className={classNames({
-					"disabled [&>*]:hover:!cursor-not-allowed [&>*]:hover:!bg-inherit [&>*]:hover:!text-inherit":
-						disabled,
-				})}
-			>
-				<DeleteNoteOption
-					deleteMutation={deleteMutation}
-					disabled={disabled}
-					metadata={props.metadata}
-				/>
-			</li>
+			{isCreatedByYou && (
+				<li
+					className={classNames({
+						"disabled [&>*]:hover:!cursor-not-allowed [&>*]:hover:!bg-inherit [&>*]:hover:!text-inherit":
+							disabled,
+					})}
+				>
+					<DeleteNoteOption
+						deleteMutation={deleteMutation}
+						disabled={disabled}
+						metadata={props.metadata}
+					/>
+				</li>
+			)}
 			<div className="divider my-0"></div>
 			<li>
 				<div

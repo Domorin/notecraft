@@ -1,7 +1,7 @@
 import { trpc } from "@/utils/trpc";
 import router from "next/router";
 
-export function useCreateNoteMutation() {
+export function useCreateNoteMutation(onSuccess?: () => void) {
 	const context = trpc.useContext();
 
 	return trpc.note.create.useMutation({
@@ -26,6 +26,8 @@ export function useCreateNoteMutation() {
 				];
 			});
 			router.push(`/${data.slug}`);
+
+			onSuccess?.();
 		},
 	});
 }

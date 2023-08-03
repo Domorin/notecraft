@@ -46,7 +46,7 @@ export function handleError(
 		}
 
 		if (meta.toastMessage) {
-			toast(meta.toastMessage);
+			toast.error(meta.toastMessage);
 		}
 	}
 }

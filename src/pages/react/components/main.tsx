@@ -10,6 +10,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/router";
 import { TRPCClientError } from "@trpc/client";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import classNames from "classnames";
 
 export default function MainPage(props: { is_not_found?: boolean }) {
 	return (
@@ -17,7 +18,17 @@ export default function MainPage(props: { is_not_found?: boolean }) {
 			<ReactQueryDevtools />
 			<Toaster position="bottom-center">
 				{(t) => (
-					<div className="rounded-box flex gap-2 bg-error p-2 pl-4 text-base text-error-content">
+					<div
+						className={classNames(
+							"rounded-box flex gap-2 p-2 pl-4 text-base",
+							{
+								"bg-success text-success-content":
+									t.type === "success",
+								"bg-error text-error-content":
+									t.type === "error",
+							}
+						)}
+					>
 						{resolveValue(t.message, t)}
 						<button
 							className="btn-ghost rounded-btn p-1 text-xs"

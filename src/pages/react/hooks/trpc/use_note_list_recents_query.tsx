@@ -1,8 +1,6 @@
 import { trpc } from "@/utils/trpc";
-import { useNoteListRecent } from "../use_recent_local_storage";
 import { DateTime } from "luxon";
-import { useQuery } from "@tanstack/react-query";
-import { getQueryKey } from "@trpc/react-query";
+import { useNoteListRecent } from "../use_recent_local_storage";
 
 export function useNoteListRecentsQuery() {
 	const { recents, add, remove } = useNoteListRecent();

@@ -8,6 +8,7 @@ import { useNoteListRecent } from "../use_recent_local_storage";
 import { useQueryClient } from "@tanstack/react-query";
 import { getQueryKey } from "@trpc/react-query";
 import { useActiveListContext } from "../use_active_list_context";
+import { toast } from "react-hot-toast";
 
 export function useDeleteNoteMutation(slug: string) {
 	const router = useRouter();
@@ -15,8 +16,6 @@ export function useDeleteNoteMutation(slug: string) {
 	const activeSidebar = useActiveListContext();
 	const trpcContext = trpc.useContext();
 	const { recents } = useNoteListRecent();
-
-	const queryClient = useQueryClient();
 
 	const deleteNote = useDeleteNote();
 	return trpc.note.delete.useMutation({
@@ -56,6 +55,8 @@ export function useDeleteNoteMutation(slug: string) {
 				await router.push(`/${nextSlug ?? ""}`);
 			}
 			deleteNote(slug);
+
+			toast.success("Note deleted");
 		},
 	});
 }

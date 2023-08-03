@@ -53,6 +53,7 @@ async function updateNoteMetadataForWeb(
 	params: {
 		data: Prisma.NoteUpdateInput;
 		where: Prisma.NoteWhereUniqueInput;
+		requireCreator: boolean;
 	}
 ) {
 	const note = await prisma.note.findUnique({
@@ -66,7 +67,11 @@ async function updateNoteMetadataForWeb(
 		});
 	}
 
-	if (!note.allowAnyoneToEdit && note.creatorId !== userId) {
+	const canEdit =
+		(params.requireCreator && note.creatorId === userId) ||
+		(!params.requireCreator && note.allowAnyoneToEdit);
+
+	if (canEdit) {
 		throw new TRPCError({
 			code: "UNAUTHORIZED",
 			message: "You can not edit this note",
@@ -211,6 +216,7 @@ export const noteRouter = router({
 				where: {
 					slug: input.slug,
 				},
+				requireCreator: false,
 			});
 		}),
 	updateEditPermissions: authedProcedure
@@ -228,6 +234,7 @@ export const noteRouter = router({
 				data: {
 					allowAnyoneToEdit: input.allowAnyoneToEdit,
 				},
+				requireCreator: true,
 			});
 		}),
 	save: authedProcedure
@@ -258,6 +265,7 @@ export const noteRouter = router({
 				where: {
 					slug: input.slug,
 				},
+				requireCreator: false,
 			});
 		}),
 	listCreated: authedProcedure.query(async ({ input, ctx: { userId } }) => {
