@@ -2,7 +2,7 @@ import { trpc } from "@/utils/trpc";
 import classNames from "classnames";
 import Link from "next/link";
 import { useState } from "react";
-import { SidebarElementMenu } from "./sidebar_element_menu";
+import { SidebarElementMenu } from "./note_menu/note_menu";
 import { SidebarElementTitleInput } from "./sidebar_element_title_input";
 import { getNoteTitle } from "../../utils/get_note_title";
 import { useNoteMetadataQuery } from "../../hooks/trpc/use_note_metadata_query";

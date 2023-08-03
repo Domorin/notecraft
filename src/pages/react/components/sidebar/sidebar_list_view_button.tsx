@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { ListType } from "@/server/routers/note";
+import { ListType } from "./sidebar";
 
 export function SidebarListViewButton(props: {
 	type: ListType;

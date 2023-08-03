@@ -7,11 +7,12 @@ import { useContext } from "react";
 import { useNoteListRecent } from "../use_recent_local_storage";
 import { useQueryClient } from "@tanstack/react-query";
 import { getQueryKey } from "@trpc/react-query";
+import { useActiveListContext } from "../use_active_list_context";
 
 export function useDeleteNoteMutation(slug: string) {
 	const router = useRouter();
 	const currentSlug = usePageSlug();
-	const activeSidebar = useContext(SidebarActiveListContext);
+	const activeSidebar = useActiveListContext();
 	const trpcContext = trpc.useContext();
 	const { recents } = useNoteListRecent();
 
@@ -19,7 +20,7 @@ export function useDeleteNoteMutation(slug: string) {
 
 	const deleteNote = useDeleteNote();
 	return trpc.note.delete.useMutation({
-		onMutate: () => {
+		onMutate: async () => {
 			if (slug === currentSlug) {
 				let nextSlug: string | undefined;
 				switch (activeSidebar) {
@@ -39,7 +40,7 @@ export function useDeleteNoteMutation(slug: string) {
 
 						break;
 					}
-					case "Viewed": {
+					case "Recents": {
 						const recentNotes = Object.keys(recents);
 
 						const currentIndex = recentNotes.findIndex(
@@ -52,10 +53,8 @@ export function useDeleteNoteMutation(slug: string) {
 						break;
 					}
 				}
-				router.push(`/${nextSlug ?? ""}`);
+				await router.push(`/${nextSlug ?? ""}`);
 			}
-		},
-		onSuccess: async (data) => {
 			deleteNote(slug);
 		},
 	});

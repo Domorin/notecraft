@@ -1,22 +1,18 @@
 import { RouterOutput } from "@/server/routers/_app";
-import {
-	faEdit,
-	faEllipsis,
-	faLink,
-	faLock,
-	faLockOpen,
-	faTrash,
-} from "@fortawesome/free-solid-svg-icons";
+import { faEdit, faEllipsis, faLink } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import classNames from "classnames";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useCopyToClipboard, useOnClickOutside } from "usehooks-ts";
 import { DateTime } from "luxon";
-import { useUpdateEditPermissionsMutation } from "../../hooks/trpc/use_update_edit_permissions_mutation";
-import { Router } from "next/router";
-import { useDeleteNoteMutation } from "../../hooks/trpc/use_delete_note_mutation";
-import { Spinner } from "../spinner";
+import { useDeleteNoteMutation } from "../../../hooks/trpc/use_delete_note_mutation";
+import { AllowAnyoneToEditOption } from "./options/note_menu_allow_anyone_to_edit_option";
+import { DeleteNoteOption } from "./options/note_menu_delete_option";
+import { DuplicateNoteOption } from "./options/note_menu_duplicate_option";
+import { RemoveFromRecentsOption } from "./options/note_menu_remove_from_recents_option";
+import { useActiveListContext } from "@/pages/react/hooks/use_active_list_context";
+import { useCreateNoteMutation } from "@/pages/react/hooks/trpc/use_create_note_mutation";
 
 type MenuProps = {
 	openTitleInput: () => void;
@@ -63,7 +59,10 @@ function MenuPopup(
 ) {
 	const ref = useRef(null as HTMLUListElement | null);
 	const [_, setCopied] = useCopyToClipboard();
+
 	const deleteMutation = useDeleteNoteMutation(props.metadata.slug);
+	const duplicateMutation = useCreateNoteMutation();
+	const activeListContext = useActiveListContext();
 
 	useOnClickOutside(ref, props.close);
 
@@ -85,11 +84,12 @@ function MenuPopup(
 
 	const disabled =
 		deleteMutation.isLoading ||
+		duplicateMutation.isLoading ||
 		(!props.metadata.isCreatedByYou && !props.metadata.allowAnyoneToEdit);
 
 	return (
 		<ul
-			className="dropdown-content menu rounded-box absolute z-[1] ml-2 mt-2 w-fit min-w-[14rem] bg-base-300 py-2 text-base-content shadow"
+			className="rouded-box dropdown-content menu menu-sm absolute z-[1] ml-2 mt-2 w-fit min-w-[14rem] bg-base-300 py-2 text-sm text-base-content shadow"
 			ref={ref}
 			onClick={(e) => e.preventDefault()}
 		>
@@ -99,10 +99,9 @@ function MenuPopup(
 						disabled,
 				})}
 			>
-				<DeleteNoteOption
-					deleteMutation={deleteMutation}
-					disabled={disabled}
+				<AllowAnyoneToEditOption
 					metadata={props.metadata}
+					disabled={disabled}
 				/>
 			</li>
 			<li
@@ -121,6 +120,19 @@ function MenuPopup(
 					Rename
 				</div>
 			</li>
+			<li
+				className={classNames({
+					"disabled [&>*]:hover:!cursor-not-allowed [&>*]:hover:!bg-inherit [&>*]:hover:!text-inherit":
+						disabled,
+				})}
+			>
+				<DeleteNoteOption
+					deleteMutation={deleteMutation}
+					disabled={disabled}
+					metadata={props.metadata}
+				/>
+			</li>
+			<div className="divider my-0"></div>
 			<li>
 				<div
 					className="flex items-center gap-2"
@@ -138,17 +150,21 @@ function MenuPopup(
 					Copy Link
 				</div>
 			</li>
-			<li
-				className={classNames({
-					"disabled [&>*]:hover:!cursor-not-allowed [&>*]:hover:!bg-inherit [&>*]:hover:!text-inherit":
-						disabled,
-				})}
-			>
-				<AllowAnyoneToEditOption
-					metadata={props.metadata}
+			<li>
+				<DuplicateNoteOption
+					duplicateMutation={duplicateMutation}
 					disabled={disabled}
+					metadata={props.metadata}
 				/>
 			</li>
+			{activeListContext === "Recents" && (
+				<li>
+					<RemoveFromRecentsOption
+						disabled={disabled}
+						metadata={props.metadata}
+					/>
+				</li>
+			)}
 			<div className="divider my-0"></div>
 			<li className="px-2 text-xs opacity-40">
 				{`Edited ${getTimeText(props.metadata.updatedAt)}`}
@@ -156,69 +172,6 @@ function MenuPopup(
 				{`Viewed ${getTimeText(props.metadata.viewedAt)}`}
 			</li>
 		</ul>
-	);
-}
-
-function DeleteNoteOption(props: {
-	deleteMutation: ReturnType<typeof useDeleteNoteMutation>;
-	metadata: RouterOutput["note"]["metadata"];
-	disabled: boolean;
-}) {
-	return (
-		<div
-			className="flex items-center gap-2"
-			onClick={() =>
-				props.deleteMutation.mutate({
-					slug: props.metadata.slug,
-				})
-			}
-		>
-			<div className="flex w-6 justify-center">
-				<FontAwesomeIcon icon={faTrash} />
-			</div>
-			<div>Delete</div>
-			{props.deleteMutation.isLoading && (
-				<div className="ml-auto">
-					<Spinner size="xs" />
-				</div>
-			)}
-		</div>
-	);
-}
-
-function AllowAnyoneToEditOption(props: {
-	metadata: RouterOutput["note"]["metadata"];
-	disabled: boolean;
-}) {
-	const mutation = useUpdateEditPermissionsMutation(props.metadata.slug);
-
-	const isChecked = props.metadata.allowAnyoneToEdit;
-
-	return (
-		<div
-			className="flex items-center gap-4"
-			onClick={() => {
-				if (props.disabled) return;
-				mutation.mutate({
-					allowAnyoneToEdit: !isChecked,
-					slug: props.metadata.slug,
-				});
-			}}
-		>
-			<div className="flex items-center gap-2">
-				<div className="flex w-6 justify-center">
-					<FontAwesomeIcon icon={isChecked ? faLockOpen : faLock} />
-				</div>
-				Allow anyone to edit
-			</div>
-			<input
-				disabled={props.disabled}
-				type="checkbox"
-				className="toggle-primary toggle toggle-sm ml-auto"
-				readOnly
-				checked={isChecked}
-			/>
-		</div>
 	);
 }
 

@@ -7,9 +7,9 @@ import { getQueryKey } from "@trpc/react-query";
 export function useNoteListRecentsQuery() {
 	const { recents, add, remove } = useNoteListRecent();
 
-	const recentSlugs = Object.keys(recents);
-
-	console.log(recentSlugs);
+	const recentSlugs = Object.keys(recents).sort(
+		(a, b) => recents[b].getTime() - recents[a].getTime()
+	);
 
 	const queries = trpc.useQueries((t) => {
 		return recentSlugs.map((val) =>

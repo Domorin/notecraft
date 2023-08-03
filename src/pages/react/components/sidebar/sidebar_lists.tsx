@@ -1,15 +1,14 @@
-import { Spinner } from "../spinner";
 import { useNoteListCreatedQuery } from "../../hooks/trpc/use_note_list_created_query";
-import { ListType } from "@/server/routers/note";
 import { useNoteListRecentsQuery } from "../../hooks/trpc/use_note_list_recents_query";
+import { Spinner } from "../spinner";
+import { ListType } from "./sidebar";
 import { SidebarList } from "./sidebar_list";
-import { queryFirst } from "lib0/indexeddb";
 
 export function SidebarListNotes(props: { active: ListType }) {
 	switch (props.active) {
 		case "Created":
 			return <SidebarListCreated />;
-		case "Viewed":
+		case "Recents":
 			return <SidebarListRecents />;
 		default:
 			throw new Error("hi");

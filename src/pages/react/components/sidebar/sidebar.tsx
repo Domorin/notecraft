@@ -1,15 +1,13 @@
-import { ListType } from "@/server/routers/note";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { DateTime } from "luxon";
 import { useRouter } from "next/router";
 import { createContext, useState } from "react";
+import { useNoteMetadataQuery } from "../../hooks/trpc/use_note_metadata_query";
+import { usePageSlug } from "../../hooks/use_page_id";
 import { SidebarListViewButton } from "./sidebar_list_view_button";
 import { SidebarListNotes } from "./sidebar_lists";
-import { trpc } from "@/utils/trpc";
-import { usePageSlug } from "../../hooks/use_page_id";
-import { useNoteMetadataQuery } from "../../hooks/trpc/use_note_metadata_query";
 
+export type ListType = "Created" | "Recents";
 export const SidebarActiveListContext = createContext<ListType>("Created");
 
 export function Sidebar() {
@@ -27,7 +25,7 @@ export function Sidebar() {
 	if (metadata_query.data && currentSlug !== metadata_query.data.slug) {
 		if (!metadata_query.data.isCreatedByYou) {
 			setCurrentSlug(metadata_query.data.slug);
-			setCurrentList("Viewed");
+			setCurrentList("Recents");
 		}
 	}
 
@@ -41,7 +39,7 @@ export function Sidebar() {
 						setCurrentList={setCurrentList}
 					/>
 					<SidebarListViewButton
-						type="Viewed"
+						type="Recents"
 						currentList={currentList}
 						setCurrentList={setCurrentList}
 					/>

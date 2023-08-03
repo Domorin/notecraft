@@ -11,9 +11,6 @@ import { Prisma } from "@prisma/client";
 import { data } from "autoprefixer";
 import { sleep } from "@/lib/misc";
 
-const zodListType = z.enum(["Created", "Viewed"]);
-export type ListType = z.infer<typeof zodListType>;
-
 type NoteFindUniqueParams = Parameters<typeof prisma.note.findUnique>[0];
 type NoteSelectParameters = NoteFindUniqueParams["select"];
 
@@ -32,7 +29,7 @@ type PrismaNoteMetadata = Prisma.NoteGetPayload<{
 	select: typeof NoteMetadataParameters;
 }>;
 
-type f = Prisma.NoteUpdateArgs;
+const ZodNoteContent = z.array(z.number().min(0).max(255));
 
 /**
  * This function is to ensure creatorId is not leaked to the client.
@@ -99,29 +96,56 @@ async function updateNoteMetadataForWeb(
 }
 
 export const noteRouter = router({
-	create: authedProcedure.mutation(async ({ input, ctx: { userId } }) => {
-		const slug = await Words.getUniqueNoteSlug();
+	create: authedProcedure
+		.input(
+			z.object({
+				duplicatedSlug: z.string().optional(),
+			})
+		)
+		.mutation(async ({ input, ctx: { userId } }) => {
+			const slug = await Words.getUniqueNoteSlug();
 
-		const ydoc = new Y.Doc();
+			let buffer: Buffer | undefined;
+			if (input.duplicatedSlug) {
+				const duplicatedNote = await prisma.note.findUnique({
+					where: {
+						slug: input.duplicatedSlug,
+					},
+					select: {
+						content: true,
+					},
+				});
 
-		const note = await prisma.note.create({
-			data: {
-				slug,
-				content: Buffer.from(encodeYDocContent(ydoc)),
-				creator: {
-					connectOrCreate: {
-						create: {
-							id: userId,
-						},
-						where: {
-							id: userId,
+				if (!duplicatedNote) {
+					throw new TRPCError({
+						code: "NOT_FOUND",
+						message: "Note not found",
+					});
+				}
+
+				buffer = duplicatedNote.content;
+			} else {
+				buffer = Buffer.from(encodeYDocContent(new Y.Doc()));
+			}
+
+			const note = await prisma.note.create({
+				data: {
+					slug,
+					content: buffer,
+					creator: {
+						connectOrCreate: {
+							create: {
+								id: userId,
+							},
+							where: {
+								id: userId,
+							},
 						},
 					},
 				},
-			},
-		});
-		return parseNoteMetadataForWeb(note, userId);
-	}),
+			});
+			return parseNoteMetadataForWeb(note, userId);
+		}),
 	metadata: authedProcedure
 		.input(z.object({ slug: z.string() }))
 		.query(async ({ input, ctx: { userId } }) => {
@@ -210,7 +234,7 @@ export const noteRouter = router({
 		.input(
 			z.object({
 				slug: z.string(),
-				content: z.array(z.number().min(0).max(255)),
+				content: ZodNoteContent,
 			})
 		)
 		.mutation(async ({ input, ctx: { userId } }) => {
