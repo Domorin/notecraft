@@ -43,6 +43,7 @@ export function SidebarListItem(props: { slug: string; active: boolean }) {
 					className="flex w-full items-center px-4 py-2"
 					title={pageTitle}
 					href={`/${props.slug}`}
+					shallow
 				>
 					<div className="overflow-hidden overflow-ellipsis">
 						{pageTitle}

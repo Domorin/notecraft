@@ -7,8 +7,11 @@ import { NotFoundPage } from "./not_found_page";
 import { Sidebar } from "./sidebar/sidebar";
 import { ThemePicker } from "./theme_picker";
 import Note from "./note/note";
+import { usePageSlug } from "../hooks/use_page_id";
 
 export default function MainPage(props: { is_not_found?: boolean }) {
+	const slug = usePageSlug();
+
 	return (
 		<div className="flex h-screen items-center justify-center bg-base-300">
 			<ReactQueryDevtools />
@@ -41,7 +44,11 @@ export default function MainPage(props: { is_not_found?: boolean }) {
 					<Sidebar />
 				</div>
 				<div className="rounded-r-box h-full flex-grow-0 border-y-2 border-r-2 border-neutral bg-base-100 lg:w-[64rem]">
-					{!props.is_not_found ? <Note /> : <NotFoundPage />}
+					{!props.is_not_found ? (
+						<Note key={slug} />
+					) : (
+						<NotFoundPage />
+					)}
 				</div>
 			</div>
 		</div>

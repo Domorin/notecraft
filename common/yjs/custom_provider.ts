@@ -21,6 +21,7 @@ import {
 	CustomAwareness,
 } from "./custom_awareness";
 import { CustomMessage } from "../ws/types";
+import SuperJSON from "superjson";
 
 export const messageSync = 0;
 export const messageQueryAwareness = 3;
@@ -129,7 +130,7 @@ const readMessage = (
 
 function tryParseCustomMessage(data: unknown): CustomMessage | undefined {
 	try {
-		const message = JSON.parse(data as string) as CustomMessage;
+		const message = SuperJSON.parse(data as string) as CustomMessage;
 		return "type" in message ? message : undefined;
 	} catch (e) {
 		return undefined;

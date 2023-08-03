@@ -53,7 +53,9 @@ export function Sidebar() {
 			<div className="flex flex-col items-center border-t border-neutral">
 				<button
 					className="btn-primary btn w-full rounded-none"
-					onClick={() => router.push("/")}
+					onClick={() =>
+						router.push("/", undefined, { shallow: true })
+					}
 				>
 					<FontAwesomeIcon icon={faPlus} />
 					New Note

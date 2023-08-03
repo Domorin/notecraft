@@ -25,7 +25,7 @@ export function useCreateNoteMutation(onSuccess?: () => void) {
 					...slugs,
 				];
 			});
-			router.push(`/${data.slug}`);
+			router.push(`/${data.slug}`, undefined, { shallow: true });
 
 			onSuccess?.();
 		},

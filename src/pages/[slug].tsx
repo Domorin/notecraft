@@ -3,6 +3,7 @@ import MainPage from "./react/components/main";
 import { appRouter } from "@/server/routers/_app";
 import { createServerSideHelpers } from "@trpc/react-query/server";
 import superjson from "superjson";
+import { sleep } from "@/lib/misc";
 
 export default function NoteWithId() {
 	return <MainPage />;

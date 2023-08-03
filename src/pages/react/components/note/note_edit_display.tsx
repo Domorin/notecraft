@@ -22,20 +22,19 @@ function NoteEditDisplay(props: {
 }) {
 	const { metadata } = props;
 
-	console.log(metadata.updatedAt);
-
-	const updatedAt = DateTime.fromJSDate(metadata.updatedAt);
-	const [dateText, setDateText] = useState(updatedAt.toRelative());
+	const [dateText, setDateText] = useState(
+		DateTime.fromJSDate(metadata.updatedAt).toRelative()
+	);
 
 	useEffect(() => {
+		const updatedAt = DateTime.fromJSDate(metadata.updatedAt);
 		setDateText(updatedAt.toRelative());
-		const timer = setInterval(
-			() => setDateText(updatedAt.toRelative()),
-			1000
-		);
+		const timer = setInterval(() => {
+			setDateText(updatedAt.toRelative());
+		}, 1000);
 
 		return () => clearInterval(timer);
-	}, [props.isSaving, updatedAt]);
+	}, [metadata.updatedAt]);
 
 	return (
 		<div className="ml-auto flex gap-2 text-sm opacity-50">

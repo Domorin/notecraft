@@ -42,7 +42,7 @@ export function handleError(
 		}
 
 		if (meta.redirectUrl) {
-			router.push(meta.redirectUrl);
+			router.push(meta.redirectUrl, undefined, { shallow: true });
 		}
 
 		if (meta.toastMessage) {

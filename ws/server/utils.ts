@@ -279,7 +279,7 @@ export class WSSharedDoc extends Y.Doc {
 
 	broadcastAll(message: CustomMessage) {
 		for (const ws of this.conns.keys()) {
-			this.send(ws, JSON.stringify(message));
+			this.send(ws, SuperJSON.stringify(message));
 		}
 	}
 

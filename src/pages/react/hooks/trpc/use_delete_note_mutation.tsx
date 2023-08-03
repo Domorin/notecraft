@@ -52,7 +52,9 @@ export function useDeleteNoteMutation(slug: string) {
 						break;
 					}
 				}
-				await router.push(`/${nextSlug ?? ""}`);
+				await router.push(`/${nextSlug ?? ""}`, undefined, {
+					shallow: true,
+				});
 			}
 			deleteNote(slug);
 

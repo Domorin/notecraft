@@ -11,9 +11,6 @@ export default function Note() {
 		{ slug: slug! },
 		{
 			enabled: !!slug,
-			refetchOnMount: false,
-			refetchOnWindowFocus: false,
-			refetchOnReconnect: false,
 			meta: createErrorMetadata({
 				type: "ContentLoadFailed",
 				errorMessage: "Failed to load note content",
