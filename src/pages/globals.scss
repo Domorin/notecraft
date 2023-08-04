@@ -30,6 +30,10 @@
 		outline: none;
 	}
 
+	a {
+		@apply link-primary cursor-pointer underline;
+	}
+
 	> * + * {
 		margin-top: 0.75em;
 	}

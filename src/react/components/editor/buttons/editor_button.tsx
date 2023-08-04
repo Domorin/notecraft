@@ -4,6 +4,7 @@ import { Editor } from "@tiptap/react";
 import classNames from "classnames";
 
 export function EditorButton(props: {
+	hotkey: string;
 	label: string;
 	editor: Editor;
 	onClick: (editor: Editor) => void;
@@ -13,8 +14,8 @@ export function EditorButton(props: {
 
 	return (
 		<button
-			title={props.label}
-			className={classNames("btn-ghost btn-sm join-item btn", {
+			title={`${props.label} (${props.hotkey})`}
+			className={classNames("btn-ghost btn-xs join-item btn", {
 				"btn-active": isActive,
 			})}
 			onClick={() => props.onClick(props.editor)}
