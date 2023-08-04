@@ -1,15 +1,13 @@
-import { z } from "zod";
-import { prisma } from "../prisma";
-import { authedProcedure, procedure, router } from "../trpc";
-import { Words } from "../words/words";
+import { titleLimiter } from "@/lib/validators";
+import { encodeYDocContent } from "@/lib/ydoc_utils";
+import { Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import * as Y from "yjs";
+import { z } from "zod";
+import { prisma } from "../prisma";
 import { redis } from "../redis";
-import { encodeYDocContent } from "@/lib/ydoc_utils";
-import { titleLimiter } from "@/lib/validators";
-import { Prisma } from "@prisma/client";
-import { data } from "autoprefixer";
-import { sleep } from "@/lib/misc";
+import { authedProcedure, router } from "../trpc";
+import { getUniqueNoteSlug } from "../words/words";
 
 type NoteFindUniqueParams = Parameters<typeof prisma.note.findUnique>[0];
 type NoteSelectParameters = NoteFindUniqueParams["select"];
@@ -117,7 +115,7 @@ export const noteRouter = router({
 			})
 		)
 		.mutation(async ({ input, ctx: { userId } }) => {
-			const slug = await Words.getUniqueNoteSlug();
+			const slug = await getUniqueNoteSlug();
 
 			let buffer: Buffer | undefined;
 			if (input.duplicatedSlug) {
@@ -182,7 +180,7 @@ export const noteRouter = router({
 		}),
 	content: authedProcedure
 		.input(z.object({ slug: z.string() }))
-		.query(async ({ input, ctx: { userId } }) => {
+		.query(async ({ input }) => {
 			const note = await prisma.note.findUnique({
 				where: {
 					slug: input.slug,
@@ -275,7 +273,7 @@ export const noteRouter = router({
 				requireCreator: false,
 			});
 		}),
-	listCreated: authedProcedure.query(async ({ input, ctx: { userId } }) => {
+	listCreated: authedProcedure.query(async ({ ctx: { userId } }) => {
 		return prisma.note
 			.findMany({
 				select: NoteMetadataValues,

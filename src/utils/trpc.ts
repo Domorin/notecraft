@@ -1,10 +1,7 @@
 import { TRPCClientError, httpBatchLink } from "@trpc/client";
 import { createTRPCNext } from "@trpc/next";
-import type { AppRouter } from "../server/routers/_app";
-import { toast } from "react-hot-toast";
-import { Router } from "next/router";
-import { router } from "@/server/trpc";
 import SuperJSON from "superjson";
+import type { AppRouter } from "../server/routers/_app";
 
 function getBaseUrl() {
 	if (typeof window !== "undefined")
@@ -53,6 +50,7 @@ export const trpc = createTRPCNext<AppRouter>({
 									return false;
 								}
 							}
+							return failureCount < 3;
 						},
 					},
 					mutations: {

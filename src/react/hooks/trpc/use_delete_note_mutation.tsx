@@ -1,14 +1,10 @@
 import { trpc } from "@/utils/trpc";
-import { useDeleteNote } from "./use_delete_note";
 import { useRouter } from "next/router";
-import { usePageSlug } from "../use_page_id";
-import { SidebarActiveListContext } from "../../components/sidebar/sidebar";
-import { useContext } from "react";
-import { useNoteListRecent } from "../use_recents";
-import { useQueryClient } from "@tanstack/react-query";
-import { getQueryKey } from "@trpc/react-query";
-import { useActiveListContext } from "../use_active_list_context";
 import { toast } from "react-hot-toast";
+import { useActiveListContext } from "../use_active_list_context";
+import { usePageSlug } from "../use_page_id";
+import { useNoteListRecent } from "../use_recents";
+import { useDeleteNote } from "./use_delete_note";
 
 export function useDeleteNoteMutation(slug: string) {
 	const router = useRouter();

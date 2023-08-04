@@ -1,20 +1,15 @@
 import { useEffect, useState } from "react";
 import * as Y from "yjs";
 
+import { CustomMessage, UserPresence } from "../../../../common/ws/types";
+import { CustomProvider } from "../../../../common/yjs/custom_provider";
+import { useNoteMetadataQuery } from "../../hooks/trpc/use_note_metadata_query";
 import { useUpdateMetadata } from "../../hooks/trpc/use_update_metadata";
 import { Spinner } from "../spinner";
 import { WysiwygEditor } from "./markdown_editor";
-import { Presences, Presence } from "./presences";
-import { trpc } from "@/utils/trpc";
-import { useNoteMetadataQuery } from "../../hooks/trpc/use_note_metadata_query";
-import { UserPresence, CustomMessage } from "../../../../common/ws/types";
-import { CustomProvider } from "../../../../common/yjs/custom_provider";
+import { Presences } from "./presences";
 
-export function TextInput(props: {
-	slug: string;
-	doc: Y.Doc;
-	setContent: (content: string) => void;
-}) {
+export function TextInput(props: { slug: string; doc: Y.Doc }) {
 	const [provider, setProvider] = useState<CustomProvider | undefined>(
 		undefined
 	);
@@ -34,10 +29,11 @@ export function TextInput(props: {
 						case "presencesUpdated":
 							setPresences(m.users);
 							break;
-						case "noteMetadataUpdate":
-							const { type, ...val } = m;
+						case "noteMetadataUpdate": {
+							const { type: _type, ...val } = m;
 							setNoteMetadata(val);
 							break;
+						}
 					}
 				},
 			}

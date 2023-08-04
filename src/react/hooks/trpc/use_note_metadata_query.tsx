@@ -1,8 +1,7 @@
-import { useIsFetching, useQueryClient } from "@tanstack/react-query";
-import { ReactQueryOptions, RouterInput } from "@/server/routers/_app";
-import { TRPCClientError, getQueryKey } from "@trpc/react-query";
-import { trpc } from "@/utils/trpc";
 import { createErrorMetadata } from "@/react/utils/error_handler";
+import { ReactQueryOptions } from "@/server/routers/_app";
+import { trpc } from "@/utils/trpc";
+import { TRPCClientError } from "@trpc/react-query";
 
 type Params = Pick<
 	ReactQueryOptions["note"]["metadata"],

@@ -16,7 +16,7 @@ export const isCallbackSet = !!CALLBACK_URL;
 
 export const callbackHandler = (
 	update: Uint8Array,
-	origin: any,
+	origin: unknown,
 	doc: WSSharedDoc //TOOD: WSSharedDoc type
 ) => {
 	const room = doc.name;
@@ -74,6 +74,7 @@ const getContent = (
 	objName: string,
 	objType: string,
 	doc: WSSharedDoc
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Y.AbstractType<any> => {
 	switch (objType) {
 		case "Array":

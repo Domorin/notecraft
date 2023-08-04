@@ -1,23 +1,22 @@
-import * as Y from "yjs";
 import * as syncProtocol from "y-protocols/sync.js";
+import * as Y from "yjs";
 
+import { IncomingMessage } from "http";
 import * as lib0 from "lib0";
 import debounce from "lodash.debounce";
-import { callbackHandler, isCallbackSet } from "./callback";
+import SuperJSON from "superjson";
 import { WebSocket } from "ws";
-import { IncomingMessage } from "http";
+import { logger } from "../../common/logging/log";
+import { CustomMessage, UserPresence } from "../../common/ws/types";
 import {
 	CustomAwareness,
 	applyAwarenessUpdate,
 	encodeAwarenessUpdate,
 	removeAwarenessStates,
 } from "../../common/yjs/custom_awareness";
-import { getUsername } from "./usernames";
-import { RedisChannelType } from "../../common/redis/redis";
-import { logger } from "../../common/logging/log";
+import { callbackHandler, isCallbackSet } from "./callback";
 import { WsRedisType } from "./server";
-import { CustomMessage, UserPresence } from "../../common/ws/types";
-import SuperJSON from "superjson";
+import { getUsername } from "./usernames";
 
 const hexColors = [
 	"#D48C8C",
@@ -34,7 +33,6 @@ const hexColors = [
 
 const encoding = lib0.encoding;
 const decoding = lib0.decoding;
-const map = lib0.map;
 
 const CALLBACK_DEBOUNCE_WAIT = process.env.CALLBACK_DEBOUNCE_WAIT
 	? parseInt(process.env.CALLBACK_DEBOUNCE_WAIT)
@@ -94,7 +92,7 @@ export class WSSharedDoc extends Y.Doc {
 			conn: WebSocket | null
 		) => {
 			const addId = added[0];
-			const updatedId = added[0];
+			// const updatedId = added[0];
 			const removedId = removed[0];
 
 			const changedClients = added.concat(updated, removed);
@@ -291,7 +289,7 @@ export class WSSharedDoc extends Y.Doc {
 			this.closeConn(conn);
 		}
 		try {
-			conn.send(m, (err: any) => {
+			conn.send(m, (err: unknown) => {
 				err != null && this.closeConn(conn);
 			});
 		} catch (e) {
@@ -353,6 +351,7 @@ export const setupWSConnection = async (
 	conn: WebSocket,
 	userId: string,
 	req: IncomingMessage,
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	{ docName = req.url?.slice(1).split("?")[0], gc = true }: any = {}
 ) => {
 	logger.info("setting up WS connection");

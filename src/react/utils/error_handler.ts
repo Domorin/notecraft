@@ -1,14 +1,8 @@
-import type {
-	MutationMeta,
-	Query,
-	QueryKey,
-	QueryMeta,
-} from "@tanstack/react-query";
+import type { MutationMeta, QueryMeta } from "@tanstack/react-query";
 import { TRPCClientError } from "@trpc/client";
 import type { TRPC_ERROR_CODE_KEY } from "@trpc/server/rpc";
 import { NextRouter } from "next/router";
-import toast from "react-hot-toast";
-import { recentNotesKey, removeFromLocalStorage } from "../hooks/use_recents";
+import { removeFromLocalStorage } from "../hooks/use_recents";
 
 type CustomMetadata = {
 	_custom_metadata: true;
@@ -36,7 +30,7 @@ export function isCustomMetadata(type: unknown): type is CustomMetadata {
 	return "_custom_metadata" in (type as CustomMetadata);
 }
 
-function typedKeys<T extends Object>(obj: T) {
+function typedKeys<T extends object>(obj: T) {
 	return Object.keys(obj) as (keyof T)[];
 }
 
@@ -52,6 +46,11 @@ export function handleError(
 
 		for (const key of typedKeys(meta)) {
 			if (key === "_custom_metadata") {
+				continue;
+			}
+
+			// If it is not an error code that triggers this, then ignore
+			if (!MetadataErrorTriggers[key].includes(error.data.code)) {
 				continue;
 			}
 

@@ -1,6 +1,6 @@
 import { useNoteListRecent } from "@/react/hooks/use_recents";
 import { RouterOutput } from "@/server/routers/_app";
-import { faClone, faX } from "@fortawesome/free-solid-svg-icons";
+import { faX } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export function RemoveFromRecentsOption(props: {

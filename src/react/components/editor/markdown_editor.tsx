@@ -1,15 +1,7 @@
-import Collaboration from "@tiptap/extension-collaboration";
-import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
-import { BubbleMenu, EditorContent, useEditor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import { useRef } from "react";
-import { createRoot } from "react-dom/client";
-import { Cursor } from "./cursor";
-import { EditorButton } from "./buttons/editor_button";
+import { RouterOutput } from "@/server/routers/_app";
 import {
 	faBold,
 	faCode,
-	faCodeBranch,
 	faFileCode,
 	faItalic,
 	faList,
@@ -18,19 +10,22 @@ import {
 	faTasks,
 	faUnderline,
 } from "@fortawesome/free-solid-svg-icons";
-import Underline from "@tiptap/extension-underline";
-import { trpc } from "@/utils/trpc";
-import { RouterOutput } from "@/server/routers/_app";
+import Collaboration from "@tiptap/extension-collaboration";
+import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 import TaskItem from "@tiptap/extension-task-item";
 import TaskList from "@tiptap/extension-task-list";
+import Underline from "@tiptap/extension-underline";
+import { BubbleMenu, EditorContent, useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import { useRef } from "react";
+import { createRoot } from "react-dom/client";
 import { UserPresence } from "../../../../common/ws/types";
 import { CustomProvider } from "../../../../common/yjs/custom_provider";
-
-export interface WysiwygEditorProps extends Partial<any> {}
+import { EditorButton } from "./buttons/editor_button";
+import { Cursor } from "./cursor";
 
 export function WysiwygEditor(props: {
 	slug: string;
-	setContent: (content: string) => void;
 	provider: CustomProvider;
 	presences: UserPresence[];
 	metadata: RouterOutput["note"]["metadata"];

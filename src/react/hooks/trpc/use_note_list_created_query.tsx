@@ -1,5 +1,5 @@
 import { trpc } from "@/utils/trpc";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { getQueryKey } from "@trpc/react-query";
 import { DateTime } from "luxon";
 

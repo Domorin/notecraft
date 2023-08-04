@@ -11,6 +11,7 @@
 		},
 		"editor.quickSuggestions": {
 			"strings": true
-		}
+		},
+		"eslint.lintTask.enable": true
 	}
 }

@@ -1,12 +1,12 @@
-import { WebSocketServer, WebSocket } from "ws";
-import http, { IncomingMessage } from "http";
 import * as cookie from "cookie";
+import http, { IncomingMessage } from "http";
+import { WebSocket, WebSocketServer } from "ws";
+import { logger } from "../../common/logging/log";
+import { initRedis } from "../../common/redis/redis";
+import { CustomMessage } from "../../common/ws/types";
+import { docs, setupWSConnection } from "./utils";
 
 const wss = new WebSocketServer({ noServer: true });
-import { docs, getOrCreateYDoc, setupWSConnection } from "./utils";
-import { initRedis } from "../../common/redis/redis";
-import { logger } from "../../common/logging/log";
-import { CustomMessage } from "../../common/ws/types";
 
 // TODO: from envirment
 export const host = "localhost";

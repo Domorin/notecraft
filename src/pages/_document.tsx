@@ -1,5 +1,6 @@
 import Document, {
 	DocumentContext,
+	DocumentInitialProps,
 	Head,
 	Html,
 	Main,
@@ -7,7 +8,9 @@ import Document, {
 } from "next/document";
 import * as cookie from "cookie";
 
-export default function MyDocument(props: any) {
+export default function MyDocument(
+	props: DocumentInitialProps & { theme: string }
+) {
 	return (
 		<Html lang="en" data-theme={props.theme}>
 			<Head />
@@ -22,7 +25,7 @@ export default function MyDocument(props: any) {
 MyDocument.getInitialProps = async (ctx: DocumentContext) => {
 	const initialProps = await Document.getInitialProps(ctx);
 
-	let theme = cookie.parse(ctx.req?.headers.cookie || "")["theme"];
+	const theme = cookie.parse(ctx.req?.headers.cookie || "")["theme"];
 
 	return { ...initialProps, theme };
 };

@@ -1,5 +1,4 @@
 import classNames from "classnames";
-import { Spinner } from "./spinner";
 
 export function MutationButton(props: {
 	children: React.ReactNode;

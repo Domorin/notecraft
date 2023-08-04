@@ -1,4 +1,3 @@
-import { sleep } from "@/lib/misc";
 import MainPage from "@/react/components/main";
 import { appRouter } from "@/server/routers/_app";
 import { createServerSideHelpers } from "@trpc/react-query/server";

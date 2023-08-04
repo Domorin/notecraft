@@ -1,6 +1,5 @@
 import { trpc } from "@/utils/trpc";
 import { useUpdateMetadata } from "./use_update_metadata";
-import { useRef } from "react";
 
 export function useUpdateTitleMutation(slug: string) {
 	const updateMetadata = useUpdateMetadata(slug);

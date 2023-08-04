@@ -1,11 +1,11 @@
+import { encodeYDocContent, parseYDocContent } from "@/lib/ydoc_utils";
 import { trpc } from "@/utils/trpc";
+import debounce from "lodash.debounce";
 import { useEffect, useRef } from "react";
 import * as Y from "yjs";
-import { TextInput } from "../editor/text_input";
-import { encodeYDocContent, parseYDocContent } from "@/lib/ydoc_utils";
 import { useNoteListRecent } from "../../hooks/use_recents";
+import { TextInput } from "../editor/text_input";
 import { NoteEditDisplaySuspense } from "./note_edit_display";
-import debounce from "lodash.debounce";
 
 function saveContent(
 	mutation: ReturnType<typeof trpc.note.save.useMutation>,
@@ -42,7 +42,7 @@ export function NoteWithLoadedContent(props: {
 	useEffect(() => {
 		doc.current.on(
 			"update",
-			(update: Uint8Array, origin: any, doc: Y.Doc) => {
+			(_update: Uint8Array, _origin: unknown, doc: Y.Doc) => {
 				debouncedSaveContent(saveMutation, slug, doc);
 			}
 		);
@@ -50,19 +50,7 @@ export function NoteWithLoadedContent(props: {
 
 	return (
 		<div className="flex h-full w-full flex-col">
-			<TextInput
-				key={props.slug}
-				slug={props.slug}
-				doc={doc.current}
-				setContent={(content) => {
-					// context.note.content.setData(
-					// 	{
-					// 		slug: props.slug,
-					// 	},
-					// 	(data) => ({ content })
-					// );
-				}}
-			/>
+			<TextInput key={props.slug} slug={props.slug} doc={doc.current} />
 			<div className="relative w-full">
 				<div className="absolute flex w-full">
 					<NoteEditDisplaySuspense

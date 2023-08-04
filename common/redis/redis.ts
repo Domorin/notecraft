@@ -41,7 +41,7 @@ export const pendingMessages: Record<
 	number,
 	{
 		resolve: (value: unknown) => void;
-		reject: (reason?: any) => void;
+		reject: (reason?: unknown) => void;
 	}
 > = {};
 
@@ -129,6 +129,7 @@ export function initRedis<T extends Service>(context: {
 		}
 
 		const result = await context.rpcHandler[message.rpc as keyof RPCs[T]](
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			message.input as any
 		);
 

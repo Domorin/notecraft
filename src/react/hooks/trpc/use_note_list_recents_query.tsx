@@ -1,12 +1,10 @@
 import { trpc } from "@/utils/trpc";
 import { DateTime } from "luxon";
 import { useNoteListRecent } from "../use_recents";
-import { TRPCClientError } from "@trpc/client";
-import { createErrorMetadata } from "@/react/utils/error_handler";
 import { makeMetadataDefaultOptions } from "./use_note_metadata_query";
 
 export function useNoteListRecentsQuery() {
-	const { recents, add, remove } = useNoteListRecent();
+	const { recents } = useNoteListRecent();
 
 	const recentSlugs = Object.keys(recents).sort(
 		(a, b) => recents[b].getTime() - recents[a].getTime()
@@ -16,6 +14,7 @@ export function useNoteListRecentsQuery() {
 		return recentSlugs.map((val) =>
 			t.note.metadata(
 				{ slug: val },
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				{ ...(makeMetadataDefaultOptions(val) as any) }
 			)
 		);

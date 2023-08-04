@@ -3,7 +3,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { getQueryKey } from "@trpc/react-query";
 import { useCallback } from "react";
 import { useNoteListRecent } from "../use_recents";
-import { RouterOutput } from "@/server/routers/_app";
 
 export function useDeleteNote() {
 	const context = trpc.useContext();

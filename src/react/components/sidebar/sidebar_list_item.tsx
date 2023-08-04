@@ -1,11 +1,10 @@
-import { trpc } from "@/utils/trpc";
 import classNames from "classnames";
 import Link from "next/link";
 import { useState } from "react";
+import { useNoteMetadataQuery } from "../../hooks/trpc/use_note_metadata_query";
+import { getNoteTitle } from "../../utils/get_note_title";
 import { SidebarElementMenu } from "./note_menu/note_menu";
 import { SidebarElementTitleInput } from "./sidebar_element_title_input";
-import { getNoteTitle } from "../../utils/get_note_title";
-import { useNoteMetadataQuery } from "../../hooks/trpc/use_note_metadata_query";
 
 export function SidebarListItem(props: { slug: string; active: boolean }) {
 	const metadataQuery = useNoteMetadataQuery(props.slug);
