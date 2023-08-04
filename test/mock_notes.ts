@@ -1,9 +1,9 @@
 import { encodeYDocContent } from "@/lib/ydoc_utils";
-import { Words } from "@/server/words/words";
 import { Note, PrismaClient } from "@prisma/client";
 import { DateTime } from "luxon";
 import * as Y from "yjs";
 import { logger } from "../common/logging/log";
+import { getUniqueNoteSlug } from "@/server/words/words";
 
 async function MockNotes(id: string) {
 	if (process.env.NODE_ENV !== "development") {
@@ -33,7 +33,7 @@ async function MockNotes(id: string) {
 
 		const date = now.minus({ hours: i * hoursIncrement }).toJSDate();
 
-		const slug = await Words.getUniqueNoteSlug();
+		const slug = await getUniqueNoteSlug();
 
 		promises.push(
 			prisma.note.create({

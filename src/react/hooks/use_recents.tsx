@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { useLocalStorage } from "usehooks-ts";
 
 export const recentNotesKey = "recentNotes";
@@ -32,30 +33,36 @@ export function useNoteListRecent() {
 
 	return {
 		recents: parsedRecents,
-		add: (slug: string) =>
-			setRecents((val) => {
-				const newVal = { ...val };
-				newVal[slug] = new Date();
+		add: useCallback(
+			(slug: string) =>
+				setRecents((val) => {
+					const newVal = { ...val };
+					newVal[slug] = new Date();
 
-				const keys = Object.keys(newVal);
-				// Delete old recents
-				for (const key of keys) {
-					const date = new Date(newVal[key]);
-					if (
-						date.getTime() <
-						Date.now() - 1000 * 60 * 60 * 24 * 30
-					) {
-						delete newVal[key];
+					const keys = Object.keys(newVal);
+					// Delete old recents
+					for (const key of keys) {
+						const date = new Date(newVal[key]);
+						if (
+							date.getTime() <
+							Date.now() - 1000 * 60 * 60 * 24 * 30
+						) {
+							delete newVal[key];
+						}
 					}
-				}
 
-				return newVal;
-			}),
-		remove: (slug: string) =>
-			setRecents((val) => {
-				const newVal = { ...val };
-				delete newVal[slug];
-				return newVal;
-			}),
+					return newVal;
+				}),
+			[setRecents]
+		),
+		remove: useCallback(
+			(slug: string) =>
+				setRecents((val) => {
+					const newVal = { ...val };
+					delete newVal[slug];
+					return newVal;
+				}),
+			[setRecents]
+		),
 	};
 }
