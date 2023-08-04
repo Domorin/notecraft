@@ -1,11 +1,22 @@
-import { RouterOutput } from "@/server/routers/_app";
-import { trpc } from "@/utils/trpc";
-import { useEffect, useState } from "react";
 import { useLocalStorage } from "usehooks-ts";
 
-const recentNotesKey = "recentNotes";
+export const recentNotesKey = "recentNotes";
 
 type RecentNotes = Record<string, Date>;
+
+export function removeFromLocalStorage(slug: string) {
+	const recents = localStorage.getItem(recentNotesKey);
+
+	if (!recents) {
+		return;
+	}
+
+	const parsedRecents = JSON.parse(recents) as RecentNotes;
+
+	delete parsedRecents[slug];
+
+	localStorage.setItem(recentNotesKey, JSON.stringify(parsedRecents));
+}
 
 export function useNoteListRecent() {
 	const [recents, setRecents] = useLocalStorage(

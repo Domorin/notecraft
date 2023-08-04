@@ -1,9 +1,9 @@
-import { GetServerSidePropsContext } from "next";
-import MainPage from "./react/components/main";
+import { sleep } from "@/lib/misc";
+import MainPage from "@/react/components/main";
 import { appRouter } from "@/server/routers/_app";
 import { createServerSideHelpers } from "@trpc/react-query/server";
+import { GetServerSidePropsContext } from "next";
 import superjson from "superjson";
-import { sleep } from "@/lib/misc";
 
 export default function NoteWithId() {
 	return <MainPage />;

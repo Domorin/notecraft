@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { usePageSlug } from "../use_page_id";
 import { SidebarActiveListContext } from "../../components/sidebar/sidebar";
 import { useContext } from "react";
-import { useNoteListRecent } from "../use_recent_local_storage";
+import { useNoteListRecent } from "../use_recents";
 import { useQueryClient } from "@tanstack/react-query";
 import { getQueryKey } from "@trpc/react-query";
 import { useActiveListContext } from "../use_active_list_context";

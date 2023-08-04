@@ -4,7 +4,6 @@ import { BubbleMenu, EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useRef } from "react";
 import { createRoot } from "react-dom/client";
-import { CustomProvider } from "../../../../../common/yjs/custom_provider";
 import { Cursor } from "./cursor";
 import { EditorButton } from "./buttons/editor_button";
 import {
@@ -24,7 +23,8 @@ import { trpc } from "@/utils/trpc";
 import { RouterOutput } from "@/server/routers/_app";
 import TaskItem from "@tiptap/extension-task-item";
 import TaskList from "@tiptap/extension-task-list";
-import { UserPresence } from "../../../../../common/ws/types";
+import { UserPresence } from "../../../../common/ws/types";
+import { CustomProvider } from "../../../../common/yjs/custom_provider";
 
 export interface WysiwygEditorProps extends Partial<any> {}
 

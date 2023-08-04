@@ -11,8 +11,8 @@ import { AllowAnyoneToEditOption } from "./options/note_menu_allow_anyone_to_edi
 import { DeleteNoteOption } from "./options/note_menu_delete_option";
 import { DuplicateNoteOption } from "./options/note_menu_duplicate_option";
 import { RemoveFromRecentsOption } from "./options/note_menu_remove_from_recents_option";
-import { useActiveListContext } from "@/pages/react/hooks/use_active_list_context";
-import { useCreateNoteMutation } from "@/pages/react/hooks/trpc/use_create_note_mutation";
+import { useCreateNoteMutation } from "@/react/hooks/trpc/use_create_note_mutation";
+import { useActiveListContext } from "@/react/hooks/use_active_list_context";
 
 type MenuProps = {
 	openTitleInput: () => void;

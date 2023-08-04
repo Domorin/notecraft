@@ -14,7 +14,7 @@ import { sleep } from "@/lib/misc";
 type NoteFindUniqueParams = Parameters<typeof prisma.note.findUnique>[0];
 type NoteSelectParameters = NoteFindUniqueParams["select"];
 
-const NoteMetadataParameters = {
+const NoteMetadataValues = {
 	slug: true,
 	updatedAt: true,
 	createdAt: true,
@@ -26,7 +26,7 @@ const NoteMetadataParameters = {
 } satisfies NoteSelectParameters;
 
 type PrismaNoteMetadata = Prisma.NoteGetPayload<{
-	select: typeof NoteMetadataParameters;
+	select: typeof NoteMetadataValues;
 }>;
 
 const ZodNoteContent = z.array(z.number().min(0).max(255));
@@ -91,7 +91,7 @@ async function updateNoteMetadataForWeb(
 		// ...params,
 		data: params.data,
 		where: params.where,
-		select: NoteMetadataParameters,
+		select: NoteMetadataValues,
 	});
 
 	const parsedNote = parseNoteMetadataForWeb(updateResult, userId);
@@ -157,6 +157,7 @@ export const noteRouter = router({
 						},
 					},
 				},
+				select: NoteMetadataValues,
 			});
 			return parseNoteMetadataForWeb(note, userId);
 		}),
@@ -167,7 +168,7 @@ export const noteRouter = router({
 				where: {
 					slug: input.slug,
 				},
-				select: NoteMetadataParameters,
+				select: NoteMetadataValues,
 			});
 
 			if (!metadata) {
@@ -277,7 +278,7 @@ export const noteRouter = router({
 	listCreated: authedProcedure.query(async ({ input, ctx: { userId } }) => {
 		return prisma.note
 			.findMany({
-				select: NoteMetadataParameters,
+				select: NoteMetadataValues,
 				orderBy: {
 					updatedAt: "desc",
 				},

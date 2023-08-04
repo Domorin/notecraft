@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 import * as Y from "yjs";
 import { TextInput } from "../editor/text_input";
 import { encodeYDocContent, parseYDocContent } from "@/lib/ydoc_utils";
-import { useNoteListRecent } from "../../hooks/use_recent_local_storage";
+import { useNoteListRecent } from "../../hooks/use_recents";
 import { NoteEditDisplaySuspense } from "./note_edit_display";
 import debounce from "lodash.debounce";
 
@@ -18,7 +18,7 @@ function saveContent(
 	});
 }
 
-export const debouncedSaveContent = debounce(saveContent, 2000, {
+export const debouncedSaveContent = debounce(saveContent, 1000, {
 	maxWait: 5000,
 });
 
@@ -29,12 +29,13 @@ export function NoteWithLoadedContent(props: {
 	const { slug, noteContent } = props;
 
 	const { add } = useNoteListRecent();
-	useEffect(() => {
-		add(slug);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
 
 	const doc = useRef(parseYDocContent(noteContent));
+
+	useEffect(() => {
+		// Add page to recents
+		add(slug);
+	}, [add, slug]);
 
 	const saveMutation = trpc.note.save.useMutation();
 

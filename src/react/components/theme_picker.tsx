@@ -1,7 +1,8 @@
 import { faPalette } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import classNames from "classnames";
-import { useState, useEffect, useCallback } from "react";
+import Cookies from "js-cookie";
+import { useCallback, useEffect, useState } from "react";
 
 const themes = [
 	"light",
@@ -35,23 +36,26 @@ const themes = [
 	"winter",
 ] as const;
 
-export function ThemePicker() {
+export default function ThemePicker() {
 	const [selectedTheme, setTheme] = useState(
 		themes[0] as (typeof themes)[number]
 	);
 
 	const updateTheme = useCallback((theme: (typeof themes)[number]) => {
 		setTheme(theme);
-		localStorage.setItem("theme", theme);
+
+		Cookies.set("theme", theme, {
+			sameSite: "strict",
+			expires: 365,
+		});
 		document.documentElement.setAttribute("data-theme", theme);
 	}, []);
 
-	// TODO: prevent flash of wrong theme
 	useEffect(() => {
 		updateTheme(
-			(localStorage.getItem("theme") as (typeof themes)[number]) ??
-				themes[0]
+			(Cookies.get("theme") as (typeof themes)[number]) ?? themes[0]
 		);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	return (

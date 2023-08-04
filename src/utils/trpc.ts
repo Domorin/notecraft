@@ -53,7 +53,6 @@ export const trpc = createTRPCNext<AppRouter>({
 									return false;
 								}
 							}
-							return failureCount < 3;
 						},
 					},
 					mutations: {

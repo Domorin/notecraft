@@ -4,10 +4,10 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import classNames from "classnames";
 import toast, { Toaster, resolveValue } from "react-hot-toast";
 import { NotFoundPage } from "./not_found_page";
-import { ThemePicker } from "./theme_picker";
 import Note from "./note/note";
 import { usePageSlug } from "../hooks/use_page_id";
 import Sidebar from "./sidebar/sidebar";
+import ThemePicker from "./theme_picker";
 
 export default function MainPage(props: { is_not_found?: boolean }) {
 	const slug = usePageSlug();

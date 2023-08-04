@@ -1,4 +1,4 @@
-import { useCreateNoteMutation } from "@/pages/react/hooks/trpc/use_create_note_mutation";
+import { useCreateNoteMutation } from "@/react/hooks/trpc/use_create_note_mutation";
 import { RouterOutput } from "@/server/routers/_app";
 import { faClone } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";

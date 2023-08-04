@@ -1,6 +1,9 @@
 import { trpc } from "@/utils/trpc";
 import { DateTime } from "luxon";
-import { useNoteListRecent } from "../use_recent_local_storage";
+import { useNoteListRecent } from "../use_recents";
+import { TRPCClientError } from "@trpc/client";
+import { createErrorMetadata } from "@/react/utils/error_handler";
+import { makeMetadataDefaultOptions } from "./use_note_metadata_query";
 
 export function useNoteListRecentsQuery() {
 	const { recents, add, remove } = useNoteListRecent();
@@ -11,7 +14,10 @@ export function useNoteListRecentsQuery() {
 
 	const queries = trpc.useQueries((t) => {
 		return recentSlugs.map((val) =>
-			t.note.metadata({ slug: val }, { refetchOnMount: false })
+			t.note.metadata(
+				{ slug: val },
+				{ ...(makeMetadataDefaultOptions(val) as any) }
+			)
 		);
 	});
 
@@ -20,16 +26,6 @@ export function useNoteListRecentsQuery() {
 		val.isSuccess ? [val] : []
 	);
 	// Remove not found pages from local storage
-
-	queries.forEach((val, index) => {
-		if (!val.isError) {
-			return;
-		}
-
-		if (val.error.data?.code === "NOT_FOUND") {
-			remove(recentSlugs[index]);
-		}
-	});
 
 	return {
 		isLoading,

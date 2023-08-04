@@ -4,14 +4,13 @@ import { useRouter } from "next/router";
 import { useEffect, useRef } from "react";
 import { trpc } from "../utils/trpc";
 import "./globals.scss";
-import { usePageSlug } from "./react/hooks/use_page_id";
-import { handleError } from "./react/utils/error_handler";
+import { usePageSlug } from "@/react/hooks/use_page_id";
+import { handleError } from "@/react/utils/error_handler";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
 	const router = useRouter();
 	const queryClient = useQueryClient();
 	const slug = usePageSlug();
-
 	const ref = useRef(slug);
 
 	ref.current = slug;

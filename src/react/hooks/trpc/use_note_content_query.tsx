@@ -1,9 +1,8 @@
-import { trpc } from "@/utils/trpc";
-import { createErrorMetadata } from "../../utils/error_handler";
-import { useEffect } from "react";
 import { RouterOutput } from "@/server/routers/_app";
 import { CustomError } from "@/server/routers/note";
+import { trpc } from "@/utils/trpc";
 import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 function IsError(
 	data: RouterOutput["note"]["content"] | undefined

@@ -1,8 +1,8 @@
-import { useDeleteNoteMutation } from "@/pages/react/hooks/trpc/use_delete_note_mutation";
 import { RouterOutput } from "@/server/routers/_app";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Spinner } from "../../../spinner";
+import { useDeleteNoteMutation } from "@/react/hooks/trpc/use_delete_note_mutation";
 
 export function DeleteNoteOption(props: {
 	deleteMutation: ReturnType<typeof useDeleteNoteMutation>;

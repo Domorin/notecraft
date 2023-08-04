@@ -1,4 +1,4 @@
-import { useNoteListRecent } from "@/pages/react/hooks/use_recent_local_storage";
+import { useNoteListRecent } from "@/react/hooks/use_recents";
 import { RouterOutput } from "@/server/routers/_app";
 import { faClone, faX } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";

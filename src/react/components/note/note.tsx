@@ -1,14 +1,8 @@
-import { trpc } from "@/utils/trpc";
+import { useRouter } from "next/router";
+import { useNoteContentQuery } from "../../hooks/trpc/use_note_content_query";
 import { usePageSlug } from "../../hooks/use_page_id";
-import { createErrorMetadata } from "../../utils/error_handler";
 import { Spinner } from "../spinner";
 import { NoteWithLoadedContent } from "./note_with_loaded_content";
-import { useRouter } from "next/router";
-import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
-import { useEffect } from "react";
-import { RouterOutput } from "@/server/routers/_app";
-import { isError } from "@tanstack/react-query";
-import { useNoteContentQuery } from "../../hooks/trpc/use_note_content_query";
 
 export default function Note() {
 	const slug = usePageSlug();

@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { Spinner } from "./spinner";
 
-export function DefaultSuspense(props: { children: React.ReactNode }) {
+export default function DefaultSuspense(props: { children: React.ReactNode }) {
 	return <Suspense fallback={<Spinner />}>{props.children}</Suspense>;
 }

@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import fontColorContrast from "font-color-contrast";
-import { UserPresence } from "../../../../../common/ws/types";
+import { UserPresence } from "../../../../common/ws/types";
 
 export function Presences(props: {
 	presences: UserPresence[];
