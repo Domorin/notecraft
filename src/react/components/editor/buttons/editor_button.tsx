@@ -18,7 +18,9 @@ export function EditorButton(props: {
 			className={classNames("btn-ghost btn-xs join-item btn", {
 				"btn-active": isActive,
 			})}
-			onClick={() => props.onClick(props.editor)}
+			onClick={(e) => {
+				props.onClick(props.editor);
+			}}
 		>
 			<FontAwesomeIcon icon={props.icon} />
 		</button>

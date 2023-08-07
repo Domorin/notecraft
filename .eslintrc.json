@@ -16,6 +16,7 @@
 				"varsIgnorePattern": "^_",
 				"caughtErrorsIgnorePattern": "^_"
 			}
-		]
+		],
+		"ts-expect-error": "allow-with-description"
 	}
 }

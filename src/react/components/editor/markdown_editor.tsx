@@ -18,17 +18,25 @@ import Link from "@tiptap/extension-link";
 import TaskItem from "@tiptap/extension-task-item";
 import TaskList from "@tiptap/extension-task-list";
 import Underline from "@tiptap/extension-underline";
-import { BubbleMenu, Editor, EditorContent, useEditor } from "@tiptap/react";
+import { NodeType, Node } from "@tiptap/pm/model";
+import { EditorState } from "@tiptap/pm/state";
+import {
+	BubbleMenu,
+	Editor,
+	EditorContent,
+	getNodeType,
+	useEditor,
+} from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { Markdown } from "tiptap-markdown";
 import { UserPresence } from "../../../../common/ws/types";
 import { CustomProvider } from "../../../../common/yjs/custom_provider";
+import { ModalLinkInput } from "../modals/modal_link_input";
 import { EditorButton } from "./buttons/editor_button";
 import { Cursor } from "./cursor";
-import { Modal } from "../modal";
-import { useModal } from "@/react/hooks/use_modal";
+import { CustomLink } from "./custom_link";
 
 const CreateLinkExtension = (setModalActive: () => void) =>
 	Link.extend({
@@ -46,23 +54,29 @@ const CreateLinkExtension = (setModalActive: () => void) =>
 				},
 			};
 		},
+		// renderHTML(stuff) {
+		// 	console.log(JSON.stringify(stuff));
+		// 	return ["strong", stuff.HTMLAttributes, ["a", "hi"]];
+		// },
 		addKeyboardShortcuts() {
 			return {
-				"Mod-k": () => setLink(this.editor, setModalActive),
+				"Mod-k": () => {
+					setModalActive();
+					return true;
+				},
 			};
 		},
 	});
 
 function setLink(
 	editor: Pick<Editor, "getAttributes" | "chain"> | undefined,
-	setModalActive: () => void
+	url: string,
+	label: string
 ) {
 	if (!editor) return false;
 
-	setModalActive();
-
-	const previousUrl = editor.getAttributes("link").href;
-	const url = window.prompt("URL", previousUrl);
+	// const previousUrl = editor.getAttributes("link").href;
+	// const url = window.prompt("URL", previousUrl);
 
 	// cancelled
 	if (url === null) {
@@ -76,12 +90,19 @@ function setLink(
 		return false;
 	}
 
+	// https://github.com/ueberdosis/tiptap/issues/2571
 	// update link
-	return editor
+	// https://github.com/ueberdosis/tiptap/issues/373
+	console.log("running");
+	editor
 		.chain()
 		.focus()
 		.extendMarkRange("link")
-		.setLink({ href: url })
+		// .setLink({ href: url })
+		// .command(({ tr }) => {
+		// 	tr.insertText(label);
+		// 	return true;
+		// })
 		.run();
 }
 
@@ -92,7 +113,7 @@ export function WysiwygEditor(props: {
 	metadata: RouterOutput["note"]["metadata"];
 }) {
 	const ref = useRef(props.presences);
-	const { Dialog, handleShow } = useModal();
+	const [modalActive, setModalActive] = useState(false);
 
 	if (props.presences !== ref.current) {
 		ref.current = props.presences;
@@ -153,7 +174,9 @@ export function WysiwygEditor(props: {
 			TaskList,
 			TaskItem,
 			Underline,
-			CreateLinkExtension(handleShow),
+			CustomLink.configure({
+				toggleModal: () => setModalActive(!modalActive),
+			}),
 		],
 	});
 
@@ -165,9 +188,22 @@ export function WysiwygEditor(props: {
 		props.metadata.allowAnyoneToEdit || props.metadata.isCreatedByYou
 	);
 
+	const linkAttributes = editor.getAttributes("customLink");
+
 	return (
 		<>
-			<Dialog>hello</Dialog>
+			<ModalLinkInput
+				isActive={modalActive}
+				close={() => setModalActive(false)}
+				initialUrl={linkAttributes?.href}
+				initialLabel={linkAttributes?.title}
+				onSubmit={(url, label) => {
+					editor.commands.createCustomLink({
+						title: label,
+						href: url,
+					});
+				}}
+			/>
 			<div className="flex h-full w-full flex-col">
 				<BubbleMenu editor={editor}>
 					<div className="join overflow-hidden border border-neutral bg-base-300">
@@ -270,8 +306,8 @@ export function WysiwygEditor(props: {
 							label="link"
 							editor={editor}
 							icon={faLink}
-							onClick={() => {
-								setLink(editor, handleShow);
+							onClick={(e) => {
+								setModalActive(true);
 							}}
 						/>
 					</div>
