@@ -31,7 +31,7 @@
 	}
 
 	a {
-		@apply link-primary cursor-pointer underline;
+		@apply cursor-pointer text-base-content underline;
 	}
 
 	> * + * {
@@ -49,7 +49,7 @@
 
 			label {
 				input {
-					@apply checkbox-primary checkbox checkbox-xs align-baseline;
+					@apply checkbox-primary checkbox checkbox-xs mt-1;
 				}
 			}
 

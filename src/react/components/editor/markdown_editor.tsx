@@ -110,13 +110,6 @@ export function WysiwygEditor(props: {
 		ref.current = props.presences;
 	}
 
-	const createCustomLink = (href: string, title: string) => {
-		editor?.commands.createCustomLink({
-			title,
-			href,
-		});
-	};
-
 	const editor = useEditor({
 		extensions: [
 			StarterKit.configure({
@@ -170,7 +163,9 @@ export function WysiwygEditor(props: {
 				},
 			}),
 			TaskList,
-			TaskItem,
+			TaskItem.configure({
+				nested: true,
+			}),
 			Underline,
 			CustomLink.configure({
 				toggleModal: (editor) => {
@@ -203,14 +198,14 @@ export function WysiwygEditor(props: {
 		<>
 			<div className="flex h-full w-full flex-col">
 				<BubbleMenu editor={editor}>
-					<div className="join overflow-hidden border border-neutral bg-base-300">
+					<div className="join overflow-hidden border border-neutral bg-base-300 shadow">
 						<EditorButton
 							hotkey="ctrl b"
 							editor={editor}
 							icon={faBold}
-							onClick={(editor) =>
-								editor.chain().focus().toggleBold().run()
-							}
+							onClick={(editor) => {
+								editor.chain().focus().toggleBold().run();
+							}}
 							label="bold"
 						/>
 						<EditorButton
