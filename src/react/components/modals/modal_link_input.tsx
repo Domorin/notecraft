@@ -1,25 +1,26 @@
 import { faLink, faTag } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ComponentProps, useEffect, useRef, useState } from "react";
-import { Modal, ModalProps } from "../modal";
+import { BaseModalProps, Modal } from "../modal";
 
-export function ModalLinkInput(
-	props: ModalProps & {
-		initialUrl: string | undefined;
-		initialLabel: string | undefined;
-		onSubmit: (url: string, label: string) => void;
-	}
-) {
+export function ModalLinkInput(props: {
+	initialHref: string | undefined;
+	initialTitle: string | undefined;
+	onSubmit: (opts: { href: string; title: string }) => void;
+	closeModal: () => void;
+}) {
 	return (
-		<Modal close={props.close} isActive={props.isActive}>
-			<InnerModal {...props} />
+		<Modal closeModal={props.closeModal}>
+			<InnerModal {...props} closeModal={props.closeModal} />
 		</Modal>
 	);
 }
 
-function InnerModal(props: ComponentProps<typeof ModalLinkInput>) {
-	const [url, setUrl] = useState(props.initialUrl ?? "");
-	const [label, setLabel] = useState(props.initialLabel ?? "");
+function InnerModal(
+	props: BaseModalProps & ComponentProps<typeof ModalLinkInput>
+) {
+	const [url, setUrl] = useState(props.initialHref ?? "");
+	const [label, setLabel] = useState(props.initialTitle ?? "");
 
 	const ref = useRef<HTMLInputElement>(null);
 
@@ -66,15 +67,18 @@ function InnerModal(props: ComponentProps<typeof ModalLinkInput>) {
 						type="submit"
 						className="btn-sm btn w-1/2"
 						onClick={() => {
-							props.onSubmit(url, label);
-							props.close();
+							props.onSubmit({
+								href: url,
+								title: label,
+							});
+							props.closeModal();
 						}}
 					>
 						Set
 					</button>
 					<button
 						className="btn-sm btn ml-auto w-1/2"
-						onClick={props.close}
+						onClick={props.closeModal}
 					>
 						Remove
 					</button>

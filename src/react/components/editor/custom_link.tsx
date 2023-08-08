@@ -1,11 +1,11 @@
+import { Editor as CoreEditor } from "@tiptap/core";
 import { MarkType } from "@tiptap/pm/model";
-import { PluginKey, Plugin } from "@tiptap/pm/state";
+import { Plugin, PluginKey } from "@tiptap/pm/state";
 import {
-	ExtendedRegExpMatchArray,
-	InputRule,
 	Node,
 	ReactNodeViewRenderer,
 	getAttributes,
+	mergeAttributes,
 } from "@tiptap/react";
 import { CustomLinkComponent } from "./link";
 
@@ -26,20 +26,26 @@ declare module "@tiptap/core" {
 }
 
 export interface CustomLinkOptions {
-	toggleModal: () => void;
+	toggleModal: (editor: CoreEditor) => void;
 }
 
 export const CustomLink = Node.create<CustomLinkOptions>({
 	name: "customLink",
-	content: "text*",
-
 	group: "inline",
 	inline: true,
+	selectable: false,
+	atom: true,
 
 	addAttributes() {
 		return {
-			href: {},
-			title: {},
+			href: {
+				default: null,
+				isRequired: true,
+			},
+			title: {
+				default: null,
+				isRequired: true,
+			},
 		};
 	},
 
@@ -52,17 +58,8 @@ export const CustomLink = Node.create<CustomLinkOptions>({
 	// 	];
 	// },
 
-	renderHTML({ node, HTMLAttributes }) {
-		return [
-			"a",
-			{
-				...HTMLAttributes,
-				ref: "noopener noreferrer nofollow",
-				target: "_blank",
-				title: HTMLAttributes.href,
-			},
-			0,
-		];
+	renderHTML({ HTMLAttributes }) {
+		return ["react-component", mergeAttributes(HTMLAttributes)];
 	},
 
 	addCommands() {
@@ -70,39 +67,40 @@ export const CustomLink = Node.create<CustomLinkOptions>({
 			createCustomLink:
 				(opts: { title: string; href: string }) => (t) => {
 					const state = t.state;
-
-					const from = state.selection.$head.start() - 1;
-					const to = state.selection.$head.end();
-
-					return t
-						.chain()
-						.command(({ tr }) => {
-							tr.replaceWith(
-								from,
-								to,
-								this.type.create({
-									title: opts.title,
-									href: opts.href,
-								})
-							);
-							tr.insertText(opts.title, from + 1);
-							return true;
-						})
-						.run();
+					state.tr.replaceSelectionWith(this.type.create(opts));
+					t.commands.focus();
+					return true;
 				},
 		};
 	},
 
 	addKeyboardShortcuts() {
 		return {
-			"Mod-k": (test) => {
-				this.options.toggleModal();
+			"Mod-k": ({ editor }) => {
+				this.options.toggleModal(this.editor);
 				return true;
 			},
-			Enter: ({ editor }) => {
-				console.log("enter!");
-				return false;
-			},
+			Backspace: () =>
+				this.editor.commands.command(({ tr, state }) => {
+					let isMention = false;
+					const { selection } = state;
+					const { empty, anchor } = selection;
+
+					if (!empty) {
+						return false;
+					}
+
+					// This is only considering a single backspace. Its removing a single character
+					state.doc.nodesBetween(anchor - 1, anchor, (node, pos) => {
+						if (node.type.name === this.name) {
+							isMention = true;
+							tr.insertText("", pos, pos + node.nodeSize);
+						}
+						return true;
+					});
+
+					return isMention;
+				}),
 		};
 	},
 
@@ -110,29 +108,26 @@ export const CustomLink = Node.create<CustomLinkOptions>({
 		return ReactNodeViewRenderer(CustomLinkComponent);
 	},
 
-	addInputRules() {
-		return [
-			new InputRule({
-				find: /\[(.*)\]\((.*)\)/g,
-				handler: ({ state, range, match }) => {
-					const attributes = {
-						title: match[1],
-						href: match[2],
-					};
+	// addInputRules() {
+	// 	return [
+	// 		new InputRule({
+	// 			find: /\[(.*)\]\((.*)\)/g,
+	// 			handler: ({ state, range, match }) => {
+	// 				const attributes = {
+	// 					title: match[1],
+	// 					href: match[2],
+	// 				};
 
-					const { tr } = state;
-					const start = range.from;
-					const end = range.to;
+	// 				const { tr } = state;
+	// 				const start = range.from;
+	// 				const end = range.to;
 
-					console.log("input", start, end);
-
-					tr.replaceWith(start, end, this.type.create(attributes));
-					tr.insertText(attributes.title, start + 1);
-					return;
-				},
-			}),
-		];
-	},
+	// 				tr.insert(start, this.type.create(attributes));
+	// 				return;
+	// 			},
+	// 		}),
+	// 	];
+	// },
 
 	addProseMirrorPlugins() {
 		const plugins: Plugin[] = [];

@@ -1,20 +1,19 @@
 import React, { ComponentProps, forwardRef } from "react";
+import { useModal } from "../hooks/use_modal";
 
-export type ModalProps = Omit<ComponentProps<typeof Modal>, "children">;
+export type BaseModalProps = {
+	closeModal: () => void;
+};
 
-export const Modal = (props: {
-	children: React.ReactNode;
-	isActive: boolean;
-	close: () => void;
-}) => {
-	if (!props.isActive) return undefined;
-
+export const Modal = (
+	props: BaseModalProps & { children: React.ReactNode }
+) => {
 	return (
 		<div>
 			<dialog className="modal modal-open">
 				{props.children}
 				<form method="dialog" className="modal-backdrop">
-					<button onClick={props.close}>close</button>
+					<button onClick={props.closeModal}>close</button>
 				</form>
 			</dialog>
 		</div>

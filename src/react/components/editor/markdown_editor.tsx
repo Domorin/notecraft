@@ -1,3 +1,4 @@
+import { useModal } from "@/react/hooks/use_modal";
 import { RouterOutput } from "@/server/routers/_app";
 import {
 	faBold,
@@ -18,22 +19,13 @@ import Link from "@tiptap/extension-link";
 import TaskItem from "@tiptap/extension-task-item";
 import TaskList from "@tiptap/extension-task-list";
 import Underline from "@tiptap/extension-underline";
-import { NodeType, Node } from "@tiptap/pm/model";
-import { EditorState } from "@tiptap/pm/state";
-import {
-	BubbleMenu,
-	Editor,
-	EditorContent,
-	getNodeType,
-	useEditor,
-} from "@tiptap/react";
+import { BubbleMenu, Editor, EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { Markdown } from "tiptap-markdown";
 import { UserPresence } from "../../../../common/ws/types";
 import { CustomProvider } from "../../../../common/yjs/custom_provider";
-import { ModalLinkInput } from "../modals/modal_link_input";
 import { EditorButton } from "./buttons/editor_button";
 import { Cursor } from "./cursor";
 import { CustomLink } from "./custom_link";
@@ -93,7 +85,6 @@ function setLink(
 	// https://github.com/ueberdosis/tiptap/issues/2571
 	// update link
 	// https://github.com/ueberdosis/tiptap/issues/373
-	console.log("running");
 	editor
 		.chain()
 		.focus()
@@ -113,11 +104,18 @@ export function WysiwygEditor(props: {
 	metadata: RouterOutput["note"]["metadata"];
 }) {
 	const ref = useRef(props.presences);
-	const [modalActive, setModalActive] = useState(false);
+	const { isOpen, openModal, closeModal } = useModal("EditorLinkInput");
 
 	if (props.presences !== ref.current) {
 		ref.current = props.presences;
 	}
+
+	const createCustomLink = (href: string, title: string) => {
+		editor?.commands.createCustomLink({
+			title,
+			href,
+		});
+	};
 
 	const editor = useEditor({
 		extensions: [
@@ -175,7 +173,20 @@ export function WysiwygEditor(props: {
 			TaskItem,
 			Underline,
 			CustomLink.configure({
-				toggleModal: () => setModalActive(!modalActive),
+				toggleModal: (editor) => {
+					if (isOpen) {
+						closeModal();
+						return;
+					}
+					const { state } = editor;
+					const { from, to } = state.selection;
+					const text = state.doc.textBetween(from, to, " ");
+					openModal({
+						initialHref: undefined,
+						initialTitle: text,
+						onSubmit: editor.commands.createCustomLink,
+					});
+				},
 			}),
 		],
 	});
@@ -188,22 +199,8 @@ export function WysiwygEditor(props: {
 		props.metadata.allowAnyoneToEdit || props.metadata.isCreatedByYou
 	);
 
-	const linkAttributes = editor.getAttributes("customLink");
-
 	return (
 		<>
-			<ModalLinkInput
-				isActive={modalActive}
-				close={() => setModalActive(false)}
-				initialUrl={linkAttributes?.href}
-				initialLabel={linkAttributes?.title}
-				onSubmit={(url, label) => {
-					editor.commands.createCustomLink({
-						title: label,
-						href: url,
-					});
-				}}
-			/>
 			<div className="flex h-full w-full flex-col">
 				<BubbleMenu editor={editor}>
 					<div className="join overflow-hidden border border-neutral bg-base-300">
@@ -307,7 +304,11 @@ export function WysiwygEditor(props: {
 							editor={editor}
 							icon={faLink}
 							onClick={(e) => {
-								setModalActive(true);
+								openModal({
+									initialHref: undefined,
+									initialTitle: undefined,
+									onSubmit: editor?.commands.createCustomLink,
+								});
 							}}
 						/>
 					</div>

@@ -66,8 +66,8 @@
 		list-style: decimal;
 	}
 
-	ul,
-	ol {
+	ol,
+	ul:not(.dropdown-content) {
 		padding: 0rem 1rem;
 	}
 
