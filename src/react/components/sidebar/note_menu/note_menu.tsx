@@ -2,7 +2,7 @@ import { RouterOutput } from "@/server/routers/_app";
 import { faEdit, faEllipsis, faLink } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import classNames from "classnames";
-import { useEffect, useRef, useState } from "react";
+import { MutableRefObject, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useCopyToClipboard, useOnClickOutside } from "usehooks-ts";
 import { DateTime } from "luxon";
@@ -13,6 +13,7 @@ import { DuplicateNoteOption } from "./options/note_menu_duplicate_option";
 import { RemoveFromRecentsOption } from "./options/note_menu_remove_from_recents_option";
 import { useCreateNoteMutation } from "@/react/hooks/trpc/use_create_note_mutation";
 import { useActiveListContext } from "@/react/hooks/use_active_list_context";
+import { useAttachChildToParent } from "@/react/hooks/use_relative_position";
 
 type MenuProps = {
 	openTitleInput: () => void;
@@ -45,7 +46,7 @@ export function SidebarElementMenu(props: MenuProps) {
 				createPortal(
 					<MenuPopup
 						{...props}
-						parentRef={labelRef.current}
+						parentRef={labelRef}
 						close={() => setIsOpen(false)}
 					/>,
 					document.body
@@ -55,7 +56,10 @@ export function SidebarElementMenu(props: MenuProps) {
 }
 
 function MenuPopup(
-	props: MenuProps & { close: () => void; parentRef: HTMLLabelElement }
+	props: MenuProps & {
+		close: () => void;
+		parentRef: MutableRefObject<HTMLLabelElement | null>;
+	}
 ) {
 	const ref = useRef(null as HTMLUListElement | null);
 	const [_, setCopied] = useCopyToClipboard();
@@ -64,23 +68,14 @@ function MenuPopup(
 	const duplicateMutation = useCreateNoteMutation(props.close);
 	const activeListContext = useActiveListContext();
 
-	useOnClickOutside(ref, props.close);
-
-	useEffect(() => {
-		const setPosition = () => {
-			if (ref.current) {
-				const { left, top } = props.parentRef.getBoundingClientRect();
-
-				ref.current.style.left = `${left}px`;
-				ref.current.style.top = `${top}px`;
-			}
+	useAttachChildToParent(props.parentRef, ref, (parent, child) => {
+		return {
+			relativeX: 0,
+			relativeY: 0,
 		};
-		setPosition();
+	});
 
-		window.addEventListener("resize", setPosition);
-
-		return () => window.removeEventListener("resize", setPosition);
-	}, [props.parentRef, ref]);
+	useOnClickOutside(ref, props.close);
 
 	const isCreatedByYou = props.metadata.isCreatedByYou;
 

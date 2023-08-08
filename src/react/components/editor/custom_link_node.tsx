@@ -7,7 +7,7 @@ import {
 	getAttributes,
 	mergeAttributes,
 } from "@tiptap/react";
-import { CustomLinkComponent } from "./link";
+import { CustomLinkComponent } from "./custom_link_component";
 
 declare module "@tiptap/core" {
 	interface Commands<ReturnType> {

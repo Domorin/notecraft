@@ -28,7 +28,7 @@ import { UserPresence } from "../../../../common/ws/types";
 import { CustomProvider } from "../../../../common/yjs/custom_provider";
 import { EditorButton } from "./buttons/editor_button";
 import { Cursor } from "./cursor";
-import { CustomLink } from "./custom_link";
+import { CustomLink } from "./custom_link_node";
 
 const CreateLinkExtension = (setModalActive: () => void) =>
 	Link.extend({
