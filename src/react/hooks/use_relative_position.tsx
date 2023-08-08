@@ -12,18 +12,6 @@ export function useAttachChildToParent<
 	) => { relativeX: number; relativeY: number }
 ) {
 	useLayoutEffect(() => {
-		const observer = new MutationObserver(() => {
-			setPosition();
-		});
-
-		if (parent?.current) {
-			observer.observe(document.body, {
-				childList: true,
-				subtree: true,
-			});
-		}
-
-		console.log("effect!");
 		const setPosition = () => {
 			if (child?.current && parent?.current) {
 				const { left, top } = parent.current.getBoundingClientRect();
@@ -32,7 +20,6 @@ export function useAttachChildToParent<
 					parent.current.getBoundingClientRect(),
 					child.current.getBoundingClientRect()
 				);
-				console.log("Setting position!", left, top);
 
 				child.current.style.left = `${left + relativeX}px`;
 				child.current.style.top = `${top + relativeY}px`;
@@ -43,9 +30,6 @@ export function useAttachChildToParent<
 
 		window.addEventListener("resize", setPosition);
 
-		return () => {
-			window.removeEventListener("resize", setPosition);
-			observer.disconnect();
-		};
+		return () => window.removeEventListener("resize", setPosition);
 	}, [parent, child]);
 }
