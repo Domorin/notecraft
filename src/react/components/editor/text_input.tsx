@@ -9,12 +9,8 @@ import { WysiwygEditor } from "./markdown_editor";
 import { Presences } from "./presences";
 import { StaticNote } from "./static_page";
 
-export function TextInput(props: {
-	slug: string;
-	doc: Y.Doc;
-	save: () => void;
-}) {
-	const { slug, doc, save } = props;
+export function TextInput(props: { slug: string; doc: Y.Doc }) {
+	const { slug, doc } = props;
 
 	const [provider, setProvider] = useState<CustomProvider | undefined>(
 		undefined
@@ -41,18 +37,11 @@ export function TextInput(props: {
 		});
 		setProvider(provider);
 
-		doc.on(
-			"update",
-			(_update: Uint8Array, _origin: unknown, _doc: Y.Doc) => {
-				save();
-			}
-		);
-
 		return () => {
 			doc.destroy();
 			provider?.destroy();
 		};
-	}, [save, doc, slug, setNoteMetadata]);
+	}, [doc, slug, setNoteMetadata]);
 
 	// const [isEditing, setIsEditing] = useState(false);
 

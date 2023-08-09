@@ -16,6 +16,14 @@ type RPCs = {
 				creatorId: string;
 			};
 		};
+		SaveDoc: {
+			input: {
+				userId: string;
+				slug: string;
+				content: number[];
+			};
+			output: { success: boolean };
+		};
 	};
 	Ws: {
 		GetHost: {
@@ -73,6 +81,7 @@ export type RedisChannelType = {
 		source: Service;
 		target: Service;
 		input: Record<string, unknown>;
+		ignoreResponse?: boolean;
 	};
 	RPCResponse: {
 		id: number;
@@ -145,6 +154,10 @@ export function initRedis<T extends Service>(context: {
 			message.input as any
 		);
 
+		if (message.ignoreResponse) {
+			return;
+		}
+
 		pubsubHandler.publish("RPCResponse", {
 			id: message.id,
 			source: message.source,
@@ -171,12 +184,20 @@ export function initRedis<T extends Service>(context: {
 	const TimeoutMS = 30 * 1000;
 	async function rpc<
 		Target extends keyof Omit<RPCs, T>,
-		RPC extends keyof RPCs[Target] & string
+		RPC extends keyof RPCs[Target] & string,
+		IgnoreResponse extends boolean = false
 	>(
 		target: Target,
 		rpc: RPC,
-		input: Parameters<ServiceRPCs<Target>[RPC]>[0]
-	): Promise<ReturnType<ServiceRPCs<Target>[RPC]>> {
+		input: Parameters<ServiceRPCs<Target>[RPC]>[0],
+		opts: { ignoreResponse: IgnoreResponse } = {
+			ignoreResponse: false as const,
+		} as { ignoreResponse: IgnoreResponse }
+	): Promise<
+		IgnoreResponse extends false
+			? ReturnType<ServiceRPCs<Target>[RPC]>
+			: undefined
+	> {
 		const id = getNextId();
 		pubsubHandler.publish("RPCRequest", {
 			id,
@@ -184,7 +205,15 @@ export function initRedis<T extends Service>(context: {
 			source: service,
 			target: target,
 			input,
+			ignoreResponse: opts.ignoreResponse,
 		});
+
+		if (opts.ignoreResponse === true) {
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			return undefined as IgnoreResponse extends false
+				? ReturnType<ServiceRPCs<Target>[RPC]>
+				: undefined;
+		}
 
 		let timeout: NodeJS.Timeout;
 		const promise = new Promise<unknown>((resolve, reject) => {
@@ -199,7 +228,10 @@ export function initRedis<T extends Service>(context: {
 			delete pendingMessages[id];
 		});
 
-		return promise as Promise<ReturnType<ServiceRPCs<Target>[RPC]>>;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		return promise as IgnoreResponse extends false
+			? ReturnType<ServiceRPCs<Target>[RPC]>
+			: undefined;
 	}
 
 	return { client: publisherClient, pubsub: pubsubHandler, rpc };

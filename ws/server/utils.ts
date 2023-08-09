@@ -17,6 +17,7 @@ import {
 import { callbackHandler, isCallbackSet } from "./callback";
 import { WsRedisType } from "./server";
 import { getUsername } from "./usernames";
+import { encodeYDocContent } from "@/lib/ydoc_utils";
 
 const hexColors = [
 	"#D48C8C",
@@ -55,6 +56,26 @@ const messageSync = 0;
 const messageAwareness = 1;
 // const messageAuth = 2
 
+export const saveDoc = debounce(
+	(doc: WSSharedDoc, userId: string) => {
+		console.log("saving", new Date().getSeconds());
+		doc.redis.rpc(
+			"App",
+			"SaveDoc",
+			{
+				slug: doc.name,
+				userId: userId,
+				content: Array.from(encodeYDocContent(doc)),
+			},
+			{
+				ignoreResponse: true,
+			}
+		);
+	},
+	1000,
+	{ maxWait: 5000 }
+);
+
 export class WSSharedDoc extends Y.Doc {
 	/**
 	 * Maps from conn to set of controlled client ids. Delete all client ids from awareness when this conn is closed
@@ -65,10 +86,18 @@ export class WSSharedDoc extends Y.Doc {
 	allowEveryoneToEdit: boolean;
 	creatorId: string;
 
+	redis: WsRedisType;
+
 	name: string;
 	awareness: CustomAwareness;
-	constructor(name: string, allowEveryoneToEdit: boolean, creatorId: string) {
+	constructor(
+		redis: WsRedisType,
+		name: string,
+		allowEveryoneToEdit: boolean,
+		creatorId: string
+	) {
 		super({ gc: gcEnabled });
+		this.redis = redis;
 		this.name = name;
 		this.connCount = 0;
 
@@ -164,6 +193,9 @@ export class WSSharedDoc extends Y.Doc {
 		encoding.writeVarUint(encoder, messageSync);
 		syncProtocol.writeUpdate(encoder, update);
 		const message = encoding.toUint8Array(encoder);
+
+		saveDoc(this, user.userId);
+
 		this.conns.forEach((_, conn) => this.send(conn, message));
 	};
 
@@ -337,6 +369,7 @@ export const getOrCreateYDoc = async (
 	});
 
 	const newDoc = new WSSharedDoc(
+		redis,
 		docname,
 		permissions.allowAnyoneToEdit,
 		permissions.creatorId

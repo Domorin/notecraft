@@ -3,10 +3,7 @@ import { useEffect, useState } from "react";
 import { useNoteMetadataQuery } from "../../hooks/trpc/use_note_metadata_query";
 import { RouterOutput } from "@/server/routers/_app";
 
-export function NoteEditDisplaySuspense(props: {
-	slug: string;
-	isSaving: boolean;
-}) {
+export function NoteEditDisplaySuspense(props: { slug: string }) {
 	const metadata_query = useNoteMetadataQuery(props.slug);
 
 	if (!metadata_query.isSuccess) {
@@ -17,7 +14,6 @@ export function NoteEditDisplaySuspense(props: {
 }
 function NoteEditDisplay(props: {
 	slug: string;
-	isSaving: boolean;
 	metadata: RouterOutput["note"]["metadata"];
 }) {
 	const { metadata } = props;
@@ -38,9 +34,7 @@ function NoteEditDisplay(props: {
 
 	return (
 		<div className="ml-auto flex gap-2 text-sm opacity-50">
-			<div suppressHydrationWarning>
-				{props.isSaving ? "Saving..." : `Saved ${dateText}`}
-			</div>
+			<div suppressHydrationWarning>{`Saved ${dateText}`}</div>
 			<div>{metadata.views} Views</div>
 		</div>
 	);

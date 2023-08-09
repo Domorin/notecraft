@@ -1,5 +1,5 @@
 import { titleLimiter } from "@/lib/validators";
-import { encodeYDocContent, parseYDocContent } from "@/lib/ydoc_utils";
+import { encodeYDocContent } from "@/lib/ydoc_utils";
 import { Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import * as Y from "yjs";
@@ -8,7 +8,6 @@ import { prisma } from "../prisma";
 import { redis } from "../redis";
 import { authedProcedure, router } from "../trpc";
 import { getUniqueNoteSlug } from "../words/words";
-import { generateHTML } from "@tiptap/react";
 
 type NoteFindUniqueParams = Parameters<typeof prisma.note.findUnique>[0];
 type NoteSelectParameters = NoteFindUniqueParams["select"];
@@ -27,8 +26,6 @@ const NoteMetadataValues = {
 type PrismaNoteMetadata = Prisma.NoteGetPayload<{
 	select: typeof NoteMetadataValues;
 }>;
-
-const ZodNoteContent = z.array(z.number().min(0).max(255));
 
 export type CustomError = {
 	code: "NOT_FOUND";
@@ -56,7 +53,7 @@ function parseNoteMetadataForWeb(
 	};
 }
 
-async function updateNoteMetadataForWeb(
+export async function updateNoteMetadataForWeb(
 	userId: string,
 	params: {
 		data: Prisma.NoteUpdateInput;
@@ -241,37 +238,6 @@ export const noteRouter = router({
 					allowAnyoneToEdit: input.allowAnyoneToEdit,
 				},
 				requireCreator: true,
-			});
-		}),
-	save: authedProcedure
-		.input(
-			z.object({
-				slug: z.string(),
-				content: ZodNoteContent,
-			})
-		)
-		.mutation(async ({ input, ctx: { userId } }) => {
-			const updatedAtDate = new Date();
-
-			const roomHost = await redis.rpc("Ws", "GetHost", {
-				slug: input.slug,
-			});
-
-			// Only allow the room host to save so DB is not spammed
-			if (roomHost.hostId !== userId) {
-				return;
-			}
-
-			return updateNoteMetadataForWeb(userId, {
-				data: {
-					content: Buffer.from(input.content),
-					updatedAt: updatedAtDate,
-					viewedAt: updatedAtDate,
-				},
-				where: {
-					slug: input.slug,
-				},
-				requireCreator: false,
 			});
 		}),
 	listCreated: authedProcedure.query(async ({ ctx: { userId } }) => {
