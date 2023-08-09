@@ -26,6 +26,12 @@
 	width: 100%;
 	overflow-y: auto;
 
+	// Hack so static view empty <p>s look like edit view
+	// https://github.com/ueberdosis/tiptap/issues/412
+	p:empty::after {
+		content: "\00A0";
+	}
+
 	&:focus-visible {
 		outline: none;
 	}

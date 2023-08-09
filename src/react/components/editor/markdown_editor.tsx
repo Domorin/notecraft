@@ -19,7 +19,14 @@ import Link from "@tiptap/extension-link";
 import TaskItem from "@tiptap/extension-task-item";
 import TaskList from "@tiptap/extension-task-list";
 import Underline from "@tiptap/extension-underline";
-import { BubbleMenu, Editor, EditorContent, useEditor } from "@tiptap/react";
+import {
+	BubbleMenu,
+	Editor,
+	EditorContent,
+	EditorOptions,
+	generateHTML,
+	useEditor,
+} from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
@@ -30,6 +37,30 @@ import { EditorButton } from "./buttons/editor_button";
 import { Cursor } from "./cursor";
 import { CustomLink } from "./custom_link_node";
 import Placeholder from "@tiptap/extension-placeholder";
+import { yDocToProsemirrorJSON } from "y-prosemirror";
+import { Doc } from "yjs";
+
+export const baseExtensions: EditorOptions["extensions"] = [
+	StarterKit.configure({
+		history: false,
+	}),
+	Placeholder.configure({
+		placeholder: "Start typing...",
+	}),
+	Markdown.configure({
+		breaks: true,
+		html: true,
+		linkify: true,
+		transformCopiedText: true,
+		transformPastedText: true,
+	}),
+	TaskList,
+	TaskItem.configure({
+		nested: true,
+	}),
+	Underline,
+	CustomLink,
+];
 
 export function WysiwygEditor(props: {
 	slug: string;
@@ -46,19 +77,7 @@ export function WysiwygEditor(props: {
 
 	const editor = useEditor({
 		extensions: [
-			StarterKit.configure({
-				history: false,
-			}),
-			Placeholder.configure({
-				placeholder: "Start typing...",
-			}),
-			Markdown.configure({
-				breaks: true,
-				html: true,
-				linkify: true,
-				transformCopiedText: true,
-				transformPastedText: true,
-			}),
+			...baseExtensions,
 			Collaboration.configure({
 				document: props.provider.doc,
 			}),
@@ -99,11 +118,6 @@ export function WysiwygEditor(props: {
 					return cursor;
 				},
 			}),
-			TaskList,
-			TaskItem.configure({
-				nested: true,
-			}),
-			Underline,
 			CustomLink.configure({
 				toggleModal: (editor) => {
 					if (isOpen) {
@@ -252,4 +266,8 @@ export function WysiwygEditor(props: {
 			</div>
 		</>
 	);
+}
+
+export function EditorWrapper(props: { children: React.ReactNode }) {
+	return <div className="flex h-full w-full flex-col"></div>;
 }

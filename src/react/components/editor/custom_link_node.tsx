@@ -49,17 +49,17 @@ export const CustomLink = Node.create<CustomLinkOptions>({
 		};
 	},
 
-	// parseHTML() {
-	// 	return [
-	// 		{
-	// 			tag: "pre",
-	// 			preserveWhitespace: "full",
-	// 		},
-	// 	];
-	// },
+	parseHTML() {
+		return [
+			{
+				tag: "div",
+				preserveWhitespace: "full",
+			},
+		];
+	},
 
 	renderHTML({ HTMLAttributes }) {
-		return ["react-component", mergeAttributes(HTMLAttributes)];
+		return ["a", mergeAttributes(HTMLAttributes), HTMLAttributes.title];
 	},
 
 	addCommands() {

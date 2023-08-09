@@ -1,5 +1,5 @@
 import { titleLimiter } from "@/lib/validators";
-import { encodeYDocContent } from "@/lib/ydoc_utils";
+import { encodeYDocContent, parseYDocContent } from "@/lib/ydoc_utils";
 import { Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import * as Y from "yjs";
@@ -8,6 +8,7 @@ import { prisma } from "../prisma";
 import { redis } from "../redis";
 import { authedProcedure, router } from "../trpc";
 import { getUniqueNoteSlug } from "../words/words";
+import { generateHTML } from "@tiptap/react";
 
 type NoteFindUniqueParams = Parameters<typeof prisma.note.findUnique>[0];
 type NoteSelectParameters = NoteFindUniqueParams["select"];
