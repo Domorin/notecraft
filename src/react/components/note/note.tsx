@@ -17,10 +17,5 @@ export default function Note() {
 		throw new Error("Slug is undefined");
 	}
 
-	return (
-		<NoteWithLoadedContent
-			noteContent={Buffer.from(contentQuery.data)}
-			slug={slug}
-		/>
-	);
+	return <NoteWithLoadedContent rawData={contentQuery.data} slug={slug} />;
 }

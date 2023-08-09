@@ -5,15 +5,17 @@ import { CustomMessage, UserPresence } from "../../../../common/ws/types";
 import { CustomProvider } from "../../../../common/yjs/custom_provider";
 import { useNoteMetadataQuery } from "../../hooks/trpc/use_note_metadata_query";
 import { useUpdateMetadata } from "../../hooks/trpc/use_update_metadata";
-import { Spinner } from "../spinner";
 import { WysiwygEditor } from "./markdown_editor";
 import { Presences } from "./presences";
-import { generateHTML } from "@tiptap/html";
-import { yDocToProsemirrorJSON } from "y-prosemirror";
-import { baseExtensions } from "./extensions/base_extensions";
-import { CustomLink } from "./extensions/custom_link_node";
+import { StaticNote } from "./static_page";
 
-export function TextInput(props: { slug: string; doc: Y.Doc }) {
+export function TextInput(props: {
+	slug: string;
+	doc: Y.Doc;
+	save: () => void;
+}) {
+	const { slug, doc, save } = props;
+
 	const [provider, setProvider] = useState<CustomProvider | undefined>(
 		undefined
 	);
@@ -22,63 +24,57 @@ export function TextInput(props: { slug: string; doc: Y.Doc }) {
 	const metadata_query = useNoteMetadataQuery(props.slug);
 
 	useEffect(() => {
-		const provider = new CustomProvider(
-			"ws://localhost:4444",
-			props.slug,
-			props.doc,
-			{
-				disableBc: true,
-				customMessageHandler: (m: CustomMessage) => {
-					switch (m.type) {
-						case "presencesUpdated":
-							setPresences(m.users);
-							break;
-						case "noteMetadataUpdate": {
-							const { type: _type, ...val } = m;
-							setNoteMetadata(val);
-							break;
-						}
+		const provider = new CustomProvider("ws://localhost:4444", slug, doc, {
+			disableBc: true,
+			customMessageHandler: (m: CustomMessage) => {
+				switch (m.type) {
+					case "presencesUpdated":
+						setPresences(m.users);
+						break;
+					case "noteMetadataUpdate": {
+						const { type: _type, ...val } = m;
+						setNoteMetadata(val);
+						break;
 					}
-				},
-			}
-		);
+				}
+			},
+		});
 		setProvider(provider);
 
+		doc.on(
+			"update",
+			(_update: Uint8Array, _origin: unknown, _doc: Y.Doc) => {
+				save();
+			}
+		);
+
 		return () => {
-			props.doc.destroy();
+			doc.destroy();
 			provider?.destroy();
 		};
-	}, [props.doc, props.slug, setNoteMetadata]);
+	}, [save, doc, slug, setNoteMetadata]);
 
-	const [isEditing, setIsEditing] = useState(false);
+	// const [isEditing, setIsEditing] = useState(false);
 
-	const editingButton = (
-		<div className="flex w-full">
-			<button
-				className="btn-primary btn absolute right-0 z-50 ml-auto"
-				onClick={() => setIsEditing(!isEditing)}
-			>
-				{isEditing ? "Editing" : "Viewing"}
-			</button>
-		</div>
-	);
+	// const editingButton = (
+	// 	<div className="flex w-full">
+	// 		<button
+	// 			className="btn-primary btn absolute right-0 z-50 ml-auto"
+	// 			onClick={() => setIsEditing(!isEditing)}
+	// 		>
+	// 			{isEditing ? "Editing" : "Viewing"}
+	// 		</button>
+	// 	</div>
+	// );
+
+	const editingButton = <></>;
 
 	// Generate static HTML to allow for full server side rendering
-	if (!provider || !metadata_query.isSuccess || !isEditing) {
-		const f = yDocToProsemirrorJSON(props.doc, "default");
-		const html = generateHTML(f, [...baseExtensions, CustomLink]);
-
+	if (!provider || !metadata_query.isSuccess) {
 		return (
 			<>
 				{editingButton}
-				<div className="relative flex h-full w-full flex-col">
-					<div
-						className="ProseMirror"
-						tabIndex={0}
-						translate="no"
-						dangerouslySetInnerHTML={{ __html: html }}
-					></div>
-				</div>
+				<StaticNote doc={props.doc} />
 			</>
 		);
 	}

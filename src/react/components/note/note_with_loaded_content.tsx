@@ -1,4 +1,5 @@
 import { encodeYDocContent, parseYDocContent } from "@/lib/ydoc_utils";
+import { useNoteContentQuery } from "@/react/hooks/trpc/use_note_content_query";
 import { trpc } from "@/utils/trpc";
 import debounce from "lodash.debounce";
 import { useCallback, useEffect, useMemo, useRef } from "react";
@@ -8,11 +9,11 @@ import { TextInput } from "../editor/text_input";
 import { NoteEditDisplaySuspense } from "./note_edit_display";
 
 function saveContent(
-	mutation: ReturnType<typeof trpc.note.save.useMutation>,
+	mutate: ReturnType<typeof trpc.note.save.useMutation>["mutate"],
 	slug: string,
 	doc: Y.Doc
 ) {
-	mutation.mutate({
+	mutate({
 		slug,
 		content: Array.from(encodeYDocContent(doc)),
 	});
@@ -22,15 +23,25 @@ export const debouncedSaveContent = debounce(saveContent, 1000, {
 	maxWait: 5000,
 });
 
+function createDoc(data: number[]) {
+	return parseYDocContent(Buffer.from(data));
+}
+
 export function NoteWithLoadedContent(props: {
-	noteContent: Buffer;
+	rawData: NonNullable<ReturnType<typeof useNoteContentQuery>["data"]>;
 	slug: string;
 }) {
-	const { slug, noteContent } = props;
+	// Memoize this call so it is not called every render
+	const memoizedDoc = useMemo(
+		() => createDoc(props.rawData),
+		[props.rawData]
+	);
+
+	const doc = useRef(memoizedDoc).current;
+
+	const { slug } = props;
 
 	const { add } = useNoteListRecent();
-
-	const doc = useMemo(() => parseYDocContent(noteContent), [noteContent]);
 
 	useEffect(() => {
 		// Add page to recents
@@ -38,19 +49,18 @@ export function NoteWithLoadedContent(props: {
 	}, [add, slug]);
 
 	const saveMutation = trpc.note.save.useMutation();
-
-	useEffect(() => {
-		doc.on(
-			"update",
-			(_update: Uint8Array, _origin: unknown, doc: Y.Doc) => {
-				debouncedSaveContent(saveMutation, slug, doc);
-			}
-		);
-	}, [saveMutation, slug]);
+	const save = useCallback(() => {
+		debouncedSaveContent(saveMutation.mutate, slug, doc);
+	}, [doc, saveMutation.mutate, slug]);
 
 	return (
 		<div className="flex h-full w-full flex-col">
-			<TextInput key={props.slug} slug={props.slug} doc={doc} />
+			<TextInput
+				key={props.slug}
+				slug={props.slug}
+				doc={doc}
+				save={save}
+			/>
 			<div className="relative w-full">
 				<div className="absolute flex w-full">
 					<NoteEditDisplaySuspense

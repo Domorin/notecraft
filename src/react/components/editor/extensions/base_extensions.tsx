@@ -5,7 +5,6 @@ import Underline from "@tiptap/extension-underline";
 import { EditorOptions } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Markdown } from "tiptap-markdown";
-import { CustomLink } from "./custom_link_node";
 
 export const baseExtensions: EditorOptions["extensions"] = [
 	StarterKit.configure({
@@ -17,7 +16,6 @@ export const baseExtensions: EditorOptions["extensions"] = [
 	Markdown.configure({
 		breaks: true,
 		html: true,
-		linkify: true,
 		transformCopiedText: true,
 		transformPastedText: true,
 	}),

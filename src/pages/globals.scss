@@ -64,6 +64,16 @@
 			label {
 				input {
 					@apply checkbox-primary checkbox checkbox-xs mt-1;
+
+					/* cursor: not-allowed;
+					border-color: transparent;
+					--tw-bg-opacity: 1;
+					background-color: hsl(var(--bc) / var(--tw-bg-opacity));
+					opacity: 0.2; */
+
+					&:disabled {
+						@apply cursor-default border-primary bg-inherit opacity-100;
+					}
 				}
 			}
 
@@ -74,15 +84,16 @@
 	}
 
 	ul {
-		list-style: disc;
+		@apply list-inside list-disc;
+		p {
+			@apply inline;
+		}
 	}
 	ol {
-		list-style: decimal;
-	}
-
-	ol,
-	ul:not(.dropdown-content) {
-		padding: 0rem 1rem;
+		@apply list-inside list-decimal;
+		p {
+			@apply inline;
+		}
 	}
 
 	h1 {
