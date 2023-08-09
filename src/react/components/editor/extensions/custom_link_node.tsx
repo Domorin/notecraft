@@ -32,11 +32,6 @@ export const CustomLink = Node.create<CustomLinkOptions>({
 	selectable: false,
 	atom: true,
 
-	onSelectionUpdate() {
-		console.log("selection update!");
-		return;
-	},
-
 	addAttributes() {
 		return {
 			[CustomLinkAttributeName]: {

@@ -1,7 +1,7 @@
 import { encodeYDocContent, parseYDocContent } from "@/lib/ydoc_utils";
 import { trpc } from "@/utils/trpc";
 import debounce from "lodash.debounce";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import * as Y from "yjs";
 import { useNoteListRecent } from "../../hooks/use_recents";
 import { TextInput } from "../editor/text_input";
@@ -30,7 +30,7 @@ export function NoteWithLoadedContent(props: {
 
 	const { add } = useNoteListRecent();
 
-	const doc = useRef(parseYDocContent(noteContent));
+	const doc = useMemo(() => parseYDocContent(noteContent), [noteContent]);
 
 	useEffect(() => {
 		// Add page to recents
@@ -40,7 +40,7 @@ export function NoteWithLoadedContent(props: {
 	const saveMutation = trpc.note.save.useMutation();
 
 	useEffect(() => {
-		doc.current.on(
+		doc.on(
 			"update",
 			(_update: Uint8Array, _origin: unknown, doc: Y.Doc) => {
 				debouncedSaveContent(saveMutation, slug, doc);
@@ -50,7 +50,7 @@ export function NoteWithLoadedContent(props: {
 
 	return (
 		<div className="flex h-full w-full flex-col">
-			<TextInput key={props.slug} slug={props.slug} doc={doc.current} />
+			<TextInput key={props.slug} slug={props.slug} doc={doc} />
 			<div className="relative w-full">
 				<div className="absolute flex w-full">
 					<NoteEditDisplaySuspense

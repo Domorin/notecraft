@@ -25,11 +25,6 @@ export function createHoverExtension(
 									return;
 								}
 
-								console.log(
-									"title",
-									target.getAttribute("title")
-								);
-
 								onLinkHover(target as HTMLAnchorElement);
 								// enable tooltip
 							},

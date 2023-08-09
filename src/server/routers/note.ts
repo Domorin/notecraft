@@ -76,7 +76,7 @@ async function updateNoteMetadataForWeb(
 	}
 
 	const canEdit =
-		(params.requireCreator && note.creatorId === userId) ||
+		note.creatorId === userId ||
 		(!params.requireCreator && note.allowAnyoneToEdit);
 
 	if (!canEdit) {
