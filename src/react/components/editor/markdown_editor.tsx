@@ -37,7 +37,7 @@ import { Cursor } from "./cursor";
 import { CustomLink } from "./extensions/custom_link_node";
 import { baseExtensions } from "./extensions/base_extensions";
 import { createHoverExtension } from "./extensions/hover_extension";
-import { LinkTooltip } from "./custom_link_component";
+import { LinkTooltip } from "./extensions/custom_link_tooltip";
 import { set } from "lib0/encoding";
 import { Node } from "@tiptap/pm/model";
 import { dom } from "lib0";
