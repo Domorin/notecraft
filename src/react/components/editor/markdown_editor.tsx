@@ -29,73 +29,7 @@ import { CustomProvider } from "../../../../common/yjs/custom_provider";
 import { EditorButton } from "./buttons/editor_button";
 import { Cursor } from "./cursor";
 import { CustomLink } from "./custom_link_node";
-
-const CreateLinkExtension = (setModalActive: () => void) =>
-	Link.extend({
-		addAttributes() {
-			return {
-				...this.parent?.(),
-				title: {
-					// Take the attribute values
-					renderHTML: (attributes) => {
-						// … and return an object with HTML attributes.
-						return {
-							title: `${attributes.href}`,
-						};
-					},
-				},
-			};
-		},
-		// renderHTML(stuff) {
-		// 	console.log(JSON.stringify(stuff));
-		// 	return ["strong", stuff.HTMLAttributes, ["a", "hi"]];
-		// },
-		addKeyboardShortcuts() {
-			return {
-				"Mod-k": () => {
-					setModalActive();
-					return true;
-				},
-			};
-		},
-	});
-
-function setLink(
-	editor: Pick<Editor, "getAttributes" | "chain"> | undefined,
-	url: string,
-	label: string
-) {
-	if (!editor) return false;
-
-	// const previousUrl = editor.getAttributes("link").href;
-	// const url = window.prompt("URL", previousUrl);
-
-	// cancelled
-	if (url === null) {
-		return false;
-	}
-
-	// empty
-	if (url === "") {
-		editor.chain().focus().extendMarkRange("link").unsetLink().run();
-
-		return false;
-	}
-
-	// https://github.com/ueberdosis/tiptap/issues/2571
-	// update link
-	// https://github.com/ueberdosis/tiptap/issues/373
-	editor
-		.chain()
-		.focus()
-		.extendMarkRange("link")
-		// .setLink({ href: url })
-		// .command(({ tr }) => {
-		// 	tr.insertText(label);
-		// 	return true;
-		// })
-		.run();
-}
+import Placeholder from "@tiptap/extension-placeholder";
 
 export function WysiwygEditor(props: {
 	slug: string;
@@ -114,6 +48,9 @@ export function WysiwygEditor(props: {
 		extensions: [
 			StarterKit.configure({
 				history: false,
+			}),
+			Placeholder.configure({
+				placeholder: "Start typing...",
 			}),
 			Markdown.configure({
 				breaks: true,

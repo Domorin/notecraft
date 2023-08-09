@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as Y from "yjs";
 
 import { CustomMessage, UserPresence } from "../../../../common/ws/types";
@@ -10,15 +10,14 @@ import { WysiwygEditor } from "./markdown_editor";
 import { Presences } from "./presences";
 
 export function TextInput(props: { slug: string; doc: Y.Doc }) {
-	const [provider, setProvider] = useState<CustomProvider | undefined>(
-		undefined
-	);
+	const provider = useRef<CustomProvider | undefined>(undefined);
+
 	const [presences, setPresences] = useState([] as UserPresence[]);
 	const setNoteMetadata = useUpdateMetadata(props.slug);
 	const metadata_query = useNoteMetadataQuery(props.slug);
 
 	useEffect(() => {
-		const provider = new CustomProvider(
+		provider.current = new CustomProvider(
 			"ws://localhost:4444",
 			props.slug,
 			props.doc,
@@ -38,15 +37,15 @@ export function TextInput(props: { slug: string; doc: Y.Doc }) {
 				},
 			}
 		);
-		setProvider(provider);
 
 		return () => {
 			props.doc.destroy();
-			provider?.destroy();
+			provider.current?.destroy();
 		};
 	}, [props.doc, props.slug, setNoteMetadata]);
 
-	if (!provider || !metadata_query.isSuccess) {
+	if (!metadata_query.isSuccess || !provider?.current) {
+		console.log("returning to provider");
 		return <Spinner />;
 	}
 
@@ -74,7 +73,7 @@ export function TextInput(props: { slug: string; doc: Y.Doc }) {
 			</div>
 			<WysiwygEditor
 				{...props}
-				provider={provider}
+				provider={provider?.current}
 				presences={presences}
 				metadata={metadata_query.data}
 			/>
