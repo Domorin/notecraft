@@ -6,10 +6,12 @@ import { CustomProvider } from "../../../../common/yjs/custom_provider";
 import { useNoteMetadataQuery } from "../../hooks/trpc/use_note_metadata_query";
 import { useUpdateMetadata } from "../../hooks/trpc/use_update_metadata";
 import { Spinner } from "../spinner";
-import { WysiwygEditor, baseExtensions } from "./markdown_editor";
+import { WysiwygEditor } from "./markdown_editor";
 import { Presences } from "./presences";
 import { generateHTML } from "@tiptap/html";
 import { yDocToProsemirrorJSON } from "y-prosemirror";
+import { baseExtensions } from "./extensions/base_extensions";
+import { CustomLink } from "./extensions/custom_link_node";
 
 export function TextInput(props: { slug: string; doc: Y.Doc }) {
 	const [provider, setProvider] = useState<CustomProvider | undefined>(
@@ -51,17 +53,20 @@ export function TextInput(props: { slug: string; doc: Y.Doc }) {
 	const [isEditing, setIsEditing] = useState(false);
 
 	const editingButton = (
-		<button
-			className="btn-primary btn absolute z-50"
-			onClick={() => setIsEditing(!isEditing)}
-		>
-			{isEditing ? "Editing" : "Viewing"}
-		</button>
+		<div className="flex w-full">
+			<button
+				className="btn-primary btn absolute right-0 z-50 ml-auto"
+				onClick={() => setIsEditing(!isEditing)}
+			>
+				{isEditing ? "Editing" : "Viewing"}
+			</button>
+		</div>
 	);
 
+	// Generate static HTML to allow for full server side rendering
 	if (!provider || !metadata_query.isSuccess || !isEditing) {
 		const f = yDocToProsemirrorJSON(props.doc, "default");
-		const html = generateHTML(f, baseExtensions);
+		const html = generateHTML(f, [...baseExtensions, CustomLink]);
 
 		return (
 			<>

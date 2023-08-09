@@ -15,52 +15,32 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
-import Link from "@tiptap/extension-link";
+import Placeholder from "@tiptap/extension-placeholder";
 import TaskItem from "@tiptap/extension-task-item";
 import TaskList from "@tiptap/extension-task-list";
 import Underline from "@tiptap/extension-underline";
 import {
 	BubbleMenu,
-	Editor,
 	EditorContent,
 	EditorOptions,
-	generateHTML,
+	Extension,
 	useEditor,
 } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { useRef, useState } from "react";
+import { RefObject, createRef, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { Markdown } from "tiptap-markdown";
 import { UserPresence } from "../../../../common/ws/types";
 import { CustomProvider } from "../../../../common/yjs/custom_provider";
 import { EditorButton } from "./buttons/editor_button";
 import { Cursor } from "./cursor";
-import { CustomLink } from "./custom_link_node";
-import Placeholder from "@tiptap/extension-placeholder";
-import { yDocToProsemirrorJSON } from "y-prosemirror";
-import { Doc } from "yjs";
-
-export const baseExtensions: EditorOptions["extensions"] = [
-	StarterKit.configure({
-		history: false,
-	}),
-	Placeholder.configure({
-		placeholder: "Start typing...",
-	}),
-	Markdown.configure({
-		breaks: true,
-		html: true,
-		linkify: true,
-		transformCopiedText: true,
-		transformPastedText: true,
-	}),
-	TaskList,
-	TaskItem.configure({
-		nested: true,
-	}),
-	Underline,
-	CustomLink,
-];
+import { CustomLink } from "./extensions/custom_link_node";
+import { baseExtensions } from "./extensions/base_extensions";
+import { createHoverExtension } from "./extensions/hover_extension";
+import { LinkTooltip } from "./custom_link_component";
+import { set } from "lib0/encoding";
+import { Node } from "@tiptap/pm/model";
+import { dom } from "lib0";
 
 export function WysiwygEditor(props: {
 	slug: string;
@@ -70,6 +50,10 @@ export function WysiwygEditor(props: {
 }) {
 	const ref = useRef(props.presences);
 	const { isOpen, openModal, closeModal } = useModal("EditorLinkInput");
+
+	const [hoveredLinkDom, setHoveredLink] = useState<HTMLAnchorElement | null>(
+		null
+	);
 
 	if (props.presences !== ref.current) {
 		ref.current = props.presences;
@@ -134,6 +118,7 @@ export function WysiwygEditor(props: {
 					});
 				},
 			}),
+			createHoverExtension(setHoveredLink, () => setHoveredLink(null)),
 		],
 	});
 
@@ -147,6 +132,39 @@ export function WysiwygEditor(props: {
 
 	return (
 		<>
+			{hoveredLinkDom && (
+				<LinkTooltip
+					key={hoveredLinkDom.getAttribute("href")!}
+					label={hoveredLinkDom.getAttribute("href")!}
+					onClick={() => {
+						const pos = editor.view.posAtDOM(hoveredLinkDom, 0);
+						const tiptapNode = editor.view.state.doc.nodeAt(pos);
+
+						if (!tiptapNode) {
+							return;
+						}
+
+						openModal({
+							initialHref: tiptapNode.attrs.href,
+							initialTitle: tiptapNode.attrs.title,
+							onSubmit: (opts) =>
+								editor
+									.chain()
+									.focus()
+									.deleteRange({
+										from: pos,
+										to: pos + tiptapNode.nodeSize,
+									})
+									.createCustomLink(opts)
+									.run(),
+						});
+					}}
+					parentRef={hoveredLinkDom}
+					onMouseLeave={() => {
+						setHoveredLink(null);
+					}}
+				/>
+			)}
 			<div className="flex h-full w-full flex-col">
 				<BubbleMenu editor={editor}>
 					<div className="join overflow-hidden border border-neutral bg-base-300 shadow">

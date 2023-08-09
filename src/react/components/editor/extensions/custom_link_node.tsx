@@ -1,26 +1,19 @@
 import { Editor as CoreEditor } from "@tiptap/core";
 import { MarkType } from "@tiptap/pm/model";
 import { Plugin, PluginKey } from "@tiptap/pm/state";
-import {
-	Node,
-	ReactNodeViewRenderer,
-	getAttributes,
-	mergeAttributes,
-} from "@tiptap/react";
-import { CustomLinkComponent } from "./custom_link_component";
+import { Node, getAttributes, mergeAttributes } from "@tiptap/react";
 
 declare module "@tiptap/core" {
 	interface Commands<ReturnType> {
 		customLink: {
+			editCustomLink: (opts: {
+				title: string;
+				href: string;
+			}) => ReturnType;
 			createCustomLink: (opts: {
 				title: string;
 				href: string;
 			}) => ReturnType;
-			// setCustomLink: (attributes?: { language: string }) => ReturnType;
-			// /**
-			//  * Toggle a code block
-			//  */
-			// toggleCustomLink: (attributes?: { language: string }) => ReturnType;
 		};
 	}
 }
@@ -29,15 +22,26 @@ export interface CustomLinkOptions {
 	toggleModal: (editor: CoreEditor) => void;
 }
 
+export const CustomLinkAttributeName = "custom-link";
+
 export const CustomLink = Node.create<CustomLinkOptions>({
 	name: "customLink",
 	group: "inline",
+
 	inline: true,
 	selectable: false,
 	atom: true,
 
+	onSelectionUpdate() {
+		console.log("selection update!");
+		return;
+	},
+
 	addAttributes() {
 		return {
+			[CustomLinkAttributeName]: {
+				default: true,
+			},
 			href: {
 				default: null,
 				isRequired: true,
@@ -52,7 +56,7 @@ export const CustomLink = Node.create<CustomLinkOptions>({
 	parseHTML() {
 		return [
 			{
-				tag: "div",
+				tag: "a",
 				preserveWhitespace: "full",
 			},
 		];
@@ -64,6 +68,12 @@ export const CustomLink = Node.create<CustomLinkOptions>({
 
 	addCommands() {
 		return {
+			editCustomLink: (opts: { title: string; href: string }) => (t) => {
+				const state = t.state;
+				state.tr.replaceSelectionWith(this.type.create(opts));
+				t.commands.focus();
+				return true;
+			},
 			createCustomLink:
 				(opts: { title: string; href: string }) => (t) => {
 					const state = t.state;
@@ -104,9 +114,9 @@ export const CustomLink = Node.create<CustomLinkOptions>({
 		};
 	},
 
-	addNodeView() {
-		return ReactNodeViewRenderer(CustomLinkComponent);
-	},
+	// addNodeView() {
+	// 	return ReactNodeViewRenderer(CustomLinkComponent);
+	// },
 
 	// addInputRules() {
 	// 	return [
