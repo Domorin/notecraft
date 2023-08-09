@@ -37,6 +37,18 @@ type ServiceRPCs<S extends Service> = {
 		: never;
 };
 
+type ServiceRPCsWithError<S extends Service> = {
+	[Thing in keyof RPCs[S]]: (
+		args: RPCs[S][Thing] extends { input: Record<string, unknown> }
+			? RPCs[S][Thing]["input"]
+			: never
+	) => RPCs[S][Thing] extends {
+		output: Record<string, unknown>;
+	}
+		? Promise<RPCs[S][Thing]["output"] | { _err: string }>
+		: never;
+};
+
 export const pendingMessages: Record<
 	number,
 	{
@@ -72,7 +84,7 @@ export type RedisChannelType = {
 
 export function initRedis<T extends Service>(context: {
 	service: T;
-	rpcHandler: ServiceRPCs<T>;
+	rpcHandler: ServiceRPCsWithError<T>;
 }) {
 	const publisherClient = createClient({
 		url: `redis://${process.env.REDIS_HOST}:6379`,
@@ -144,6 +156,12 @@ export function initRedis<T extends Service>(context: {
 	pubsubHandler.subscribe("RPCResponse", async (message) => {
 		// This response is not for us
 		if (message.source !== context.service) {
+			return;
+		}
+
+		const outputAsObject = message.output as object;
+		if ("_err" in outputAsObject) {
+			pendingMessages[message.id]?.reject(outputAsObject._err);
 			return;
 		}
 

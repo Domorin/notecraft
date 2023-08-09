@@ -14,6 +14,15 @@ const port = 4444;
 
 export type WsRedisType = ReturnType<typeof initRedis<"Ws">>;
 
+process
+	.on("unhandledRejection", (reason, p) => {
+		console.error(reason, "Unhandled Rejection at Promise", p);
+	})
+	.on("uncaughtException", (err) => {
+		console.error(err, "Uncaught Exception thrown");
+		process.exit(1);
+	});
+
 function initWSServer() {
 	const server = http.createServer((request, response) => {
 		response.writeHead(200, { "Content-Type": "text/plain" });

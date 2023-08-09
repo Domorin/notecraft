@@ -16,8 +16,6 @@ export function SidebarListNotes(props: { active: ListType }) {
 			return <SidebarListCreated />;
 		case "Recents":
 			return <SidebarListRecentsNoSSR />;
-		default:
-			throw new Error("hi");
 	}
 }
 

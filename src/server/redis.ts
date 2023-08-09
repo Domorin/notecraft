@@ -16,7 +16,9 @@ export const redis = initRedis({
 			});
 
 			if (!note) {
-				throw new Error("GetNotePermissions Error: No note found");
+				return {
+					_err: "GetNotePermissions error: Note not found",
+				};
 			}
 
 			return note;
