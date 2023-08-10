@@ -1,10 +1,9 @@
 import { Extension } from "@tiptap/react";
 import { Plugin, PluginKey } from "@tiptap/pm/state";
-import { CustomLinkAttributeName } from "./custom_link_node";
+import { CustomLinkAttributeName } from "./custom_link_mark";
 
 export function createHoverExtension(
-	onLinkHover: (dom: HTMLAnchorElement | null) => void,
-	onLinkLeave: () => void
+	onLinkHover: (dom: HTMLAnchorElement | null) => void
 ) {
 	return Extension.create({
 		name: "hover",

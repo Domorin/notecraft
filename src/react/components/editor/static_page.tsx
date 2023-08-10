@@ -1,7 +1,7 @@
 import { generateHTML } from "@tiptap/html";
 import { yDocToProsemirrorJSON } from "y-prosemirror";
 import { baseExtensions } from "./extensions/base_extensions";
-import { CustomLink } from "./extensions/custom_link_node";
+import { CustomLink } from "./extensions/custom_link_mark";
 import { Doc } from "yjs";
 import { useEffect, useMemo } from "react";
 

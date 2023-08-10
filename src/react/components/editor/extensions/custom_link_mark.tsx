@@ -1,18 +1,18 @@
 import { Editor as CoreEditor } from "@tiptap/core";
 import { MarkType } from "@tiptap/pm/model";
 import { Plugin, PluginKey } from "@tiptap/pm/state";
-import { Node, getAttributes, mergeAttributes } from "@tiptap/react";
+import { Mark, getAttributes, mergeAttributes } from "@tiptap/react";
 
 declare module "@tiptap/core" {
 	interface Commands<ReturnType> {
 		customLink: {
-			editCustomLink: (opts: {
-				title: string;
+			/**
+			 * Set a link mark
+			 */
+			setCustomLink: (attributes: {
 				href: string;
-			}) => ReturnType;
-			createCustomLink: (opts: {
 				title: string;
-				href: string;
+				target?: string | null;
 			}) => ReturnType;
 		};
 	}
@@ -24,13 +24,9 @@ export interface CustomLinkOptions {
 
 export const CustomLinkAttributeName = "custom-link";
 
-export const CustomLink = Node.create<CustomLinkOptions>({
+export const CustomLink = Mark.create<CustomLinkOptions>({
 	name: "customLink",
 	group: "inline",
-
-	inline: true,
-	selectable: false,
-	atom: true,
 
 	addAttributes() {
 		return {
@@ -58,23 +54,44 @@ export const CustomLink = Node.create<CustomLinkOptions>({
 	},
 
 	renderHTML({ HTMLAttributes }) {
-		return ["a", mergeAttributes(HTMLAttributes), HTMLAttributes.title];
+		return ["a", mergeAttributes(HTMLAttributes), 0];
 	},
+
+	// addCommands() {
+	// 	return {
+	// 		editCustomLink: (opts: { title: string; href: string }) => (t) => {
+	// 			// const state = t.state;
+
+	// 			t.editor.commands.updateAttributes(this.type, opts);
+
+	// 			// state.tr.replaceSelectionWith(this.type.create(opts));
+	// 			t.commands.focus();
+	// 			return true;
+	// 		},
+	// 		createCustomLink:
+	// 			(opts: { title: string; href: string }) => (t) => {
+	// 				// const state = t.state;
+
+	// 				t.editor.commands.updateAttributes(this.type, opts);
+	// 				// state.tr.replaceSelectionWith(this.type.create(opts));
+	// 				t.commands.focus();
+	// 				return true;
+	// 			},
+	// 	};
+	// },
 
 	addCommands() {
 		return {
-			editCustomLink: (opts: { title: string; href: string }) => (t) => {
-				const state = t.state;
-				state.tr.replaceSelectionWith(this.type.create(opts));
-				t.commands.focus();
-				return true;
-			},
-			createCustomLink:
-				(opts: { title: string; href: string }) => (t) => {
-					const state = t.state;
-					state.tr.replaceSelectionWith(this.type.create(opts));
-					t.commands.focus();
-					return true;
+			setCustomLink:
+				(attributes) =>
+				({ chain }) => {
+					return chain()
+						.extendMarkRange(this.name)
+						.setMark(this.name, attributes)
+						.deleteSelection()
+						.insertContent(attributes.title)
+						.focus()
+						.run();
 				},
 		};
 	},
@@ -82,8 +99,28 @@ export const CustomLink = Node.create<CustomLinkOptions>({
 	addKeyboardShortcuts() {
 		return {
 			"Mod-k": ({ editor }) => {
-				this.options.toggleModal(this.editor);
+				this.options.toggleModal(editor);
 				return true;
+			},
+			Space: ({ editor }) => {
+				if (!editor.isActive(this.name)) {
+					return false;
+				}
+
+				const selection = editor.state.selection;
+
+				const node = editor.state.doc.nodeAt(selection.to);
+
+				const nodeMark = node?.marks.find(
+					(val) => val.type === this.type
+				);
+
+				// If there is not a node mark at the next character, use Space to unset the mark
+				if (!nodeMark) {
+					editor.chain().unsetMark(this.name).run();
+				}
+
+				return false;
 			},
 			Backspace: () =>
 				this.editor.commands.command(({ tr, state }) => {
@@ -148,7 +185,6 @@ export const CustomLink = Node.create<CustomLinkOptions>({
 
 		plugins.push(
 			clickHandler({
-				// @ts-expect-error
 				type: this.type,
 			})
 		);

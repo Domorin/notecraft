@@ -5,10 +5,6 @@ import { useNoteListRecent } from "../../hooks/use_recents";
 import { TextInput } from "../editor/text_input";
 import { NoteEditDisplaySuspense } from "./note_edit_display";
 
-// export const debouncedSaveContent = debounce(saveContent, 1000, {
-// 	maxWait: 5000,
-// });
-
 function createDoc(data: number[]) {
 	return parseYDocContent(Buffer.from(data));
 }

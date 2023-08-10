@@ -13,34 +13,32 @@ import {
 	faTasks,
 	faUnderline,
 } from "@fortawesome/free-solid-svg-icons";
+import { Editor as CoreEditor } from "@tiptap/core";
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
-import Placeholder from "@tiptap/extension-placeholder";
-import TaskItem from "@tiptap/extension-task-item";
-import TaskList from "@tiptap/extension-task-list";
-import Underline from "@tiptap/extension-underline";
-import {
-	BubbleMenu,
-	EditorContent,
-	EditorOptions,
-	Extension,
-	useEditor,
-} from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import { RefObject, createRef, useRef, useState } from "react";
+import { BubbleMenu, EditorContent, useEditor } from "@tiptap/react";
+import { useCallback, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { Markdown } from "tiptap-markdown";
 import { UserPresence } from "../../../../common/ws/types";
 import { CustomProvider } from "../../../../common/yjs/custom_provider";
 import { EditorButton } from "./buttons/editor_button";
 import { Cursor } from "./cursor";
-import { CustomLink } from "./extensions/custom_link_node";
 import { baseExtensions } from "./extensions/base_extensions";
-import { createHoverExtension } from "./extensions/hover_extension";
+import { CustomLink } from "./extensions/custom_link_mark";
 import { LinkTooltip } from "./extensions/custom_link_tooltip";
-import { set } from "lib0/encoding";
-import { Node } from "@tiptap/pm/model";
-import { dom } from "lib0";
+import { createHoverExtension } from "./extensions/hover_extension";
+
+export function getCurrentMark(editor: CoreEditor, name: "customLink") {
+	if (!editor.isActive(name)) {
+		return;
+	}
+
+	const selection = editor.state.selection;
+
+	const node = editor.state.doc.nodeAt(selection.to);
+
+	return node?.marks.find((val) => val.type.name === name);
+}
 
 export function WysiwygEditor(props: {
 	slug: string;
@@ -49,10 +47,41 @@ export function WysiwygEditor(props: {
 	metadata: RouterOutput["note"]["metadata"];
 }) {
 	const ref = useRef(props.presences);
-	const { isOpen, openModal, closeModal } = useModal("EditorLinkInput");
+	const { openModal } = useModal("EditorLinkInput");
 
 	const [hoveredLinkDom, setHoveredLink] = useState<HTMLAnchorElement | null>(
 		null
+	);
+
+	const toggleModal = useCallback(
+		(editor: CoreEditor) => {
+			// if (isOpen) {
+			// 	closeModal();
+			// 	return;
+			// }
+			const { state } = editor;
+
+			const { from, to } = state.selection;
+
+			const currentMark = getCurrentMark(editor, "customLink");
+
+			let initialHref: string;
+			let initialTitle: string;
+			if (currentMark) {
+				initialHref = currentMark.attrs.href;
+				initialTitle = currentMark.attrs.title;
+			} else {
+				initialHref = state.doc.textBetween(from, to);
+				initialTitle = initialHref;
+			}
+
+			openModal({
+				initialHref,
+				initialTitle,
+				onSubmit: editor.commands.setCustomLink,
+			});
+		},
+		[openModal]
 	);
 
 	if (props.presences !== ref.current) {
@@ -103,22 +132,9 @@ export function WysiwygEditor(props: {
 				},
 			}),
 			CustomLink.configure({
-				toggleModal: (editor) => {
-					if (isOpen) {
-						closeModal();
-						return;
-					}
-					const { state } = editor;
-					const { from, to } = state.selection;
-					const text = state.doc.textBetween(from, to, " ");
-					openModal({
-						initialHref: undefined,
-						initialTitle: text,
-						onSubmit: editor.commands.createCustomLink,
-					});
-				},
+				toggleModal,
 			}),
-			createHoverExtension(setHoveredLink, () => setHoveredLink(null)),
+			createHoverExtension(setHoveredLink),
 		],
 	});
 
@@ -144,18 +160,22 @@ export function WysiwygEditor(props: {
 							return;
 						}
 
+						const mark = tiptapNode.marks.find(
+							(val) => val.type.name === "customLink"
+						);
+
+						if (!mark) {
+							return;
+						}
+
 						openModal({
-							initialHref: tiptapNode.attrs.href,
-							initialTitle: tiptapNode.attrs.title,
+							initialHref: mark.attrs.href,
+							initialTitle: mark.attrs.title,
 							onSubmit: (opts) =>
 								editor
 									.chain()
-									.focus()
-									.deleteRange({
-										from: pos,
-										to: pos + tiptapNode.nodeSize,
-									})
-									.createCustomLink(opts)
+									.focus(pos + 1)
+									.setCustomLink(opts)
 									.run(),
 						});
 					}}
@@ -267,13 +287,7 @@ export function WysiwygEditor(props: {
 							label="link"
 							editor={editor}
 							icon={faLink}
-							onClick={(e) => {
-								openModal({
-									initialHref: undefined,
-									initialTitle: undefined,
-									onSubmit: editor?.commands.createCustomLink,
-								});
-							}}
+							onClick={() => toggleModal(editor)}
 						/>
 					</div>
 				</BubbleMenu>
@@ -284,8 +298,4 @@ export function WysiwygEditor(props: {
 			</div>
 		</>
 	);
-}
-
-export function EditorWrapper(props: { children: React.ReactNode }) {
-	return <div className="flex h-full w-full flex-col"></div>;
 }
