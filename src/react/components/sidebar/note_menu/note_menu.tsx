@@ -90,6 +90,39 @@ function MenuPopup(
 			ref={ref}
 			onClick={(e) => e.preventDefault()}
 		>
+			<li>
+				<div
+					className="flex items-center gap-2"
+					onClick={(e) => {
+						e.preventDefault();
+						setCopied(
+							window.location.origin + "/" + props.metadata.slug
+						);
+						props.close();
+					}}
+				>
+					<div className="flex w-6 justify-center">
+						<FontAwesomeIcon icon={faLink} />
+					</div>
+					Copy Link
+				</div>
+			</li>
+			<li>
+				<DuplicateNoteOption
+					duplicateMutation={duplicateMutation}
+					disabled={disabled}
+					metadata={props.metadata}
+				/>
+			</li>
+			{activeListContext === "Recents" && (
+				<li>
+					<RemoveFromRecentsOption
+						disabled={disabled}
+						metadata={props.metadata}
+					/>
+				</li>
+			)}
+			<div className="divider my-0"></div>
 			{isCreatedByYou && (
 				<li
 					className={classNames({
@@ -128,39 +161,6 @@ function MenuPopup(
 				>
 					<DeleteNoteOption
 						deleteMutation={deleteMutation}
-						disabled={disabled}
-						metadata={props.metadata}
-					/>
-				</li>
-			)}
-			<div className="divider my-0"></div>
-			<li>
-				<div
-					className="flex items-center gap-2"
-					onClick={(e) => {
-						e.preventDefault();
-						setCopied(
-							window.location.origin + "/" + props.metadata.slug
-						);
-						props.close();
-					}}
-				>
-					<div className="flex w-6 justify-center">
-						<FontAwesomeIcon icon={faLink} />
-					</div>
-					Copy Link
-				</div>
-			</li>
-			<li>
-				<DuplicateNoteOption
-					duplicateMutation={duplicateMutation}
-					disabled={disabled}
-					metadata={props.metadata}
-				/>
-			</li>
-			{activeListContext === "Recents" && (
-				<li>
-					<RemoveFromRecentsOption
 						disabled={disabled}
 						metadata={props.metadata}
 					/>

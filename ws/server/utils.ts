@@ -1,11 +1,13 @@
 import * as syncProtocol from "y-protocols/sync.js";
 import * as Y from "yjs";
 
+import { encodeYDocContent } from "@/lib/ydoc_utils";
 import { IncomingMessage } from "http";
 import * as lib0 from "lib0";
 import debounce from "lodash.debounce";
 import SuperJSON from "superjson";
 import { WebSocket } from "ws";
+import { applyUpdateV2 } from "yjs";
 import { logger } from "../../common/logging/log";
 import { CustomMessage, UserPresence } from "../../common/ws/types";
 import {
@@ -17,7 +19,6 @@ import {
 import { callbackHandler, isCallbackSet } from "./callback";
 import { WsRedisType } from "./server";
 import { getUsername } from "./usernames";
-import { encodeYDocContent } from "@/lib/ydoc_utils";
 
 const hexColors = [
 	"#D48C8C",
@@ -173,19 +174,22 @@ export class WSSharedDoc extends Y.Doc {
 	}
 
 	updateHandler = (update: Uint8Array, origin: WebSocket) => {
+		const isFromServer = origin === null;
 		const user = this.conns.get(origin);
 
-		if (!user) {
-			logger.warn("No user found in updateHandler");
-			return;
-		}
+		if (!isFromServer) {
+			if (!user) {
+				logger.warn("No user found in updateHandler");
+				return;
+			}
 
-		const canEdit =
-			this.allowEveryoneToEdit || user.userId === this.creatorId;
+			const canEdit =
+				this.allowEveryoneToEdit || user.userId === this.creatorId;
 
-		if (!canEdit) {
-			logger.warn("Edit attempt by user who can not edit");
-			return;
+			if (!canEdit) {
+				logger.warn("Edit attempt by user who can not edit");
+				return;
+			}
 		}
 
 		const encoder = encoding.createEncoder();
@@ -193,7 +197,9 @@ export class WSSharedDoc extends Y.Doc {
 		syncProtocol.writeUpdate(encoder, update);
 		const message = encoding.toUint8Array(encoder);
 
-		saveDoc(this, user.userId);
+		if (!isFromServer && user) {
+			saveDoc(this, user.userId);
+		}
 
 		this.conns.forEach((_, conn) => this.send(conn, message));
 	};
@@ -363,9 +369,14 @@ export const getOrCreateYDoc = async (
 		return existingDoc;
 	}
 
-	const permissions = await redis.rpc("App", "GetNotePermissions", {
-		slug: docname,
-	});
+	const [storedDoc, permissions] = await Promise.all([
+		redis.rpc("App", "GetDoc", {
+			slug: docname,
+		}),
+		redis.rpc("App", "GetNotePermissions", {
+			slug: docname,
+		}),
+	]);
 
 	const newDoc = new WSSharedDoc(
 		redis,
@@ -373,6 +384,8 @@ export const getOrCreateYDoc = async (
 		permissions.allowAnyoneToEdit,
 		permissions.creatorId
 	);
+	applyUpdateV2(newDoc, Buffer.from(storedDoc.content));
+
 	newDoc.gc = gc;
 	docs.set(docname, newDoc);
 	return newDoc;

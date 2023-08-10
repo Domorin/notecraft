@@ -5,6 +5,7 @@ import { logger } from "../../common/logging/log";
 import { initRedis } from "../../common/redis/redis";
 import { CustomMessage } from "../../common/ws/types";
 import { docs, setupWSConnection } from "./utils";
+import sleep from "../../common/utils/sleep";
 
 const wss = new WebSocketServer({ noServer: true });
 
@@ -84,11 +85,13 @@ function initWSServer() {
 		setupWSConnection(redis, a, b, c)
 	);
 
-	server.on("upgrade", (request, socket, head) => {
+	server.on("upgrade", async (request, socket, head) => {
 		// You may check auth of request here..
 		// See https://github.com/websockets/ws#client-authentication
 
 		const userId = cookie.parse(request.headers.cookie || "")["id"];
+
+		await sleep(2000);
 
 		if (!userId) {
 			throw new Error("No user ID found!");

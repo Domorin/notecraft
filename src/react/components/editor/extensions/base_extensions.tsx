@@ -4,7 +4,6 @@ import TaskList from "@tiptap/extension-task-list";
 import Underline from "@tiptap/extension-underline";
 import { EditorOptions } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { Markdown } from "tiptap-markdown";
 
 export const baseExtensions: EditorOptions["extensions"] = [
 	StarterKit.configure({
@@ -13,12 +12,12 @@ export const baseExtensions: EditorOptions["extensions"] = [
 	Placeholder.configure({
 		placeholder: "Start typing...",
 	}),
-	Markdown.configure({
-		breaks: true,
-		html: true,
-		transformCopiedText: true,
-		transformPastedText: true,
-	}),
+	// Markdown.configure({
+	// 	breaks: true,
+	// 	html: true,
+	// 	transformCopiedText: true,
+	// 	transformPastedText: true,
+	// }),
 	TaskList,
 	TaskItem.configure({
 		nested: true,

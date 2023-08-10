@@ -53,6 +53,7 @@ messageHandlers[messageSync] = (
 		provider.doc,
 		provider
 	);
+
 	if (
 		emitSynced &&
 		syncMessageType === syncProtocol.messageYjsSyncStep2 &&

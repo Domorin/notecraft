@@ -1,21 +1,32 @@
+import { useNoteContentQuery } from "@/react/hooks/trpc/use_note_content_query";
+import { usePageSlug } from "@/react/hooks/use_page_id";
 import { generateHTML } from "@tiptap/html";
-import { yDocToProsemirrorJSON } from "y-prosemirror";
+import { useEffect, useMemo } from "react";
+import { Spinner } from "../spinner";
 import { baseExtensions } from "./extensions/base_extensions";
 import { CustomLink } from "./extensions/custom_link_mark";
-import { Doc } from "yjs";
-import { useEffect, useMemo } from "react";
 
-export function StaticNote(props: { doc: Doc }) {
-	const f = useMemo(
-		() => yDocToProsemirrorJSON(props.doc, "default"),
-		[props.doc]
-	);
-	const html = useMemo(
-		() => generateHTML(f, [...baseExtensions, CustomLink]),
-		[props.doc]
-	);
+export function StaticNote() {
+	const slug = usePageSlug();
+
+	const query = useNoteContentQuery(slug);
+
+	const html = useMemo(() => {
+		if (!query.data) {
+			return;
+		}
+
+		return generateHTML(query.data.docJson, [
+			...baseExtensions,
+			CustomLink,
+		]);
+	}, [query.data]);
 
 	useEffect(() => {
+		if (html == undefined) {
+			return;
+		}
+
 		const parentElement = document.querySelector(".ProseMirror");
 
 		if (parentElement) {
@@ -30,7 +41,12 @@ export function StaticNote(props: { doc: Doc }) {
 		} else {
 			console.error('Parent element with class "ProseMirror" not found.');
 		}
-	});
+	}, [html]);
+
+	// HTML can be an empty string, if it is an empty string, we still want to render
+	if (html == undefined) {
+		return <Spinner />;
+	}
 
 	return (
 		<div className="relative flex h-full w-full flex-col">

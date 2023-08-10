@@ -32,6 +32,7 @@ import { baseExtensions } from "./extensions/base_extensions";
 import { CustomLink } from "./extensions/custom_link_mark";
 import { LinkTooltip } from "./extensions/custom_link_tooltip";
 import { createHoverExtension } from "./extensions/hover_extension";
+import { StaticNote } from "./static_page";
 
 export function getCurrentMark(editor: CoreEditor, name: "customLink") {
 	if (!editor.isActive(name)) {
@@ -152,7 +153,7 @@ export function WysiwygEditor(props: {
 	});
 
 	if (!editor) {
-		return <></>;
+		return <StaticNote />;
 	}
 
 	editor.setEditable(

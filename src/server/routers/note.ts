@@ -1,5 +1,5 @@
 import { titleLimiter } from "@/lib/validators";
-import { encodeYDocContent } from "@/lib/ydoc_utils";
+import { encodeYDocContent, parseYDocContent } from "@/lib/ydoc_utils";
 import { Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import * as Y from "yjs";
@@ -8,6 +8,7 @@ import { prisma } from "../prisma";
 import { redis } from "../redis";
 import { authedProcedure, router } from "../trpc";
 import { getUniqueNoteSlug } from "../words/words";
+import { yDocToProsemirrorJSON } from "y-prosemirror";
 
 type NoteFindUniqueParams = Parameters<typeof prisma.note.findUnique>[0];
 type NoteSelectParameters = NoteFindUniqueParams["select"];
@@ -176,7 +177,7 @@ export const noteRouter = router({
 
 			return parseNoteMetadataForWeb(metadata, userId);
 		}),
-	content: authedProcedure
+	htmlContent: authedProcedure
 		.input(z.object({ slug: z.string() }))
 		.query(async ({ input }) => {
 			const note = await prisma.note.findUnique({
@@ -204,7 +205,10 @@ export const noteRouter = router({
 				},
 			});
 
-			return Array.from(note.content);
+			const doc = parseYDocContent(note.content);
+
+			console.log(yDocToProsemirrorJSON(doc, "default"));
+			return { docJson: yDocToProsemirrorJSON(doc, "default") };
 		}),
 	updateTitle: authedProcedure
 		.input(

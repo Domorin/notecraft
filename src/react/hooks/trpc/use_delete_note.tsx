@@ -18,7 +18,7 @@ export function useDeleteNote() {
 			);
 			queryClient.removeQueries(
 				getQueryKey(
-					trpc.note.content,
+					trpc.note.htmlContent,
 					{
 						slug: slug,
 					},

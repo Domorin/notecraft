@@ -24,6 +24,14 @@ type RPCs = {
 			};
 			output: { success: boolean };
 		};
+		GetDoc: {
+			input: {
+				slug: string;
+			};
+			output: {
+				content: number[];
+			};
+		};
 	};
 	Ws: {
 		GetHost: {
@@ -220,7 +228,7 @@ export function initRedis<T extends Service>(context: {
 			pendingMessages[id] = { resolve, reject };
 			timeout = setTimeout(() => {
 				if (pendingMessages[id]) {
-					reject("Request timed out");
+					reject(`${service}_${rpc}: Request timed out`);
 				}
 			}, TimeoutMS);
 		}).finally(() => {

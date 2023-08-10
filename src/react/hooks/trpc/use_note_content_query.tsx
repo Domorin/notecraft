@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 
 function IsError(
-	data: RouterOutput["note"]["content"] | undefined
+	data: RouterOutput["note"]["htmlContent"] | undefined
 ): data is CustomError {
 	return !!data && "code" in data;
 }
@@ -17,7 +17,7 @@ function IsError(
 export function useNoteContentQuery(slug: string | undefined) {
 	const router = useRouter();
 
-	const contentQuery = trpc.note.content.useQuery(
+	const contentQuery = trpc.note.htmlContent.useQuery(
 		{ slug: slug! },
 		{
 			enabled: !!slug,

@@ -56,6 +56,24 @@ export const redis: AppRedis =
 					success: true,
 				};
 			},
+			GetDoc: async (message) => {
+				const note = await prisma.note.findUnique({
+					where: {
+						slug: message.slug,
+					},
+					select: {
+						content: true,
+					},
+				});
+
+				if (!note) {
+					return {
+						_err: "GetDoc error: Note not found",
+					};
+				}
+
+				return { content: Array.from(note.content) };
+			},
 		},
 	});
 

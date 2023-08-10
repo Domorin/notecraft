@@ -57,11 +57,10 @@
 	}
 
 	ul[data-type="taskList"] {
-		@apply list-none p-0;
+		@apply list-none;
 		li {
-			@apply flex gap-2;
-
 			label {
+				@apply mr-2 inline;
 				input {
 					@apply checkbox-primary checkbox checkbox-xs mt-1;
 
@@ -78,8 +77,16 @@
 			}
 
 			div {
-				@apply flex flex-col;
+				@apply inline;
 			}
+		}
+	}
+
+	ul,
+	ol {
+		ul,
+		ol {
+			@apply px-4;
 		}
 	}
 
