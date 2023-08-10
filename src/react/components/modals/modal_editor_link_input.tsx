@@ -3,10 +3,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ComponentProps, useEffect, useRef, useState } from "react";
 import { BaseModalProps, Modal } from "../modal";
 
-export function ModalLinkInput(props: {
+export function EditorModalLinkInput(props: {
 	initialHref: string | undefined;
 	initialTitle: string | undefined;
 	onSubmit: (opts: { href: string; title: string }) => void;
+	onRemove: () => void;
 	closeModal: () => void;
 }) {
 	return (
@@ -17,7 +18,7 @@ export function ModalLinkInput(props: {
 }
 
 function InnerModal(
-	props: BaseModalProps & ComponentProps<typeof ModalLinkInput>
+	props: BaseModalProps & ComponentProps<typeof EditorModalLinkInput>
 ) {
 	const [url, setUrl] = useState(props.initialHref ?? "");
 	const [label, setLabel] = useState(props.initialTitle ?? "");
@@ -78,7 +79,10 @@ function InnerModal(
 					</button>
 					<button
 						className="btn-sm btn ml-auto w-1/2"
-						onClick={props.closeModal}
+						onClick={() => {
+							props.onRemove();
+							props.closeModal();
+						}}
 					>
 						Remove
 					</button>

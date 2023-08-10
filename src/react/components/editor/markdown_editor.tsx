@@ -16,7 +16,12 @@ import {
 import { Editor as CoreEditor } from "@tiptap/core";
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
-import { BubbleMenu, EditorContent, useEditor } from "@tiptap/react";
+import {
+	BubbleMenu,
+	EditorContent,
+	getMarkRange,
+	useEditor,
+} from "@tiptap/react";
 import { useCallback, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { UserPresence } from "../../../../common/ws/types";
@@ -68,8 +73,15 @@ export function WysiwygEditor(props: {
 			let initialHref: string;
 			let initialTitle: string;
 			if (currentMark) {
+				const range = getMarkRange(
+					editor.state.doc.resolve(from),
+					currentMark?.type
+				);
+
 				initialHref = currentMark.attrs.href;
-				initialTitle = currentMark.attrs.title;
+				initialTitle = range
+					? state.doc.textBetween(range.from, range.to)
+					: initialHref;
 			} else {
 				initialHref = state.doc.textBetween(from, to);
 				initialTitle = initialHref;
@@ -79,6 +91,7 @@ export function WysiwygEditor(props: {
 				initialHref,
 				initialTitle,
 				onSubmit: editor.commands.setCustomLink,
+				onRemove: editor.commands.unsetCustomLink,
 			});
 		},
 		[openModal]
@@ -154,7 +167,7 @@ export function WysiwygEditor(props: {
 					label={hoveredLinkDom.getAttribute("href")!}
 					onClick={() => {
 						const pos = editor.view.posAtDOM(hoveredLinkDom, 0);
-						const tiptapNode = editor.view.state.doc.nodeAt(pos);
+						const tiptapNode = editor.state.doc.nodeAt(pos);
 
 						if (!tiptapNode) {
 							return;
@@ -168,15 +181,32 @@ export function WysiwygEditor(props: {
 							return;
 						}
 
+						const range = getMarkRange(
+							editor.state.doc.resolve(pos + 1),
+							mark.type
+						);
+
+						const initialHref = mark.attrs.href;
+						const initialTitle = range
+							? editor.state.doc.textBetween(range.from, range.to)
+							: initialHref;
+
 						openModal({
-							initialHref: mark.attrs.href,
-							initialTitle: mark.attrs.title,
+							initialHref: initialHref,
+							initialTitle: initialTitle,
 							onSubmit: (opts) =>
 								editor
 									.chain()
 									.focus(pos + 1)
 									.setCustomLink(opts)
 									.run(),
+							onRemove: () => {
+								editor
+									.chain()
+									.focus(pos + 1)
+									.unsetCustomLink()
+									.run();
+							},
 						});
 					}}
 					parentRef={hoveredLinkDom}
@@ -195,11 +225,11 @@ export function WysiwygEditor(props: {
 							onClick={(editor) => {
 								editor.chain().focus().toggleBold().run();
 							}}
-							label="bold"
+							title="bold"
 						/>
 						<EditorButton
 							hotkey="ctrl shift X"
-							label="italic"
+							title="italic"
 							editor={editor}
 							icon={faItalic}
 							onClick={(editor) =>
@@ -208,7 +238,7 @@ export function WysiwygEditor(props: {
 						/>
 						<EditorButton
 							hotkey="ctrl u"
-							label="underline"
+							title="underline"
 							editor={editor}
 							icon={faUnderline}
 							onClick={() =>
@@ -217,7 +247,7 @@ export function WysiwygEditor(props: {
 						/>
 						<EditorButton
 							hotkey="ctrl shift b"
-							label="blockquote"
+							title="blockquote"
 							editor={editor}
 							icon={faQuoteLeft}
 							onClick={() =>
@@ -226,7 +256,7 @@ export function WysiwygEditor(props: {
 						/>
 						<EditorButton
 							hotkey="ctrl shift 8"
-							label="bulletlist"
+							title="bulletlist"
 							editor={editor}
 							icon={faList}
 							onClick={() =>
@@ -235,7 +265,7 @@ export function WysiwygEditor(props: {
 						/>
 						<EditorButton
 							hotkey="ctrl shift 8"
-							label="orderedlist"
+							title="orderedlist"
 							editor={editor}
 							icon={faList12}
 							onClick={() =>
@@ -248,7 +278,7 @@ export function WysiwygEditor(props: {
 						/>
 						<EditorButton
 							hotkey="ctrl shift 9"
-							label="tasklist"
+							title="tasklist"
 							editor={editor}
 							icon={faTasks}
 							onClick={() =>
@@ -257,7 +287,7 @@ export function WysiwygEditor(props: {
 						/>
 						<EditorButton
 							hotkey="ctrl e"
-							label="code"
+							title="code"
 							editor={editor}
 							icon={faCode}
 							onClick={() =>
@@ -266,7 +296,7 @@ export function WysiwygEditor(props: {
 						/>
 						<EditorButton
 							hotkey="ctrl alt c"
-							label="codeblock"
+							title="codeblock"
 							editor={editor}
 							icon={faFileCode}
 							onClick={() =>
@@ -275,7 +305,7 @@ export function WysiwygEditor(props: {
 						/>
 						<EditorButton
 							hotkey="ctrl shift x"
-							label="strike"
+							title="strike"
 							editor={editor}
 							icon={faStrikethrough}
 							onClick={() =>
@@ -284,7 +314,8 @@ export function WysiwygEditor(props: {
 						/>
 						<EditorButton
 							hotkey="ctrl k"
-							label="link"
+							title="link"
+							markNameOverride="customLink"
 							editor={editor}
 							icon={faLink}
 							onClick={() => toggleModal(editor)}

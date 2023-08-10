@@ -14,6 +14,7 @@ declare module "@tiptap/core" {
 				title: string;
 				target?: string | null;
 			}) => ReturnType;
+			unsetCustomLink: () => ReturnType;
 		};
 	}
 }
@@ -91,6 +92,16 @@ export const CustomLink = Mark.create<CustomLinkOptions>({
 						.deleteSelection()
 						.insertContent(attributes.title)
 						.focus()
+						.run();
+				},
+			unsetCustomLink:
+				() =>
+				({ chain }) => {
+					return chain()
+						.extendMarkRange(this.name)
+						.unsetMark(this.name)
+						.focus()
+						.selectNodeBackward()
 						.run();
 				},
 		};

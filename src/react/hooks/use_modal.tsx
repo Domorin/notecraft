@@ -7,15 +7,17 @@ import {
 	useContext,
 	useState,
 } from "react";
-import { ModalLinkInput } from "../components/modals/modal_link_input";
+import { EditorModalLinkInput } from "../components/modals/modal_editor_link_input";
 
 export const ModalContext = createContext({
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	openModal: (component: ReactNode) => {},
 	closeModal: () => {},
 });
 
 const ValidModals = {
-	EditorLinkInput: ModalLinkInput,
+	EditorLinkInput: EditorModalLinkInput,
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 } satisfies Record<string, FC<any>>;
 
 export function useModal<T extends keyof typeof ValidModals>(component: T) {
@@ -44,7 +46,7 @@ export function useModal<T extends keyof typeof ValidModals>(component: T) {
 					})
 				);
 			},
-			[component]
+			[closeModalCallback, component, openModal]
 		),
 		closeModal: closeModalCallback,
 	};

@@ -5,16 +5,19 @@ import classNames from "classnames";
 
 export function EditorButton(props: {
 	hotkey: string;
-	label: string;
+	title: string;
+	markNameOverride?: string;
 	editor: Editor;
 	onClick: (editor: Editor) => void;
 	icon: IconProp;
 }) {
-	const isActive = props.editor.isActive(props.label);
+	const isActive = props.editor.isActive(
+		props.markNameOverride ?? props.title
+	);
 
 	return (
 		<button
-			title={`${props.label} (${props.hotkey})`}
+			title={`${props.title} (${props.hotkey})`}
 			className={classNames("btn-ghost btn-xs join-item btn", {
 				"btn-active": isActive,
 			})}
