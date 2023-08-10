@@ -58,7 +58,6 @@ const messageAwareness = 1;
 
 export const saveDoc = debounce(
 	(doc: WSSharedDoc, userId: string) => {
-		console.log("saving", new Date().getSeconds());
 		doc.redis.rpc(
 			"App",
 			"SaveDoc",
