@@ -1,4 +1,3 @@
-import { useAttachChildToParent } from "@/react/hooks/use_relative_position";
 import classNames from "classnames";
 import {
 	ForwardedRef,
@@ -13,6 +12,7 @@ import {
 import { createPortal } from "react-dom";
 import { CommandIcon } from "../../commands/editor_commands";
 import { CommandSuggestionProps } from "./autocomplete_extension";
+import { useAttachChildToParent } from "@/react/hooks/use_attach_child_to_parent";
 
 function selectItem(props: AutocompleteCommandsListProps, index: number) {
 	const item = props.items[index];

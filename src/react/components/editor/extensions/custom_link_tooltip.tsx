@@ -1,4 +1,4 @@
-import { useAttachChildToParent } from "@/react/hooks/use_relative_position";
+import { useAttachChildToParent } from "@/react/hooks/use_attach_child_to_parent";
 import { faPencilAlt } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import classNames from "classnames";
@@ -14,10 +14,8 @@ export function LinkTooltip(props: {
 	const childRef = useRef<HTMLDivElement>(null);
 	const parentRef = useRef(props.parentRef);
 
-	useAttachChildToParent(parentRef, childRef, (parent, child) => {
+	useAttachChildToParent(parentRef, childRef, (parent, _child) => {
 		return {
-			// relativeX: parent.width / 2 - child.width / 2,
-			// relativeY: -parent.height,
 			relativeX: 0,
 			relativeY: -parent.height,
 		};

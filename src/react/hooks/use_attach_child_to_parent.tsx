@@ -1,7 +1,7 @@
 import { ForwardedRef, RefObject, useLayoutEffect } from "react";
 
 /**
- *
+ * Attaches the *center* of a child to the *center* of a parent element. Use `getPosition` to adjust the position of the child relative to the parent.
  * @param getPosition Relative to the **center** of the parent
  */
 export function useAttachChildToParent<

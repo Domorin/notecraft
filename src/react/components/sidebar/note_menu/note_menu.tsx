@@ -1,6 +1,5 @@
 import { useCreateNoteMutation } from "@/react/hooks/trpc/use_create_note_mutation";
 import { useActiveListContext } from "@/react/hooks/use_active_list_context";
-import { useAttachChildToParent } from "@/react/hooks/use_relative_position";
 import { RouterOutput } from "@/server/routers/_app";
 import { faEdit, faEllipsis, faLink } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -14,6 +13,7 @@ import { AllowAnyoneToEditOption } from "./options/note_menu_allow_anyone_to_edi
 import { DeleteNoteOption } from "./options/note_menu_delete_option";
 import { DuplicateNoteOption } from "./options/note_menu_duplicate_option";
 import { RemoveFromRecentsOption } from "./options/note_menu_remove_from_recents_option";
+import { useAttachChildToParent } from "@/react/hooks/use_attach_child_to_parent";
 
 type MenuProps = {
 	openTitleInput: () => void;
