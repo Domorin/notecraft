@@ -69,10 +69,10 @@ function MenuPopup(
 	const duplicateMutation = useCreateNoteMutation(props.close);
 	const activeListContext = useActiveListContext();
 
-	useAttachChildToParent(props.parentRef, ref, (_parent, _child) => {
+	useAttachChildToParent(props.parentRef, ref, (parent, child) => {
 		return {
-			relativeX: 0,
-			relativeY: 0,
+			relativeX: child.width / 2 - parent.width / 2,
+			relativeY: child.height / 2 - parent.height / 2,
 		};
 	});
 
@@ -87,7 +87,7 @@ function MenuPopup(
 
 	return (
 		<ul
-			className="rouded-box dropdown-content menu rounded-box menu-sm absolute z-[1] ml-2 mt-2 w-fit min-w-[14rem] bg-base-300 py-2 text-sm text-base-content shadow"
+			className="rouded-box dropdown-content menu rounded-box menu-sm absolute z-[1] ml-2 mt-2 w-fit min-w-[14rem] border border-neutral bg-base-300 py-2 text-sm text-base-content shadow"
 			ref={ref}
 			onClick={(e) => e.preventDefault()}
 		>

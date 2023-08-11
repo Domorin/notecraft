@@ -1,7 +1,6 @@
-import { IconProp } from "@fortawesome/fontawesome-svg-core";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Editor } from "@tiptap/react";
 import classNames from "classnames";
+import { CommandIcon, MarkDescriptor } from "../commands/editor_commands";
 
 export function EditorButton(props: {
 	title: string;
@@ -9,7 +8,7 @@ export function EditorButton(props: {
 	markName: string;
 	editor: Editor;
 	onClick: (editor: Editor) => void;
-	icon: IconProp;
+	icon: MarkDescriptor["icon"];
 }) {
 	const isActive = props.editor.isActive(props.markName);
 
@@ -23,7 +22,7 @@ export function EditorButton(props: {
 				props.onClick(props.editor);
 			}}
 		>
-			<FontAwesomeIcon icon={props.icon} />
+			<CommandIcon icon={props.icon} />
 		</button>
 	);
 }

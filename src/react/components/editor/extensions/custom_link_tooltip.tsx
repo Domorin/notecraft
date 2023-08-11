@@ -16,7 +16,9 @@ export function LinkTooltip(props: {
 
 	useAttachChildToParent(parentRef, childRef, (parent, child) => {
 		return {
-			relativeX: parent.width / 2 - child.width / 2,
+			// relativeX: parent.width / 2 - child.width / 2,
+			// relativeY: -parent.height,
+			relativeX: 0,
 			relativeY: -parent.height,
 		};
 	});

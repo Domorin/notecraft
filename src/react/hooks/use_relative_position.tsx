@@ -1,5 +1,9 @@
 import { ForwardedRef, RefObject, useLayoutEffect } from "react";
 
+/**
+ *
+ * @param getPosition Relative to the **center** of the parent
+ */
 export function useAttachChildToParent<
 	Parent extends RefObject<HTMLElement> | ForwardedRef<HTMLElement>,
 	Child extends RefObject<HTMLElement> | ForwardedRef<HTMLElement>
@@ -21,15 +25,26 @@ export function useAttachChildToParent<
 				return;
 			}
 
-			const { left, top } = parent.current.getBoundingClientRect();
+			const parentRect = parent.current.getBoundingClientRect();
+			const childRect = child.current.getBoundingClientRect();
 
-			const { relativeX, relativeY } = getPosition(
-				parent.current.getBoundingClientRect(),
-				child.current.getBoundingClientRect()
-			);
+			const { relativeX, relativeY } = getPosition(parentRect, childRect);
 
-			child.current.style.left = `${left + relativeX}px`;
-			child.current.style.top = `${top + relativeY}px`;
+			const baseY =
+				parentRect.top + parentRect.height / 2 - childRect.height / 2;
+
+			let desiredTop = baseY + relativeY;
+			if (desiredTop + childRect.height > window.innerHeight) {
+				desiredTop = baseY - relativeY;
+			}
+
+			child.current.style.left = `${
+				parentRect.left +
+				parentRect.width / 2 -
+				childRect.width / 2 +
+				relativeX
+			}px`;
+			child.current.style.top = `${desiredTop}px`;
 		};
 
 		setPosition();

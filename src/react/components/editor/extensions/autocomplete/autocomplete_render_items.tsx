@@ -2,7 +2,6 @@ import { ReactRenderer } from "@tiptap/react";
 import { ComponentProps, KeyboardEvent, createRef } from "react";
 import { AutocompleteCommandsList } from "./autocomplete_commands_list";
 import { CommandSuggestionOptions } from "./autocomplete_extension";
-import { editorMarks } from "./autocomplete_items";
 
 export type AutocompleteCommandsListRenderer = ReactRenderer<
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any

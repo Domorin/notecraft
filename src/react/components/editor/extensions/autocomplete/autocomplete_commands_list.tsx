@@ -1,5 +1,4 @@
 import { useAttachChildToParent } from "@/react/hooks/use_relative_position";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import classNames from "classnames";
 import {
 	ForwardedRef,
@@ -12,6 +11,7 @@ import {
 	useState,
 } from "react";
 import { createPortal } from "react-dom";
+import { CommandIcon } from "../../commands/editor_commands";
 import { CommandSuggestionProps } from "./autocomplete_extension";
 
 function selectItem(props: AutocompleteCommandsListProps, index: number) {
@@ -80,9 +80,9 @@ export const AutocompleteCommandsList = forwardRef(
 			};
 		});
 
-		useAttachChildToParent(parentRef, positionRef, (parent) => ({
-			relativeX: 0,
-			relativeY: parent.height,
+		useAttachChildToParent(parentRef, positionRef, (parent, child) => ({
+			relativeX: child.width / 2,
+			relativeY: child.height / 2 + parent.height / 2,
 		}));
 
 		useEffect(() => {
@@ -114,16 +114,17 @@ export const AutocompleteCommandsList = forwardRef(
 
 		return createPortal(
 			<div
-				className="menu rounded-box absolute max-h-64 w-fit overflow-auto bg-base-300"
+				className="rounded-box absolute max-h-64 w-fit overflow-auto border border-neutral bg-base-300 shadow"
 				ref={positionRef}
 			>
 				<ul
-					className=""
 					tabIndex={0}
 					// eslint-disable-next-line @typescript-eslint/no-explicit-any
 					ref={ref as any}
 				>
-					{/* {props.items.length === 0 && <div>No commands found</div>} */}
+					{props.items.length === 0 && (
+						<div className="p-2">No commands found</div>
+					)}
 					{props.items.map((item, index) => (
 						<li
 							key={item.title}
@@ -132,7 +133,7 @@ export const AutocompleteCommandsList = forwardRef(
 						>
 							<button
 								className={classNames(
-									"flex gap-2 whitespace-nowrap text-base",
+									"flex w-full items-center gap-4 whitespace-nowrap p-1 pr-12 text-sm",
 									{
 										"bg-base-content bg-opacity-10":
 											index === selectedIndex,
@@ -141,7 +142,19 @@ export const AutocompleteCommandsList = forwardRef(
 								key={index}
 								onClick={() => selectItem(props, index)}
 							>
-								<FontAwesomeIcon icon={item.icon} size="xl" />
+								<div
+									className={classNames(
+										"rounded-box flex h-12 w-12 flex-col items-center justify-center text-xl",
+										{
+											// "bg-base-content bg-opacity-10":
+											// 	index === selectedIndex,
+											"bg-base-200":
+												index !== selectedIndex || true,
+										}
+									)}
+								>
+									<CommandIcon icon={item.icon} />
+								</div>
 								{item.title}
 							</button>
 						</li>

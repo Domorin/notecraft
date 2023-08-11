@@ -1,13 +1,11 @@
-import { IconDefinition } from "@fortawesome/free-solid-svg-icons";
-import { Editor as CoreEditor, Extension, Range } from "@tiptap/core";
+import { Editor as CoreEditor, Extension } from "@tiptap/core";
 import Suggestion, {
 	SuggestionOptions,
 	SuggestionProps,
 } from "@tiptap/suggestion";
-import { Hotkey } from "../../keyboard_types";
 import { ComponentProps } from "react";
 import { AutocompleteCommandsList } from "./autocomplete_commands_list";
-import { MarkDescriptor } from "./autocomplete_items";
+import { MarkDescriptor } from "../../commands/editor_commands";
 
 declare module "@tiptap/core" {
 	interface Commands<ReturnType> {
