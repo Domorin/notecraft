@@ -3,25 +3,22 @@ import { RouterOutput } from "@/server/routers/_app";
 import { Editor as CoreEditor } from "@tiptap/core";
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
-import { EditorContent, getMarkRange, useEditor } from "@tiptap/react";
-import { useCallback, useRef, useState } from "react";
+import { EditorContent, useEditor } from "@tiptap/react";
+import { ComponentProps, useCallback, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { UserPresence } from "../../../../common/ws/types";
 import { CustomProvider } from "../../../../common/yjs/custom_provider";
 import { Cursor } from "./cursor";
+import { EditorLinkTooltip } from "./editor_link_tooltip";
+import { EditorMenu } from "./editor_menu";
+import { AutocompleteCommandsList } from "./extensions/autocomplete/autocomplete_commands_list";
+import Commands from "./extensions/autocomplete/autocomplete_extension";
 import getSuggestionItems from "./extensions/autocomplete/autocomplete_items";
-import Commands, {
-	AutocompleteCommandProps,
-	CommandSuggestionProps,
-} from "./extensions/autocomplete/autocomplete_extension";
-import renderItems from "./extensions/autocomplete/autocomplete_render_items";
 import { baseExtensions } from "./extensions/base_extensions";
 import { CustomLink } from "./extensions/custom_link_mark";
 import { createHoverExtension } from "./extensions/hover_extension";
 import { StaticNote } from "./static_page";
-import { EditorMenu } from "./editor_menu";
-import { EditorLinkTooltip } from "./editor_link_tooltip";
-import AutocompleteCommandsList from "./extensions/autocomplete/autocomplete_commands_list";
+import { createRenderItems } from "./extensions/autocomplete/autocomplete_render_items";
 
 export function getCurrentMark(editor: CoreEditor, name: "customLink") {
 	if (!editor.isActive(name)) {
@@ -48,41 +45,19 @@ export function WysiwygEditor(props: {
 		null
 	);
 
-	const [showingAutocomplete, setShowingAutocomplete] =
-		useState<CommandSuggestionProps | null>(null);
+	const [commandAutocompleteMenuProps, setShowingAutocomplete] =
+		useState<ComponentProps<typeof AutocompleteCommandsList> | null>(null);
 
 	const toggleModal = useCallback(
-		(editor: CoreEditor) => {
+		(editor: CoreEditor, opts: { href: string; title: string }) => {
 			// if (isOpen) {
 			// 	closeModal();
 			// 	return;
 			// }
-			const { state } = editor;
-
-			const { from, to } = state.selection;
-
-			const currentMark = getCurrentMark(editor, "customLink");
-
-			let initialHref: string;
-			let initialTitle: string;
-			if (currentMark) {
-				const range = getMarkRange(
-					editor.state.doc.resolve(from),
-					currentMark?.type
-				);
-
-				initialHref = currentMark.attrs.href;
-				initialTitle = range
-					? state.doc.textBetween(range.from, range.to)
-					: initialHref;
-			} else {
-				initialHref = state.doc.textBetween(from, to);
-				initialTitle = initialHref;
-			}
 
 			openModal({
-				initialHref,
-				initialTitle,
+				initialHref: opts.href,
+				initialTitle: opts.title,
 				onSubmit: editor.commands.setCustomLink,
 				onRemove: editor.commands.unsetCustomLink,
 			});
@@ -144,7 +119,7 @@ export function WysiwygEditor(props: {
 			Commands.configure({
 				suggestion: {
 					items: getSuggestionItems,
-					render: renderItems,
+					render: createRenderItems(setShowingAutocomplete),
 				},
 				showMenu: (bool) => {
 					setShowingAutocomplete(bool);
@@ -163,12 +138,10 @@ export function WysiwygEditor(props: {
 
 	return (
 		<>
-			{showingAutocomplete && (
-				<AutocompleteCommandsList
-					{...showingAutocomplete}
-					close={() => setShowingAutocomplete(null)}
-				/>
+			{commandAutocompleteMenuProps && (
+				<AutocompleteCommandsList {...commandAutocompleteMenuProps} />
 			)}
+			{/* {showingAutocomplete?.render()} */}
 			{hoveredLinkDom && (
 				<EditorLinkTooltip
 					editor={editor}
@@ -178,7 +151,7 @@ export function WysiwygEditor(props: {
 				/>
 			)}
 			<div className="flex h-full w-full flex-col">
-				<EditorMenu editor={editor} toggleModal={toggleModal} />
+				<EditorMenu editor={editor} />
 				<EditorContent
 					className="rounded-box h-full w-full min-w-0 bg-base-100"
 					editor={editor}

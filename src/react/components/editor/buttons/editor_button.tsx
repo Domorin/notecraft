@@ -4,16 +4,14 @@ import { Editor } from "@tiptap/react";
 import classNames from "classnames";
 
 export function EditorButton(props: {
-	hotkey: string;
 	title: string;
-	markNameOverride?: string;
+	hotkey: string | undefined;
+	markName: string;
 	editor: Editor;
 	onClick: (editor: Editor) => void;
 	icon: IconProp;
 }) {
-	const isActive = props.editor.isActive(
-		props.markNameOverride ?? props.title
-	);
+	const isActive = props.editor.isActive(props.markName);
 
 	return (
 		<button
@@ -21,7 +19,7 @@ export function EditorButton(props: {
 			className={classNames("btn-ghost btn-xs join-item btn", {
 				"btn-active": isActive,
 			})}
-			onClick={(e) => {
+			onClick={(_e) => {
 				props.onClick(props.editor);
 			}}
 		>

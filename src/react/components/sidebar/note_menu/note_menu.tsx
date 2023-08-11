@@ -69,7 +69,7 @@ function MenuPopup(
 	const duplicateMutation = useCreateNoteMutation(props.close);
 	const activeListContext = useActiveListContext();
 
-	useAttachChildToParent(props.parentRef, ref, (parent, child) => {
+	useAttachChildToParent(props.parentRef, ref, (_parent, _child) => {
 		return {
 			relativeX: 0,
 			relativeY: 0,

@@ -1,7 +1,13 @@
 import { Editor as CoreEditor } from "@tiptap/core";
 import { MarkType } from "@tiptap/pm/model";
 import { Plugin, PluginKey } from "@tiptap/pm/state";
-import { Mark, getAttributes, mergeAttributes } from "@tiptap/react";
+import {
+	Mark,
+	getAttributes,
+	getMarkRange,
+	mergeAttributes,
+} from "@tiptap/react";
+import { getCurrentMark } from "../markdown_editor";
 
 declare module "@tiptap/core" {
 	interface Commands<ReturnType> {
@@ -15,12 +21,16 @@ declare module "@tiptap/core" {
 				target?: string | null;
 			}) => ReturnType;
 			unsetCustomLink: () => ReturnType;
+			openLinkModal: () => ReturnType;
 		};
 	}
 }
 
 export interface CustomLinkOptions {
-	toggleModal: (editor: CoreEditor) => void;
+	toggleModal: (
+		editor: CoreEditor,
+		opts: { href: string; title: string }
+	) => void;
 }
 
 export const CustomLinkAttributeName = "custom-link";
@@ -104,14 +114,45 @@ export const CustomLink = Mark.create<CustomLinkOptions>({
 						.selectNodeBackward()
 						.run();
 				},
+			openLinkModal:
+				() =>
+				({ editor }) => {
+					const { state } = editor;
+
+					const { from, to } = state.selection;
+
+					const currentMark = getCurrentMark(editor, "customLink");
+
+					let initialHref: string;
+					let initialTitle: string;
+					if (currentMark) {
+						const range = getMarkRange(
+							editor.state.doc.resolve(from),
+							currentMark?.type
+						);
+
+						initialHref = currentMark.attrs.href;
+						initialTitle = range
+							? state.doc.textBetween(range.from, range.to)
+							: initialHref;
+					} else {
+						initialHref = state.doc.textBetween(from, to);
+						initialTitle = initialHref;
+					}
+
+					this.options.toggleModal(this.editor, {
+						href: initialHref,
+						title: initialTitle,
+					});
+					return true;
+				},
 		};
 	},
 
 	addKeyboardShortcuts() {
 		return {
 			"Mod-k": ({ editor }) => {
-				this.options.toggleModal(editor);
-				return true;
+				return editor.commands.openLinkModal();
 			},
 			Space: ({ editor }) => {
 				if (!editor.isActive(this.name)) {

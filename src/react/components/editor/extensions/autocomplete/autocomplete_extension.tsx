@@ -1,38 +1,49 @@
+import { IconDefinition } from "@fortawesome/free-solid-svg-icons";
 import { Editor as CoreEditor, Extension, Range } from "@tiptap/core";
 import Suggestion, {
 	SuggestionOptions,
 	SuggestionProps,
 } from "@tiptap/suggestion";
+import { Hotkey } from "../../keyboard_types";
+import { ComponentProps } from "react";
+import { AutocompleteCommandsList } from "./autocomplete_commands_list";
 
 declare module "@tiptap/core" {
 	interface Commands<ReturnType> {
 		commandAutocomplete: {
-			/**
-			 * Set a link mark
-			 */
 			showCommandAutocompleteMenu: (
-				items: CommandSuggestionProps | null
+				items: ComponentProps<typeof AutocompleteCommandsList> | null
 			) => ReturnType;
 		};
 	}
 }
 
-export type AutocompleteCommandProps = {
+export type MarkDescriptor = {
 	title: string;
-	command: (props: { editor: CoreEditor; range: Range }) => void;
+	hotkey?: Hotkey;
+	markName: string;
+	icon: IconDefinition;
+	command: (props: {
+		editor: CoreEditor;
+		range?: Range;
+		origin: "Menu" | "Autocomplete";
+	}) => void;
 };
 
 export type CommandSuggestionOptions = Omit<
-	SuggestionOptions<AutocompleteCommandProps>,
+	SuggestionOptions<MarkDescriptor>,
 	"editor"
 >;
 
-export type CommandSuggestionProps =
-	SuggestionProps<AutocompleteCommandProps> & { editor: CoreEditor };
+export type CommandSuggestionProps = SuggestionProps<MarkDescriptor> & {
+	editor: CoreEditor;
+};
 
 interface Options {
 	suggestion: CommandSuggestionOptions;
-	showMenu: (items: CommandSuggestionProps | null) => void;
+	showMenu: (
+		items: ComponentProps<typeof AutocompleteCommandsList> | null
+	) => void;
 }
 // https://codesandbox.io/s/tiptap-react-slash-command-e3j3u?file=/src/tiptap.jsx
 const Commands = Extension.create<Options>({
@@ -45,7 +56,7 @@ const Commands = Extension.create<Options>({
 				char: "/",
 				startOfLine: false,
 				command: ({ editor, range, props }) => {
-					props.command({ editor, range });
+					props.command({ editor, range, origin: "Autocomplete" });
 				},
 			},
 		};
