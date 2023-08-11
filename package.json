@@ -33,6 +33,7 @@
 		"@tiptap/pm": "^2.0.4",
 		"@tiptap/react": "^2.0.4",
 		"@tiptap/starter-kit": "^2.0.4",
+		"@tiptap/suggestion": "^2.0.4",
 		"@trpc/client": "^10.32.0",
 		"@trpc/next": "^10.32.0",
 		"@trpc/react-query": "^10.32.0",

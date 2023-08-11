@@ -91,8 +91,6 @@ function initWSServer() {
 
 		const userId = cookie.parse(request.headers.cookie || "")["id"];
 
-		await sleep(2000);
-
 		if (!userId) {
 			throw new Error("No user ID found!");
 		}

@@ -207,7 +207,6 @@ export const noteRouter = router({
 
 			const doc = parseYDocContent(note.content);
 
-			console.log(yDocToProsemirrorJSON(doc, "default"));
 			return { docJson: yDocToProsemirrorJSON(doc, "default") };
 		}),
 	updateTitle: authedProcedure

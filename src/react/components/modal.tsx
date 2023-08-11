@@ -1,5 +1,4 @@
-import React, { ComponentProps, forwardRef } from "react";
-import { useModal } from "../hooks/use_modal";
+import React from "react";
 
 export type BaseModalProps = {
 	closeModal: () => void;

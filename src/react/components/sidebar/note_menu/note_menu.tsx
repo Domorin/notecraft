@@ -1,19 +1,19 @@
+import { useCreateNoteMutation } from "@/react/hooks/trpc/use_create_note_mutation";
+import { useActiveListContext } from "@/react/hooks/use_active_list_context";
+import { useAttachChildToParent } from "@/react/hooks/use_relative_position";
 import { RouterOutput } from "@/server/routers/_app";
 import { faEdit, faEllipsis, faLink } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import classNames from "classnames";
-import { MutableRefObject, useEffect, useRef, useState } from "react";
+import { DateTime } from "luxon";
+import { MutableRefObject, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useCopyToClipboard, useOnClickOutside } from "usehooks-ts";
-import { DateTime } from "luxon";
 import { useDeleteNoteMutation } from "../../../hooks/trpc/use_delete_note_mutation";
 import { AllowAnyoneToEditOption } from "./options/note_menu_allow_anyone_to_edit_option";
 import { DeleteNoteOption } from "./options/note_menu_delete_option";
 import { DuplicateNoteOption } from "./options/note_menu_duplicate_option";
 import { RemoveFromRecentsOption } from "./options/note_menu_remove_from_recents_option";
-import { useCreateNoteMutation } from "@/react/hooks/trpc/use_create_note_mutation";
-import { useActiveListContext } from "@/react/hooks/use_active_list_context";
-import { useAttachChildToParent } from "@/react/hooks/use_relative_position";
 
 type MenuProps = {
 	openTitleInput: () => void;
@@ -33,11 +33,12 @@ export function SidebarElementMenu(props: MenuProps) {
 		>
 			<label
 				ref={labelRef}
-				className="btn-ghost btn-xs btn invisible cursor-pointer p-1 group-hover:visible"
+				className="btn-ghost btn-xs btn invisible cursor-pointer p-1 group-hover:visible group-focus:visible"
 				onClick={(e) => {
 					e.preventDefault();
 					setIsOpen(true);
 				}}
+				tabIndex={0}
 			>
 				<FontAwesomeIcon icon={faEllipsis} />
 			</label>
@@ -86,7 +87,7 @@ function MenuPopup(
 
 	return (
 		<ul
-			className="rouded-box dropdown-content menu menu-sm absolute z-[1] ml-2 mt-2 w-fit min-w-[14rem] bg-base-300 py-2 text-sm text-base-content shadow"
+			className="rouded-box dropdown-content menu rounded-box menu-sm absolute z-[1] ml-2 mt-2 w-fit min-w-[14rem] bg-base-300 py-2 text-sm text-base-content shadow"
 			ref={ref}
 			onClick={(e) => e.preventDefault()}
 		>
