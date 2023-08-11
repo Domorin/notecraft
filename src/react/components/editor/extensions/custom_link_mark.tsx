@@ -140,7 +140,7 @@ export const CustomLink = Mark.create<CustomLinkOptions>({
 						initialTitle = initialHref;
 					}
 
-					this.options.toggleModal(this.editor, {
+					this.options.toggleModal(editor, {
 						href: initialHref,
 						title: initialTitle,
 					});

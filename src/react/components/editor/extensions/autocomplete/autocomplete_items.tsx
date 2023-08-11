@@ -1,4 +1,5 @@
 import {
+	IconDefinition,
 	faBold,
 	faCode,
 	faFileCode,
@@ -13,9 +14,19 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { Editor as CoreEditor, Range } from "@tiptap/core";
 import { SuggestionOptions } from "@tiptap/suggestion";
-import { MarkDescriptor } from "./autocomplete_extension";
+import { Hotkey } from "../../keyboard_types";
 
-export const editorMarks = {};
+export type MarkDescriptor = {
+	title: string;
+	hotkey?: Hotkey;
+	markName: string;
+	icon: IconDefinition;
+	command: (props: {
+		editor: CoreEditor;
+		range?: Range;
+		origin: "Menu" | "Autocomplete";
+	}) => void;
+};
 
 function BaseChain(opts: { editor: CoreEditor; range?: Range }) {
 	const { editor, range } = opts;
@@ -27,6 +38,8 @@ function BaseChain(opts: { editor: CoreEditor; range?: Range }) {
 
 	return initial;
 }
+
+// TODO: divider
 
 export const EditorCommands: MarkDescriptor[] = [
 	{

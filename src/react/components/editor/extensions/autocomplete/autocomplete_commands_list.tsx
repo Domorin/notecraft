@@ -6,6 +6,7 @@ import {
 	KeyboardEvent,
 	forwardRef,
 	useCallback,
+	useEffect,
 	useImperativeHandle,
 	useRef,
 	useState,
@@ -84,31 +85,68 @@ export const AutocompleteCommandsList = forwardRef(
 			relativeY: parent.height,
 		}));
 
+		useEffect(() => {
+			if (!positionRef.current) return;
+			const selectedNode = positionRef.current?.firstChild?.childNodes[
+				selectedIndex
+			] as HTMLLIElement;
+
+			if (!selectedNode) return;
+
+			const parentRect = positionRef.current.getBoundingClientRect();
+			const childRect = selectedNode.getBoundingClientRect();
+
+			const isAbove = childRect.top < parentRect.top;
+			const isBelow = childRect.bottom > parentRect.bottom;
+
+			if (isAbove || isBelow) {
+				selectedNode.scrollIntoView({
+					behavior: "instant",
+					block: "nearest",
+				});
+			}
+		}, [selectedIndex]);
+
+		// TODO: bad use of useEffect, fix
+		useEffect(() => {
+			setSelectedIndex(0);
+		}, [props.items]);
+
 		return createPortal(
-			<div className="absolute w-fit" ref={positionRef}>
-				<div
-					className="menu rounded-box menu-xs absolute w-fit bg-base-300"
+			<div
+				className="menu rounded-box absolute max-h-64 w-fit overflow-auto bg-base-300"
+				ref={positionRef}
+			>
+				<ul
+					className=""
 					tabIndex={0}
 					// eslint-disable-next-line @typescript-eslint/no-explicit-any
 					ref={ref as any}
 				>
 					{/* {props.items.length === 0 && <div>No commands found</div>} */}
 					{props.items.map((item, index) => (
-						<li key={item.title} tabIndex={-1}>
+						<li
+							key={item.title}
+							tabIndex={-1}
+							// className="h-full min-w-0 overflow-y-auto"
+						>
 							<button
-								className={classNames({
-									"flex gap-2 bg-base-content bg-opacity-10":
-										index === selectedIndex,
-								})}
+								className={classNames(
+									"flex gap-2 whitespace-nowrap text-base",
+									{
+										"bg-base-content bg-opacity-10":
+											index === selectedIndex,
+									}
+								)}
 								key={index}
 								onClick={() => selectItem(props, index)}
 							>
-								<FontAwesomeIcon icon={item.icon} />
+								<FontAwesomeIcon icon={item.icon} size="xl" />
 								{item.title}
 							</button>
 						</li>
 					))}
-				</div>
+				</ul>
 			</div>,
 			document.body
 		);

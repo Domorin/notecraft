@@ -7,6 +7,7 @@ import Suggestion, {
 import { Hotkey } from "../../keyboard_types";
 import { ComponentProps } from "react";
 import { AutocompleteCommandsList } from "./autocomplete_commands_list";
+import { MarkDescriptor } from "./autocomplete_items";
 
 declare module "@tiptap/core" {
 	interface Commands<ReturnType> {
@@ -17,18 +18,6 @@ declare module "@tiptap/core" {
 		};
 	}
 }
-
-export type MarkDescriptor = {
-	title: string;
-	hotkey?: Hotkey;
-	markName: string;
-	icon: IconDefinition;
-	command: (props: {
-		editor: CoreEditor;
-		range?: Range;
-		origin: "Menu" | "Autocomplete";
-	}) => void;
-};
 
 export type CommandSuggestionOptions = Omit<
 	SuggestionOptions<MarkDescriptor>,
