@@ -50,11 +50,6 @@ export function WysiwygEditor(props: {
 
 	const toggleModal = useCallback(
 		(editor: CoreEditor, opts: { href: string; title: string }) => {
-			// if (isOpen) {
-			// 	closeModal();
-			// 	return;
-			// }
-
 			openModal({
 				initialHref: opts.href,
 				initialTitle: opts.title,

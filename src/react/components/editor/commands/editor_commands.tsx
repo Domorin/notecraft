@@ -38,12 +38,10 @@ export type MarkDescriptor = {
 function BaseChain(opts: { editor: CoreEditor; range?: Range }) {
 	const { editor, range } = opts;
 
-	const initial = editor.chain().focus();
 	if (range) {
-		initial.deleteRange(range);
+		editor.commands.deleteRange(range);
 	}
-
-	return initial;
+	return editor.chain().focus();
 }
 
 export function CommandIcon(props: { icon: MarkDescriptor["icon"] }) {
@@ -134,12 +132,7 @@ export const EditorCommands: MarkDescriptor[] = [
 	{
 		title: "Link",
 		command: (o) => {
-			o.origin === "Autocomplete"
-				? BaseChain(o).setCustomLink({
-						href: "",
-						title: "",
-				  })
-				: BaseChain(o).openLinkModal().run();
+			BaseChain(o).openLinkModal().run();
 		},
 		icon: faLink,
 		markName: "customLink",

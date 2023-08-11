@@ -19,11 +19,12 @@ function selectItem(props: AutocompleteCommandsListProps, index: number) {
 
 	if (item) {
 		// TODO: try item.command as well
-		item.command({
-			editor: props.editor,
-			range: props.range,
-			origin: "Menu",
-		});
+		props.command(item);
+		// item.command({
+		// 	editor: props.editor,
+		// 	range: props.range,
+		// 	origin: "Menu",
+		// });
 	}
 
 	// props.close();
