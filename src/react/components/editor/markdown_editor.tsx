@@ -9,16 +9,16 @@ import { createRoot } from "react-dom/client";
 import { UserPresence } from "../../../../common/ws/types";
 import { CustomProvider } from "../../../../common/yjs/custom_provider";
 import { Cursor } from "./cursor";
+import { EditorBubbleMenu } from "./editor_bubble_menu";
 import { EditorLinkTooltip } from "./editor_link_tooltip";
-import { EditorMenu } from "./editor_menu";
 import { AutocompleteCommandsList } from "./extensions/autocomplete/autocomplete_commands_list";
 import Commands from "./extensions/autocomplete/autocomplete_extension";
 import getSuggestionItems from "./extensions/autocomplete/autocomplete_items";
+import { createRenderItems } from "./extensions/autocomplete/autocomplete_render_items";
 import { baseExtensions } from "./extensions/base_extensions";
 import { CustomLink } from "./extensions/custom_link_mark";
 import { createHoverExtension } from "./extensions/hover_extension";
 import { StaticNote } from "./static_page";
-import { createRenderItems } from "./extensions/autocomplete/autocomplete_render_items";
 
 export function getCurrentMark(editor: CoreEditor, name: "customLink") {
 	if (!editor.isActive(name)) {
@@ -131,6 +131,7 @@ export function WysiwygEditor(props: {
 		props.metadata.allowAnyoneToEdit || props.metadata.isCreatedByYou
 	);
 
+	// TODO: show EditorLinkTooltip on selection
 	return (
 		<>
 			{commandAutocompleteMenuProps && (
