@@ -2,7 +2,7 @@ import { BubbleMenu, Editor } from "@tiptap/react";
 import { EditorButton } from "./buttons/editor_button";
 import { EditorCommands } from "./commands/editor_commands";
 
-export function EditorMenu(props: { editor: Editor }) {
+export function EditorBubbleMenu(props: { editor: Editor }) {
 	const { editor } = props;
 
 	return (

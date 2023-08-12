@@ -146,7 +146,7 @@ export function WysiwygEditor(props: {
 				/>
 			)}
 			<div className="flex h-full w-full flex-col">
-				<EditorMenu editor={editor} />
+				<EditorBubbleMenu editor={editor} />
 				<EditorContent
 					className="rounded-box h-full w-full min-w-0 bg-base-100"
 					editor={editor}

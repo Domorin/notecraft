@@ -2,6 +2,7 @@ import { Editor as CoreEditor } from "@tiptap/core";
 import { MarkType } from "@tiptap/pm/model";
 import { Plugin, PluginKey } from "@tiptap/pm/state";
 import {
+	InputRule,
 	Mark,
 	getAttributes,
 	getMarkRange,
@@ -202,26 +203,27 @@ export const CustomLink = Mark.create<CustomLinkOptions>({
 	// 	return ReactNodeViewRenderer(CustomLinkComponent);
 	// },
 
-	// addInputRules() {
-	// 	return [
-	// 		new InputRule({
-	// 			find: /\[(.*)\]\((.*)\)/g,
-	// 			handler: ({ state, range, match }) => {
-	// 				const attributes = {
-	// 					title: match[1],
-	// 					href: match[2],
-	// 				};
+	addInputRules() {
+		return [
+			new InputRule({
+				find: /\[(.*)\]\((.*)\)/g,
+				handler: ({ range, match, chain }) => {
+					const attributes = {
+						title: match[1],
+						href: match[2],
+					};
 
-	// 				const { tr } = state;
-	// 				const start = range.from;
-	// 				const end = range.to;
+					chain()
+						.focus()
+						.setTextSelection(range)
+						.setCustomLink(attributes)
+						.run();
 
-	// 				tr.insert(start, this.type.create(attributes));
-	// 				return;
-	// 			},
-	// 		}),
-	// 	];
-	// },
+					return;
+				},
+			}),
+		];
+	},
 
 	addProseMirrorPlugins() {
 		const plugins: Plugin[] = [];
