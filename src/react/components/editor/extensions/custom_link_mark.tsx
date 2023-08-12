@@ -175,6 +175,14 @@ export const CustomLink = Mark.create<CustomLinkOptions>({
 
 				return false;
 			},
+			Enter: ({ editor }) => {
+				if (!editor.isActive(this.name)) {
+					return false;
+				}
+
+				editor.chain().unsetMark(this.name).run();
+				return false;
+			},
 		};
 	},
 

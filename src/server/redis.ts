@@ -13,6 +13,7 @@ const globalForRedis = globalThis as unknown as {
 	redis: AppRedis | undefined;
 };
 
+// TODO: figure out why this is connecting twice on prod and make sure its fine too
 export const redis: AppRedis =
 	globalForRedis.redis ??
 	initRedis({
@@ -68,7 +69,7 @@ export const redis: AppRedis =
 
 				if (!note) {
 					return {
-						_err: "GetDoc error: Note not found",
+						_err: `GetDoc error: Note ${message.slug} not found`,
 					};
 				}
 
@@ -77,6 +78,6 @@ export const redis: AppRedis =
 		},
 	});
 
-if (process.env.NODE_ENV !== "production") {
-	globalForRedis.redis = redis;
-}
+// if (process.env.NODE_ENV !== "production") {
+globalForRedis.redis = redis;
+// }
