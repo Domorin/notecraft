@@ -175,27 +175,6 @@ export const CustomLink = Mark.create<CustomLinkOptions>({
 
 				return false;
 			},
-			Backspace: () =>
-				this.editor.commands.command(({ tr, state }) => {
-					let isMention = false;
-					const { selection } = state;
-					const { empty, anchor } = selection;
-
-					if (!empty) {
-						return false;
-					}
-
-					// This is only considering a single backspace. Its removing a single character
-					state.doc.nodesBetween(anchor - 1, anchor, (node, pos) => {
-						if (node.type.name === this.name) {
-							isMention = true;
-							tr.insertText("", pos, pos + node.nodeSize);
-						}
-						return true;
-					});
-
-					return isMention;
-				}),
 		};
 	},
 

@@ -10,6 +10,7 @@ import {
 	faList12,
 	faQuoteLeft,
 	faStrikethrough,
+	faTable,
 	faTasks,
 	faUnderline,
 } from "@fortawesome/free-solid-svg-icons";
@@ -142,6 +143,13 @@ export const EditorCommands: MarkDescriptor[] = [
 		command: (o) => BaseChain(o).setHorizontalRule().run(),
 		icon: faGripLines,
 		markName: "horizontalrule",
+		hideOnBubbleMenu: true,
+	},
+	{
+		title: "Table",
+		command: (o) => BaseChain(o).insertTable().run(),
+		markName: "table",
+		icon: faTable,
 		hideOnBubbleMenu: true,
 	},
 	...createHeadings(),

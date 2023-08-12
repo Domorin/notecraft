@@ -147,4 +147,8 @@
 	blockquote {
 		@apply rounded-sm border-l-4 border-accent bg-accent  bg-opacity-20 p-4;
 	}
+
+	table {
+		@apply table;
+	}
 }

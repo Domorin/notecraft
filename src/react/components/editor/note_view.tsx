@@ -8,6 +8,7 @@ import { useUpdateMetadata } from "../../hooks/trpc/use_update_metadata";
 import { WysiwygEditor } from "./markdown_editor";
 import { Presences } from "./presences";
 import { StaticNote } from "./static_page";
+import { Spinner } from "../spinner";
 
 export function NoteView(props: { slug: string; doc: Y.Doc }) {
 	const { slug, doc } = props;
@@ -17,7 +18,6 @@ export function NoteView(props: { slug: string; doc: Y.Doc }) {
 	);
 
 	const [isConnected, setIsSynced] = useState(false);
-
 	const [presences, setPresences] = useState([] as UserPresence[]);
 	const setNoteMetadata = useUpdateMetadata(props.slug);
 	const metadataQuery = useNoteMetadataQuery(props.slug);
@@ -40,9 +40,18 @@ export function NoteView(props: { slug: string; doc: Y.Doc }) {
 			},
 		});
 
-		provider.on("synced", (synced: boolean) => {
-			setIsSynced(synced);
-		});
+		provider.on(
+			"status",
+			({
+				status,
+			}: {
+				status: "connected" | "disconnected" | "connecting";
+			}) => {
+				if (status === "connected") {
+					setIsSynced(true);
+				}
+			}
+		);
 
 		setProvider(provider);
 
@@ -85,10 +94,14 @@ export function NoteView(props: { slug: string; doc: Y.Doc }) {
 						<div className="badge badge-neutral">View Only</div>
 					)}
 					<div className="ml-auto">
-						<Presences
-							presences={presences}
-							clientId={props.doc.clientID}
-						/>
+						{isLoaded ? (
+							<Presences
+								presences={presences}
+								clientId={props.doc.clientID}
+							/>
+						) : (
+							<Spinner />
+						)}
 					</div>
 				</div>
 				{isLoaded ? (
