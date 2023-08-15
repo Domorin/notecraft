@@ -48,8 +48,8 @@
 		@apply border-neutral;
 	}
 
-	p.is-editor-empty:first-child::before {
-		color: #adb5bd;
+	p.is-empty::before {
+		@apply text-base-content opacity-50;
 		content: attr(data-placeholder);
 		float: left;
 		height: 0;
@@ -77,7 +77,7 @@
 			}
 
 			div {
-				@apply inline;
+				@apply inline align-top;
 			}
 		}
 	}

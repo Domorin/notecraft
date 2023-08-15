@@ -14,7 +14,8 @@ export const baseExtensions: EditorOptions["extensions"] = [
 		history: false,
 	}),
 	Placeholder.configure({
-		placeholder: "Start typing...",
+		placeholder: "Type / or highlight text for commands",
+		showOnlyWhenEditable: true,
 	}),
 	// Markdown.configure({
 	// 	breaks: true,

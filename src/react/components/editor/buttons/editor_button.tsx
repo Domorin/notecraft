@@ -12,9 +12,12 @@ export function EditorButton(props: {
 }) {
 	const isActive = props.editor.isActive(props.markName);
 
+	const titleStrings = [props.title];
+	if (props.hotkey) titleStrings.push(`(${props.hotkey})`);
+
 	return (
 		<button
-			title={`${props.title} (${props.hotkey})`}
+			title={titleStrings.join(" ")}
 			className={classNames("btn-ghost btn-xs join-item btn", {
 				"btn-active": isActive,
 			})}

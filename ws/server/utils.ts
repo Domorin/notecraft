@@ -2,7 +2,6 @@ import * as syncProtocol from "y-protocols/sync.js";
 import * as Y from "yjs";
 
 import { encodeYDocContent } from "@/lib/ydoc_utils";
-import { IncomingMessage } from "http";
 import * as lib0 from "lib0";
 import debounce from "lodash.debounce";
 import SuperJSON from "superjson";
@@ -49,7 +48,7 @@ const wsReadyStateClosing = 2; // eslint-disable-line
 const wsReadyStateClosed = 3; // eslint-disable-line
 
 // disable gc when using snapshots!
-const gcEnabled = process.env.GC !== "false" && process.env.GC !== "0";
+const _gcEnabled = process.env.GC !== "false" && process.env.GC !== "0";
 
 export const docs = new Map<string, WSSharedDoc>();
 
@@ -82,7 +81,6 @@ export class WSSharedDoc extends Y.Doc {
 	 */
 	// conns: Map<WebSocket, Set<number>>;
 	conns: Map<WebSocket, { userId: string; clientInfo: UserPresence }>;
-	connCount: number;
 	allowEveryoneToEdit: boolean;
 	creatorId: string;
 
@@ -93,13 +91,13 @@ export class WSSharedDoc extends Y.Doc {
 	constructor(
 		redis: WsRedisType,
 		name: string,
+		initialContent: number[],
 		allowEveryoneToEdit: boolean,
 		creatorId: string
 	) {
-		super({ gc: gcEnabled });
+		super({ gc: true });
 		this.redis = redis;
 		this.name = name;
-		this.connCount = 0;
 
 		this.allowEveryoneToEdit = allowEveryoneToEdit;
 		this.creatorId = creatorId;
@@ -171,6 +169,12 @@ export class WSSharedDoc extends Y.Doc {
 				})
 			);
 		}
+
+		applyUpdateV2(this, Buffer.from(initialContent));
+	}
+
+	get connCount() {
+		return this.conns.size;
 	}
 
 	updateHandler = (update: Uint8Array, origin: WebSocket) => {
@@ -250,7 +254,7 @@ export class WSSharedDoc extends Y.Doc {
 				name: getUsername(
 					[...this.conns.values()].map((val) => val.clientInfo.name)
 				),
-				color: hexColors[this.connCount++ % hexColors.length],
+				color: hexColors[this.connCount % hexColors.length],
 				clientId: undefined,
 			},
 		});
@@ -361,8 +365,7 @@ export class WSSharedDoc extends Y.Doc {
  */
 export const getOrCreateYDoc = async (
 	docname: string,
-	redis: WsRedisType,
-	gc: boolean = true
+	redis: WsRedisType
 ): Promise<WSSharedDoc> => {
 	const existingDoc = docs.get(docname);
 	if (existingDoc) {
@@ -381,31 +384,12 @@ export const getOrCreateYDoc = async (
 	const newDoc = new WSSharedDoc(
 		redis,
 		docname,
+		storedDoc.content,
 		permissions.allowAnyoneToEdit,
 		permissions.creatorId
 	);
-	applyUpdateV2(newDoc, Buffer.from(storedDoc.content));
-
-	newDoc.gc = gc;
 	docs.set(docname, newDoc);
 	return newDoc;
-};
-
-export const setupWSConnection = async (
-	redis: WsRedisType,
-	conn: WebSocket,
-	userId: string,
-	req: IncomingMessage,
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	{ docName = req.url?.slice(1).split("?")[0], gc = true }: any = {}
-) => {
-	logger.info("setting up WS connection");
-
-	conn.binaryType = "arraybuffer";
-	// get doc, initialize if it does not exist yet
-	const doc = await getOrCreateYDoc(docName, redis, gc);
-	doc.addConnection(conn, userId);
-	// listen and reply to events
 };
 
 const pingTimeout = 5000;

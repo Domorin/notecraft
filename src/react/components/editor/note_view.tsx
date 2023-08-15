@@ -9,6 +9,7 @@ import { WysiwygEditor } from "./markdown_editor";
 import { Presences } from "./presences";
 import { StaticNote } from "./static_page";
 import { Spinner } from "../spinner";
+import classNames from "classnames";
 
 export function NoteView(props: { slug: string; doc: Y.Doc }) {
 	const { slug, doc } = props;
@@ -17,7 +18,7 @@ export function NoteView(props: { slug: string; doc: Y.Doc }) {
 		undefined
 	);
 
-	const [isConnected, setIsSynced] = useState(false);
+	const [isSynced, setIsSynced] = useState(false);
 	const [presences, setPresences] = useState([] as UserPresence[]);
 	const setNoteMetadata = useUpdateMetadata(props.slug);
 	const metadataQuery = useNoteMetadataQuery(props.slug);
@@ -40,18 +41,9 @@ export function NoteView(props: { slug: string; doc: Y.Doc }) {
 			},
 		});
 
-		provider.on(
-			"status",
-			({
-				status,
-			}: {
-				status: "connected" | "disconnected" | "connecting";
-			}) => {
-				if (status === "connected") {
-					setIsSynced(true);
-				}
-			}
-		);
+		provider.on("synced", (synced: boolean) => {
+			setIsSynced(synced);
+		});
 
 		setProvider(provider);
 
@@ -77,7 +69,7 @@ export function NoteView(props: { slug: string; doc: Y.Doc }) {
 	// TODO: this is for debug purposes; should remove
 	const editingButton = <></>;
 
-	const isLoaded = provider && isConnected && metadataQuery.isSuccess;
+	const isLoaded = provider && isSynced && metadataQuery.isSuccess;
 
 	const isReadOnly =
 		metadataQuery.isSuccess &&
@@ -89,7 +81,15 @@ export function NoteView(props: { slug: string; doc: Y.Doc }) {
 			{" "}
 			{editingButton}
 			<div className="relative flex h-full w-full flex-col">
-				<div className="presence absolute z-[1] my-2 flex w-full min-w-0 items-center gap-2 px-4 opacity-25 transition-all hover:opacity-100">
+				<div
+					className={classNames(
+						"presence absolute z-[1] my-2 flex w-full min-w-0 items-center gap-2 px-2 transition-all hover:opacity-100",
+						{
+							"opacity-100": !isLoaded,
+							"opacity-25": isLoaded,
+						}
+					)}
+				>
 					{isReadOnly && (
 						<div className="badge badge-neutral">View Only</div>
 					)}

@@ -1,13 +1,17 @@
 import * as cookie from "cookie";
-import http, { IncomingMessage } from "http";
+import http from "http";
 import { WebSocket, WebSocketServer } from "ws";
 import { logger } from "../../common/logging/log";
 import { initRedis } from "../../common/redis/redis";
 import { CustomMessage } from "../../common/ws/types";
-import { docs, setupWSConnection } from "./utils";
-import sleep from "../../common/utils/sleep";
+import { docs, getOrCreateYDoc } from "./utils";
 
 const wss = new WebSocketServer({ noServer: true });
+
+export type ConnConnection = {
+	ws: WebSocket;
+	userId: string;
+};
 
 // TODO: from envirment
 export const host = "localhost";
@@ -81,8 +85,8 @@ function initWSServer() {
 		});
 	});
 
-	wss.on("connection", (a: WebSocket, b: string, c: IncomingMessage) =>
-		setupWSConnection(redis, a, b, c)
+	wss.on("connection", (conn: WebSocket, docName: string, userId: string) =>
+		docs.get(docName)?.addConnection(conn, userId)
 	);
 
 	server.on("upgrade", async (request, socket, head) => {
@@ -95,9 +99,18 @@ function initWSServer() {
 			throw new Error("No user ID found!");
 		}
 
+		const docName = request.url?.slice(1).split("?")[0];
+
+		if (!docName) {
+			throw new Error("Invalid doc name for websocket");
+		}
+
+		await getOrCreateYDoc(docName, redis);
+
 		const handleAuth = (ws: WebSocket) => {
-			wss.emit("connection", ws, userId, request);
+			wss.emit("connection", ws, docName, userId);
 		};
+
 		wss.handleUpgrade(request, socket, head, handleAuth);
 	});
 

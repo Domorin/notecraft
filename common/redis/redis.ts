@@ -181,6 +181,7 @@ export function initRedis<T extends Service>(context: {
 		}
 
 		const outputAsObject = message.output as object;
+		// If _err exists in output, reject with the err
 		if ("_err" in outputAsObject) {
 			pendingMessages[message.id]?.reject(outputAsObject._err);
 			return;

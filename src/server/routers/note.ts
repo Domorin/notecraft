@@ -69,7 +69,7 @@ export async function updateNoteMetadataForWeb(
 	if (!note) {
 		throw new TRPCError({
 			code: "NOT_FOUND",
-			message: "Note not found",
+			message: `Note not found (${params.where.slug})`,
 		});
 	}
 
@@ -130,7 +130,7 @@ export const noteRouter = router({
 				if (!duplicatedNote) {
 					throw new TRPCError({
 						code: "NOT_FOUND",
-						message: "Note not found",
+						message: `Note not found (${input.duplicatedSlug})`,
 					});
 				}
 
@@ -171,7 +171,7 @@ export const noteRouter = router({
 			if (!metadata) {
 				throw new TRPCError({
 					code: "NOT_FOUND",
-					message: "Note not found",
+					message: `Note not found (${input.slug})`,
 				});
 			}
 
@@ -279,7 +279,7 @@ export const noteRouter = router({
 			if (!note) {
 				throw new TRPCError({
 					code: "NOT_FOUND",
-					message: "Note not found",
+					message: `Note not found (${input.slug})`,
 				});
 			}
 
