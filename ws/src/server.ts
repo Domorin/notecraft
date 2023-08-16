@@ -1,10 +1,11 @@
 import * as cookie from "cookie";
 import http from "http";
 import { WebSocket, WebSocketServer } from "ws";
-import { logger } from "../../common/logging/log";
+
 import { initRedis } from "../../common/redis/redis";
 import { CustomMessage } from "../../common/ws/types";
 import { docs, getOrCreateYDoc } from "./utils";
+import { logger } from "../../common/logging/log";
 
 const wss = new WebSocketServer({ noServer: true });
 

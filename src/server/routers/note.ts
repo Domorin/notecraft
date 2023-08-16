@@ -1,5 +1,4 @@
-import { titleLimiter } from "@/lib/validators";
-import { encodeYDocContent, parseYDocContent } from "@/lib/ydoc_utils";
+import { titleLimiter } from "../../lib/validators";
 import { Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import * as Y from "yjs";
@@ -9,24 +8,14 @@ import { redis } from "../redis";
 import { authedProcedure, router } from "../trpc";
 import { getUniqueNoteSlug } from "../words/words";
 import { yDocToProsemirrorJSON } from "y-prosemirror";
-
-type NoteFindUniqueParams = Parameters<typeof prisma.note.findUnique>[0];
-type NoteSelectParameters = NoteFindUniqueParams["select"];
-
-const NoteMetadataValues = {
-	slug: true,
-	updatedAt: true,
-	createdAt: true,
-	viewedAt: true,
-	views: true,
-	title: true,
-	allowAnyoneToEdit: true,
-	creatorId: true,
-} satisfies NoteSelectParameters;
-
-type PrismaNoteMetadata = Prisma.NoteGetPayload<{
-	select: typeof NoteMetadataValues;
-}>;
+import {
+	encodeYDocContent,
+	parseYDocContent,
+} from "../../../common/yjs/ydoc_utils";
+import {
+	PrismaNoteMetadata,
+	NoteMetadataValues,
+} from "../../../common/prisma/types";
 
 export type CustomError = {
 	code: "NOT_FOUND";

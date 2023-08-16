@@ -1,7 +1,7 @@
-import { RouterOutput } from "@/server/routers/_app";
 import { createClient } from "redis";
-import { logger } from "../logging/log";
 import SuperJSON from "superjson";
+import { logger } from "../logging/log";
+import { PrismaNoteMetadata } from "../prisma/types";
 
 type Service = "App" | "Ws";
 
@@ -79,10 +79,7 @@ export function getNextId() {
 }
 
 export type RedisChannelType = {
-	NoteMetadataUpdate: Omit<
-		RouterOutput["note"]["metadata"],
-		"isCreatedByYou"
-	>;
+	NoteMetadataUpdate: Omit<PrismaNoteMetadata, "creatorId">;
 	RPCRequest: {
 		id: number;
 		rpc: string;

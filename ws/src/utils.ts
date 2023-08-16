@@ -1,7 +1,6 @@
-import * as syncProtocol from "y-protocols/sync.js";
+import * as syncProtocol from "y-protocols/sync";
 import * as Y from "yjs";
 
-import { encodeYDocContent } from "@/lib/ydoc_utils";
 import * as lib0 from "lib0";
 import debounce from "lodash.debounce";
 import SuperJSON from "superjson";
@@ -15,9 +14,10 @@ import {
 	encodeAwarenessUpdate,
 	removeAwarenessStates,
 } from "../../common/yjs/custom_awareness";
-import { callbackHandler, isCallbackSet } from "./callback";
-import { WsRedisType } from "./server";
-import { getUsername } from "./usernames";
+import { callbackHandler, isCallbackSet } from "./callback.js";
+import { WsRedisType } from "./server.js";
+import { getUsername } from "./usernames.js";
+import { encodeYDocContent } from "../../common/yjs/ydoc_utils";
 
 const hexColors = [
 	"#D48C8C",

@@ -4,16 +4,18 @@
 	"private": true,
 	"scripts": {
 		"launch": "docker compose up",
-		"dev": "next dev",
-		"build": "next build",
-		"start": "next start",
+		"nextDev": "next dev",
+		"wsDev": "npx tsx watch ws/server/server.ts",
+		"nextBuild": "next build",
+		"wsBuild": "npx tsc --project tsconfig.ws_server.json",
+		"nextStart": "next start",
+		"wsStart": "node build/ws_build/ws/src/server.js",
 		"lint": "next lint",
 		"sync": "npx prisma db push --accept-data-loss --force-reset",
 		"generate": "npx prisma generate",
 		"studio": "npx prisma studio",
-		"ws": "npx tsx watch ws/server/server.ts",
 		"resourcesDev": "docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d && lazydocker",
-		"resourcesProd": "docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d && lazydocker"
+		"resourcesProd": "npm run nextBuild & npm run wsBuild && docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d && lazydocker"
 	},
 	"dependencies": {
 		"@fortawesome/fontawesome-svg-core": "^6.4.0",

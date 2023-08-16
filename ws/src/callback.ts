@@ -1,5 +1,5 @@
 import http from "http";
-import { WSSharedDoc } from "./utils";
+import { WSSharedDoc } from "./utils.js";
 import * as Y from "yjs";
 
 const CALLBACK_URL = process.env.CALLBACK_URL

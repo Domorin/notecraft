@@ -1,3 +1,5 @@
 services:
     web:
-        command: sh -c 'npm run sync && npm run build && npm run start'
+        command: npm run nextStart
+    ws:
+        command: ls && npm run wsStart
