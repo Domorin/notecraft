@@ -2,4 +2,4 @@ services:
     web:
         command: npm run nextStart
     ws:
-        command: ls && npm run wsStart
+        command: npm run wsStart

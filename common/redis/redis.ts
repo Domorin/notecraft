@@ -100,6 +100,10 @@ export function initRedis<T extends Service>(context: {
 	service: T;
 	rpcHandler: ServiceRPCsWithError<T>;
 }) {
+	if (!process.env.REDIS_HOST) {
+		throw new Error("REDIS_HOST not set");
+	}
+
 	const publisherClient = createClient({
 		url: `redis://${process.env.REDIS_HOST}:6379`,
 	});

@@ -5,7 +5,7 @@
 	"scripts": {
 		"launch": "docker compose up",
 		"nextDev": "next dev",
-		"wsDev": "npx tsx watch ws/server/server.ts",
+		"wsDev": "npx tsx watch ws/src/server.ts",
 		"nextBuild": "next build",
 		"wsBuild": "npx tsc --project tsconfig.ws_server.json",
 		"nextStart": "next start",
@@ -15,7 +15,7 @@
 		"generate": "npx prisma generate",
 		"studio": "npx prisma studio",
 		"resourcesDev": "docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d && lazydocker",
-		"resourcesProd": "npm run nextBuild & npm run wsBuild && docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d && lazydocker"
+		"resourcesProd": "npm run nextBuild && npm run wsBuild && docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d && lazydocker"
 	},
 	"dependencies": {
 		"@fortawesome/fontawesome-svg-core": "^6.4.0",

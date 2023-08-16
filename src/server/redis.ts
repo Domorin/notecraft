@@ -4,7 +4,7 @@ import { updateNoteMetadataForWeb } from "./routers/note";
 
 /**
  * Instantiates a single instance redisClient and save it on the global object.
- * @link https://www.redis.io/docs/support/help-articles/nextjs-redis-client-dev-practices
+ * @link https://www.prisma.io/docs/support/help-articles/nextjs-prisma-client-dev-practices
  */
 
 type AppRedis = ReturnType<typeof initRedis<"App">>;
@@ -78,6 +78,6 @@ export const redis: AppRedis =
 		},
 	});
 
-// if (process.env.NODE_ENV !== "production") {
-globalForRedis.redis = redis;
-// }
+if (process.env.NODE_ENV !== "production") {
+	globalForRedis.redis = redis;
+}
