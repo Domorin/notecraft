@@ -1,4 +1,4 @@
-import { RedisChannelType } from "../redis/redis";
+import { RedisChannelType } from "../redis";
 
 export type UserPresence = {
 	clientId: number | undefined;

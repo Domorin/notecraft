@@ -1,0 +1,20 @@
+{
+	"name": "@notesmith/common",
+	"version": "1.0.0",
+	"description": "",
+	"type": "module",
+	"exports": {
+		"./Logger": "./dist/logging/index.js",
+		"./PrismaTypes": "./dist/prisma/index.js",
+		"./Redis": "./dist/redis/index.js",
+		"./Utils": "./dist/utils/index.js",
+		"./WSTypes": "./dist/ws_types/index.js",
+		"./YJS": "./dist/yjs/index.js"
+	},
+	"scripts": {
+		"build": "npx tsc"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC"
+}

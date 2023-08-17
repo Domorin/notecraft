@@ -21,7 +21,7 @@ import {
 	encodeAwarenessUpdate,
 	CustomAwareness,
 } from "./custom_awareness";
-import { CustomMessage } from "../ws/types";
+import { CustomMessage } from "../ws_types";
 import SuperJSON from "superjson";
 
 export const messageSync = 0;

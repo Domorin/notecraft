@@ -6,7 +6,12 @@
 		"module": "CommonJS",
 		"skipLibCheck": true,
 		"esModuleInterop": true,
-		"outDir": "build/ws_build"
+		"outDir": "build/ws_build",
+		"moduleResolution": "Node16"
 	},
-	"include": ["ws/src/**/*"]
+	"references": [
+		{
+			"path": "../notesmith-common"
+		}
+	]
 }

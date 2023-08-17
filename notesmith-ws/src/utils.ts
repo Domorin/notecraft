@@ -6,18 +6,20 @@ import debounce from "lodash.debounce";
 import SuperJSON from "superjson";
 import { WebSocket } from "ws";
 import { applyUpdateV2 } from "yjs";
-import { logger } from "../../common/logging/log";
-import { CustomMessage, UserPresence } from "../../common/ws/types";
+
+import Logger from "@notesmith/common/Logger";
+
 import {
 	CustomAwareness,
 	applyAwarenessUpdate,
 	encodeAwarenessUpdate,
 	removeAwarenessStates,
-} from "../../common/yjs/custom_awareness";
+	encodeYDocContent,
+} from "@notesmith/common/YJS";
+import { UserPresence, CustomMessage } from "@notesmith/common/WSTypes";
 import { callbackHandler, isCallbackSet } from "./callback.js";
 import { WsRedisType } from "./server.js";
 import { getUsername } from "./usernames.js";
-import { encodeYDocContent } from "../../common/yjs/ydoc_utils";
 
 const hexColors = [
 	"#D48C8C",
@@ -127,7 +129,7 @@ export class WSSharedDoc extends Y.Doc {
 				const connDescriptor = this.conns.get(conn);
 
 				if (!connDescriptor) {
-					logger.warn("No conn descriptor found!");
+					Logger.warn("No conn descriptor found!");
 					return;
 				}
 
@@ -159,6 +161,7 @@ export class WSSharedDoc extends Y.Doc {
 				this.send(c, buff);
 			});
 		};
+
 		this.awareness.on("update", awarenessChangeHandler);
 		this.on("update", this.updateHandler);
 		if (isCallbackSet) {
@@ -183,7 +186,7 @@ export class WSSharedDoc extends Y.Doc {
 
 		if (!isFromServer) {
 			if (!user) {
-				logger.warn("No user found in updateHandler");
+				Logger.warn("No user found in updateHandler");
 				return;
 			}
 
@@ -191,7 +194,7 @@ export class WSSharedDoc extends Y.Doc {
 				this.allowEveryoneToEdit || user.userId === this.creatorId;
 
 			if (!canEdit) {
-				logger.warn("Edit attempt by user who can not edit");
+				Logger.warn("Edit attempt by user who can not edit");
 				return;
 			}
 		}

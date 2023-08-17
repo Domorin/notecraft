@@ -34,8 +34,10 @@ function log(color: string, args: LogArgs) {
 	);
 }
 
-export const logger = {
+const Logger = {
 	info: (...args: LogArgs) => log(colors.FgCyan, args),
 	warn: (...args: LogArgs) => log(colors.FgYellow, args),
 	error: (...args: LogArgs) => log(colors.FgRed, args),
 };
+
+export default Logger;

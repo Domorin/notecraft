@@ -2,10 +2,10 @@ import * as cookie from "cookie";
 import http from "http";
 import { WebSocket, WebSocketServer } from "ws";
 
-import { initRedis } from "../../common/redis/redis";
-import { CustomMessage } from "../../common/ws/types";
-import { docs, getOrCreateYDoc } from "./utils";
-import { logger } from "../../common/logging/log";
+import initRedis from "@notesmith/common/Redis";
+import { CustomMessage } from "@notesmith/common/WSTypes";
+import { docs, getOrCreateYDoc } from "./utils.js";
+import Logger from "@notesmith/common/Logger";
 
 const wss = new WebSocketServer({ noServer: true });
 
@@ -16,7 +16,6 @@ export type ConnConnection = {
 
 // TODO: from envirment
 export const host = "localhost";
-const port = 4444;
 
 export type WsRedisType = ReturnType<typeof initRedis<"Ws">>;
 
@@ -43,7 +42,7 @@ function initWSServer() {
 				const connections = doc?.conns;
 
 				if (!connections) {
-					logger.warn(
+					Logger.warn(
 						"Trying to get host before connection is established"
 					);
 					return { hostId: undefined };
@@ -96,7 +95,6 @@ function initWSServer() {
 
 		const userId = cookie.parse(request.headers.cookie || "")["id"];
 
-
 		if (!userId) {
 			socket.destroy();
 			throw new Error("No user ID found!");
@@ -119,7 +117,7 @@ function initWSServer() {
 	});
 
 	server.listen(4444, () => {
-		logger.info(`running at '${host}' on port ${4444}`);
+		Logger.info(`running at '${host}' on port ${4444}`);
 	});
 }
 

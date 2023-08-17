@@ -1,7 +1,7 @@
 import { createClient } from "redis";
 import SuperJSON from "superjson";
-import { logger } from "../logging/log";
-import { PrismaNoteMetadata } from "../prisma/types";
+import Logger from "../logging";
+import { PrismaNoteMetadata } from "../prisma_types";
 
 type Service = "App" | "Ws";
 
@@ -96,7 +96,7 @@ export type RedisChannelType = {
 	};
 };
 
-export function initRedis<T extends Service>(context: {
+export default function initRedis<T extends Service>(context: {
 	service: T;
 	rpcHandler: ServiceRPCsWithError<T>;
 }) {
@@ -113,16 +113,16 @@ export function initRedis<T extends Service>(context: {
 
 	const service = context.service;
 
-	logger.info("Connecting to redis...");
+	Logger.info("Connecting to redis...");
 	const publisherConnectPromise = publisherClient
 		.connect()
-		.then(() => logger.info("Connected to redis publisher"));
+		.then(() => Logger.info("Connected to redis publisher"));
 	const subscriberConnectPromise = subscriberClient
 		.connect()
-		.then(() => logger.info("Connected to redis subscriber"));
+		.then(() => Logger.info("Connected to redis subscriber"));
 
 	publisherClient.on("error", (err) =>
-		logger.error("Redis Client Error", err)
+		Logger.error("Redis Client Error", err)
 	);
 
 	const pubsubHandler = {
