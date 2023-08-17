@@ -11,11 +11,12 @@
 		"nextStart": "next start",
 		"wsStart": "node build/ws_build/ws/src/server.js",
 		"lint": "next lint",
-		"sync": "npx prisma db push --accept-data-loss --force-reset",
+		"syncDangerous": "npx prisma db push --accept-data-loss --force-reset",
+		"applyMigrations": "npx prisma migrate deploy",
 		"generate": "npx prisma generate",
 		"studio": "npx prisma studio",
 		"resourcesDev": "docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d && lazydocker",
-		"resourcesProd": "npm run nextBuild && npm run wsBuild && docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d && lazydocker"
+		"resourcesProd": "docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d && lazydocker"
 	},
 	"dependencies": {
 		"@fortawesome/fontawesome-svg-core": "^6.4.0",

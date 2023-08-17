@@ -115,8 +115,8 @@ function initWSServer() {
 		wss.handleUpgrade(request, socket, head, handleAuth);
 	});
 
-	server.listen(port, () => {
-		logger.info(`running at '${host}' on port ${port}`);
+	server.listen(4444, () => {
+		logger.info(`running at '${host}' on port ${4444}`);
 	});
 }
 

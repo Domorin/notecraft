@@ -1,21 +1,21 @@
-import { titleLimiter } from "../../lib/validators";
 import { Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
+import { yDocToProsemirrorJSON } from "y-prosemirror";
 import * as Y from "yjs";
 import { z } from "zod";
-import { prisma } from "../prisma";
-import { redis } from "../redis";
-import { authedProcedure, router } from "../trpc";
-import { getUniqueNoteSlug } from "../words/words";
-import { yDocToProsemirrorJSON } from "y-prosemirror";
+import {
+	NoteMetadataValues,
+	PrismaNoteMetadata,
+} from "../../../common/prisma/types";
 import {
 	encodeYDocContent,
 	parseYDocContent,
 } from "../../../common/yjs/ydoc_utils";
-import {
-	PrismaNoteMetadata,
-	NoteMetadataValues,
-} from "../../../common/prisma/types";
+import { titleLimiter } from "../../lib/validators";
+import { prisma } from "../prisma";
+import { redis } from "../redis";
+import { authedProcedure, router } from "../trpc";
+import { getUniqueNoteSlug } from "../words/words";
 
 export type CustomError = {
 	code: "NOT_FOUND";

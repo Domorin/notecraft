@@ -1,5 +1,5 @@
 services:
-    web:
-        command: sh -c 'npm run sync && npm run nextDev'
+    app:
+        command: sh -c 'npm run syncDangerous && npm run nextDev'
     ws:
         command: npm run wsDev

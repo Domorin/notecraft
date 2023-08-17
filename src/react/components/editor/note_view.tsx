@@ -24,7 +24,7 @@ export function NoteView(props: { slug: string; doc: Y.Doc }) {
 	const metadataQuery = useNoteMetadataQuery(props.slug);
 
 	useEffect(() => {
-		const provider = new CustomProvider("ws://localhost:4444", slug, doc, {
+		const provider = new CustomProvider("ws://localhost", slug, doc, {
 			disableBc: true,
 
 			customMessageHandler: (m: CustomMessage) => {

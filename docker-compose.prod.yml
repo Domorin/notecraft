@@ -1,5 +1,5 @@
 services:
-    web:
-        command: npm run nextStart
+    app:
+        command: sh -c 'npm run nextBuild && npm run applyMigrations && npm run nextStart'
     ws:
-        command: npm run wsStart
+        command: sh -c 'npm run wsBuild && npm run wsStart'

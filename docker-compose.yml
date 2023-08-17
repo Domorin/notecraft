@@ -8,61 +8,57 @@ services:
             - POSTGRES_USERNAME
             - POSTGRES_PASSWORD
             - POSTGRES_DATABASE
-    # reverse-proxy:
-    #     # The official v2 Traefik docker image
-    #     image: traefik:v2.10
-    #     # Enables the web UI and tells Traefik to listen to docker
-    #     # TODO: exposedByDefault=false?
-    #     command: --api.insecure=true --providers.docker
-    #     ports:
-    #         # The HTTP port
-    #         - "80:80"
-    #         # The Web UI (enabled by --api.insecure=true)
-    #         - "8080:8080"
-    #     volumes:
-    #         # So that Traefik can listen to the Docker events
-    #         - /var/run/docker.sock:/var/run/docker.sock
-    web:
+    reverse-proxy:
+        # The official v2 Traefik docker image
+        image: traefik:v2.10
+        # Enables the web UI and tells Traefik to listen to docker
+        command:
+            - "--log.level=DEBUG"
+            - "--api.insecure=true"
+            - "--providers.docker=true"
+            - "--providers.docker.exposedbydefault=false"
+        ports:
+            # The HTTP port
+            - "80:80"
+            # The Web UI (enabled by --api.insecure=true)
+            - "8080:8080"
+        volumes:
+            # So that Traefik can listen to the Docker events
+            - /var/run/docker.sock:/var/run/docker.sock
+
+    app:
         image: node:18
         depends_on:
             - postgres
+            - redis
         volumes:
             - .:/app
         working_dir: /app
-        ports:
-            - 3000:3000
-        # note: next automatically loads all env files from .env
+        # By default, Traefik uses the first exposed port of a container
+        expose:
+            - "3000"
         environment:
             - DATABASE_URL=postgresql://${POSTGRES_USERNAME}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DATABASE}
+            - REDIS_HOST
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.app.rule=Host(`localhost`) && (!Headers(`Connection`, `Upgrade`) || PathPrefix(`/_next`))"
     ws:
         image: node:18
+        depends_on:
+            - redis
         volumes:
             - .:/app
         working_dir: /app
-        ports:
-            - 4444:4444
+        expose:
+            - "4444"
         environment:
             - NODE_ENV
             - REDIS_HOST
             - SOCKET_PORT=${SOCKET_PORT}
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.ws.rule=Host(`localhost`) && Headers(`Connection`, `Upgrade`) && !PathPrefix(`/_next`)"
     redis:
         image: redis:7
         container_name: ${REDIS_HOST}
-# services:
-#     postgres:
-#         env_file:
-#             - .env
-#         image: postgres
-#         ports:
-#             - 5432:5432
-#     web:
-#         build:
-#             context: ./
-#             target: runner
-#         volumes:
-#             - .:/app
-#         command: npm run dev
-#         ports:
-#             - "3000:3000"
-#         environment:
-#             NODE_ENV: development

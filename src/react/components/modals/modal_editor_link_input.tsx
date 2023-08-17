@@ -27,7 +27,7 @@ function InnerModal(
 
 	useEffect(() => {
 		ref.current?.focus();
-	});
+	}, []);
 
 	return (
 		<form method="dialog" className="modal-box w-fit bg-base-200 pb-4">
