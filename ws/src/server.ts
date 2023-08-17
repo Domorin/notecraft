@@ -96,13 +96,16 @@ function initWSServer() {
 
 		const userId = cookie.parse(request.headers.cookie || "")["id"];
 
+
 		if (!userId) {
+			socket.destroy();
 			throw new Error("No user ID found!");
 		}
 
 		const docName = request.url?.slice(1).split("?")[0];
 
 		if (!docName) {
+			socket.destroy();
 			throw new Error("Invalid doc name for websocket");
 		}
 

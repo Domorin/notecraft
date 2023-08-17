@@ -42,7 +42,7 @@ services:
             - REDIS_HOST
         labels:
             - "traefik.enable=true"
-            - "traefik.http.routers.app.rule=Host(`localhost`) && (!Headers(`Connection`, `Upgrade`) || PathPrefix(`/_next`))"
+            - "traefik.http.routers.app.rule=Host(`localhost`) && (!Headers(`upgrade`, `websocket`) || PathPrefix(`/_next`))"
     ws:
         image: node:18
         depends_on:
@@ -58,7 +58,7 @@ services:
             - SOCKET_PORT=${SOCKET_PORT}
         labels:
             - "traefik.enable=true"
-            - "traefik.http.routers.ws.rule=Host(`localhost`) && Headers(`Connection`, `Upgrade`) && !PathPrefix(`/_next`)"
+            - "traefik.http.routers.ws.rule=Host(`localhost`) && Headers(`upgrade`, `websocket`) && !PathPrefix(`/_next`)"
     redis:
         image: redis:7
         container_name: ${REDIS_HOST}
