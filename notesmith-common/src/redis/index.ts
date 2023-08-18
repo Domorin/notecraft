@@ -1,7 +1,7 @@
 import { createClient } from "redis";
 import SuperJSON from "superjson";
-import Logger from "../logging";
-import { PrismaNoteMetadata } from "../prisma_types";
+import Logger from "../logging/index.js";
+import { PrismaNoteMetadata } from "../prisma_types/index.js";
 
 type Service = "App" | "Ws";
 

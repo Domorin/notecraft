@@ -20,8 +20,8 @@ import {
 	removeAwarenessStates,
 	encodeAwarenessUpdate,
 	CustomAwareness,
-} from "./custom_awareness";
-import { CustomMessage } from "../ws_types";
+} from "./custom_awareness.js";
+import { CustomMessage } from "../ws_types/index.js";
 import SuperJSON from "superjson";
 
 export const messageSync = 0;

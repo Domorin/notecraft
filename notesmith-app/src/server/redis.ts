@@ -1,6 +1,6 @@
-import { initRedis } from "../../common/redis/redis";
-import { prisma } from "./prisma";
-import { updateNoteMetadataForWeb } from "./routers/note";
+import initRedis from "@notesmith/common/Redis";
+import { prisma } from "./prisma.js";
+import { updateNoteMetadataForWeb } from "./routers/note.js";
 
 /**
  * Instantiates a single instance redisClient and save it on the global object.

@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUsername = void 0;
 const adjectives = [
     "Funny",
     "Beautiful",
@@ -30,8 +27,7 @@ const nouns = [
 const allUsernames = adjectives
     .map((a) => nouns.map((n) => `${a} ${n}`))
     .flat();
-function getUsername(existingNames) {
+export function getUsername(existingNames) {
     const availableNames = allUsernames.filter((n) => !existingNames.includes(n));
     return availableNames[Math.floor(Math.random() * availableNames.length)];
 }
-exports.getUsername = getUsername;

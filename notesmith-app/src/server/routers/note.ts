@@ -1,21 +1,25 @@
 import { Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
-import { yDocToProsemirrorJSON } from "y-prosemirror";
+
+// @ts-expect-error Issue with y-prosemirror, see here: https://github.com/yjs/y-prosemirror/pull/137
+import { yDocToProsemirrorJSON as untypedYDocToProsemirrorJSON } from "y-prosemirror";
+const yDocToProsemirrorJSON = untypedYDocToProsemirrorJSON as (
+	doc: Y.Doc,
+	xmlFragment: string
+) => Record<string, unknown>;
+
 import * as Y from "yjs";
 import { z } from "zod";
 import {
 	NoteMetadataValues,
 	PrismaNoteMetadata,
-} from "../../../common/prisma/types";
-import {
-	encodeYDocContent,
-	parseYDocContent,
-} from "../../../common/yjs/ydoc_utils";
-import { titleLimiter } from "../../lib/validators";
-import { prisma } from "../prisma";
-import { redis } from "../redis";
-import { authedProcedure, router } from "../trpc";
-import { getUniqueNoteSlug } from "../words/words";
+} from "@notesmith/common/PrismaTypes";
+import { encodeYDocContent, parseYDocContent } from "@notesmith/common/YJS";
+import { titleLimiter } from "../../lib/validators.js";
+import { prisma } from "../prisma.js";
+import { redis } from "../redis.js";
+import { authedProcedure, router } from "../trpc.js";
+import { getUniqueNoteSlug } from "../words/words.js";
 
 export type CustomError = {
 	code: "NOT_FOUND";

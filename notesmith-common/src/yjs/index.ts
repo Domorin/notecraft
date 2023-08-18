@@ -1,3 +1,3 @@
-export * from "./custom_awareness";
-export * from "./custom_provider";
-export * from "./ydoc_utils";
+export * from "./custom_awareness.js";
+export * from "./custom_provider.js";
+export * from "./ydoc_utils.js";

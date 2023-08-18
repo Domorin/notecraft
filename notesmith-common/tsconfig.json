@@ -4,7 +4,8 @@
 		"strict": true,
 		"forceConsistentCasingInFileNames": true,
 		"module": "ES2022",
-		"moduleResolution": "Node",
+		// Node16 explanation https://github.com/microsoft/TypeScript/issues/49083#issuecomment-1435399267
+		"moduleResolution": "Node16",
 		"skipLibCheck": true,
 		"esModuleInterop": true,
 		"composite": true,

@@ -1,42 +1,13 @@
-"use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getOrCreateYDoc = exports.WSSharedDoc = exports.saveDoc = exports.docs = void 0;
-const syncProtocol = __importStar(require("y-protocols/sync"));
-const Y = __importStar(require("yjs"));
-const lib0 = __importStar(require("lib0"));
-const lodash_debounce_1 = __importDefault(require("lodash.debounce"));
-const superjson_1 = __importDefault(require("superjson"));
-const yjs_1 = require("yjs");
-const Logger_1 = __importDefault(require("@notesmith/common/Logger"));
-const YJS_1 = require("@notesmith/common/YJS");
-const callback_js_1 = require("./callback.js");
-const usernames_js_1 = require("./usernames.js");
+import * as syncProtocol from "y-protocols/sync";
+import * as Y from "yjs";
+import * as lib0 from "lib0";
+import debounce from "lodash.debounce";
+import SuperJSON from "superjson";
+import { applyUpdateV2 } from "yjs";
+import Logger from "@notesmith/common/Logger";
+import { CustomAwareness, applyAwarenessUpdate, encodeAwarenessUpdate, removeAwarenessStates, encodeYDocContent, } from "@notesmith/common/YJS";
+import { callbackHandler, isCallbackSet } from "./callback.js";
+import { getUsername } from "./usernames.js";
 const hexColors = [
     "#D48C8C",
     "#49453E",
@@ -63,20 +34,20 @@ const wsReadyStateClosing = 2; // eslint-disable-line
 const wsReadyStateClosed = 3; // eslint-disable-line
 // disable gc when using snapshots!
 const _gcEnabled = process.env.GC !== "false" && process.env.GC !== "0";
-exports.docs = new Map();
+export const docs = new Map();
 const messageSync = 0;
 const messageAwareness = 1;
 // const messageAuth = 2
-exports.saveDoc = (0, lodash_debounce_1.default)((doc, userId) => {
+export const saveDoc = debounce((doc, userId) => {
     doc.redis.rpc("App", "SaveDoc", {
         slug: doc.name,
         userId: userId,
-        content: Array.from((0, YJS_1.encodeYDocContent)(doc)),
+        content: Array.from(encodeYDocContent(doc)),
     }, {
         ignoreResponse: true,
     });
 }, 1000, { maxWait: 5000 });
-class WSSharedDoc extends Y.Doc {
+export class WSSharedDoc extends Y.Doc {
     /**
      * Maps from conn to set of controlled client ids. Delete all client ids from awareness when this conn is closed
      */
@@ -94,7 +65,7 @@ class WSSharedDoc extends Y.Doc {
         this.allowEveryoneToEdit = allowEveryoneToEdit;
         this.creatorId = creatorId;
         this.conns = new Map();
-        this.awareness = new YJS_1.CustomAwareness(this);
+        this.awareness = new CustomAwareness(this);
         this.awareness.setLocalState(null);
         const awarenessChangeHandler = ({ added, updated, removed, }, conn) => {
             const addId = added[0];
@@ -104,7 +75,7 @@ class WSSharedDoc extends Y.Doc {
             if (conn !== null) {
                 const connDescriptor = this.conns.get(conn);
                 if (!connDescriptor) {
-                    Logger_1.default.warn("No conn descriptor found!");
+                    Logger.warn("No conn descriptor found!");
                     return;
                 }
                 if (addId) {
@@ -121,7 +92,7 @@ class WSSharedDoc extends Y.Doc {
             // broadcast awareness update
             const encoder = encoding.createEncoder();
             encoding.writeVarUint(encoder, messageAwareness);
-            encoding.writeVarUint8Array(encoder, (0, YJS_1.encodeAwarenessUpdate)(this.awareness, changedClients));
+            encoding.writeVarUint8Array(encoder, encodeAwarenessUpdate(this.awareness, changedClients));
             const buff = encoding.toUint8Array(encoder);
             this.conns.forEach((_, c) => {
                 this.send(c, buff);
@@ -129,12 +100,12 @@ class WSSharedDoc extends Y.Doc {
         };
         this.awareness.on("update", awarenessChangeHandler);
         this.on("update", this.updateHandler);
-        if (callback_js_1.isCallbackSet) {
-            this.on("update", (0, lodash_debounce_1.default)(callback_js_1.callbackHandler, CALLBACK_DEBOUNCE_WAIT, {
+        if (isCallbackSet) {
+            this.on("update", debounce(callbackHandler, CALLBACK_DEBOUNCE_WAIT, {
                 maxWait: CALLBACK_DEBOUNCE_MAXWAIT,
             }));
         }
-        (0, yjs_1.applyUpdateV2)(this, Buffer.from(initialContent));
+        applyUpdateV2(this, Buffer.from(initialContent));
     }
     get connCount() {
         return this.conns.size;
@@ -144,12 +115,12 @@ class WSSharedDoc extends Y.Doc {
         const user = this.conns.get(origin);
         if (!isFromServer) {
             if (!user) {
-                Logger_1.default.warn("No user found in updateHandler");
+                Logger.warn("No user found in updateHandler");
                 return;
             }
             const canEdit = this.allowEveryoneToEdit || user.userId === this.creatorId;
             if (!canEdit) {
-                Logger_1.default.warn("Edit attempt by user who can not edit");
+                Logger.warn("Edit attempt by user who can not edit");
                 return;
             }
         }
@@ -158,7 +129,7 @@ class WSSharedDoc extends Y.Doc {
         syncProtocol.writeUpdate(encoder, update);
         const message = encoding.toUint8Array(encoder);
         if (!isFromServer && user) {
-            (0, exports.saveDoc)(this, user.userId);
+            saveDoc(this, user.userId);
         }
         this.conns.forEach((_, conn) => this.send(conn, message));
     };
@@ -185,7 +156,7 @@ class WSSharedDoc extends Y.Doc {
                     }
                     break;
                 case messageAwareness: {
-                    (0, YJS_1.applyAwarenessUpdate)(this.awareness, decoding.readVarUint8Array(decoder), conn);
+                    applyAwarenessUpdate(this.awareness, decoding.readVarUint8Array(decoder), conn);
                     break;
                 }
             }
@@ -199,7 +170,7 @@ class WSSharedDoc extends Y.Doc {
         this.conns.set(conn, {
             userId,
             clientInfo: {
-                name: (0, usernames_js_1.getUsername)([...this.conns.values()].map((val) => val.clientInfo.name)),
+                name: getUsername([...this.conns.values()].map((val) => val.clientInfo.name)),
                 color: hexColors[this.connCount % hexColors.length],
                 clientId: undefined,
             },
@@ -244,7 +215,7 @@ class WSSharedDoc extends Y.Doc {
             if (awarenessStates.size > 0) {
                 const encoder = encoding.createEncoder();
                 encoding.writeVarUint(encoder, messageAwareness);
-                encoding.writeVarUint8Array(encoder, (0, YJS_1.encodeAwarenessUpdate)(this.awareness, Array.from(awarenessStates.keys())));
+                encoding.writeVarUint8Array(encoder, encodeAwarenessUpdate(this.awareness, Array.from(awarenessStates.keys())));
                 this.send(conn, encoding.toUint8Array(encoder));
             }
         }
@@ -252,7 +223,7 @@ class WSSharedDoc extends Y.Doc {
     }
     broadcastAll(message) {
         for (const ws of this.conns.keys()) {
-            this.send(ws, superjson_1.default.stringify(message));
+            this.send(ws, SuperJSON.stringify(message));
         }
     }
     send(conn, m) {
@@ -274,25 +245,24 @@ class WSSharedDoc extends Y.Doc {
             const controlledId = this.conns.get(conn)?.clientInfo?.clientId;
             this.conns.delete(conn);
             if (this.conns.size === 0) {
-                exports.docs.delete(this.name);
+                docs.delete(this.name);
             }
             if (controlledId) {
-                (0, YJS_1.removeAwarenessStates)(this.awareness, [controlledId], null);
+                removeAwarenessStates(this.awareness, [controlledId], null);
             }
             this.broadcastPresenceUpdate();
         }
         conn.close();
     };
 }
-exports.WSSharedDoc = WSSharedDoc;
 /**
  * Gets a Y.Doc by name, whether in memory or on disk
  *
  * @param docname - the name of the Y.Doc to find or create
  * @param gc - whether to allow gc on the doc (applies only when created)
  */
-const getOrCreateYDoc = async (docname, redis) => {
-    const existingDoc = exports.docs.get(docname);
+export const getOrCreateYDoc = async (docname, redis) => {
+    const existingDoc = docs.get(docname);
     if (existingDoc) {
         return existingDoc;
     }
@@ -305,8 +275,7 @@ const getOrCreateYDoc = async (docname, redis) => {
         }),
     ]);
     const newDoc = new WSSharedDoc(redis, docname, storedDoc.content, permissions.allowAnyoneToEdit, permissions.creatorId);
-    exports.docs.set(docname, newDoc);
+    docs.set(docname, newDoc);
     return newDoc;
 };
-exports.getOrCreateYDoc = getOrCreateYDoc;
 const pingTimeout = 5000;

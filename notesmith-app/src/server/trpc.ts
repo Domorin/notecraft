@@ -2,7 +2,7 @@ import { initTRPC } from "@trpc/server";
 import { CreateHTTPContextOptions } from "@trpc/server/adapters/standalone";
 import { CreateWSSContextFnOptions } from "@trpc/server/adapters/ws";
 import * as cookie from "cookie";
-import { prisma } from "./prisma";
+import { prisma } from "./prisma.js";
 import superjson from "superjson";
 
 export const createContext = async (

@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
-import { prisma } from "../prisma";
-import { wordList } from "./list";
+import { prisma } from "../prisma.js";
+import { wordList } from "./list.js";
 
 // https://github.com/glitchdotcom/friendly-words/blob/main/words/predicates.txt
 const objectChoices = wordList.objects.length;

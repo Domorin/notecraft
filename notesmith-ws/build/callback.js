@@ -1,10 +1,4 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.callbackHandler = exports.isCallbackSet = void 0;
-const http_1 = __importDefault(require("http"));
+import http from "http";
 const CALLBACK_URL = process.env.CALLBACK_URL
     ? new URL(process.env.CALLBACK_URL)
     : null;
@@ -14,8 +8,8 @@ const CALLBACK_TIMEOUT = process.env.CALLBACK_TIMEOUT
 const CALLBACK_OBJECTS = process.env.CALLBACK_OBJECTS
     ? JSON.parse(process.env.CALLBACK_OBJECTS)
     : {};
-exports.isCallbackSet = !!CALLBACK_URL;
-const callbackHandler = (update, origin, doc //TOOD: WSSharedDoc type
+export const isCallbackSet = !!CALLBACK_URL;
+export const callbackHandler = (update, origin, doc //TOOD: WSSharedDoc type
 ) => {
     const room = doc.name;
     const dataToSend = {
@@ -35,7 +29,6 @@ const callbackHandler = (update, origin, doc //TOOD: WSSharedDoc type
     }
     callbackRequest(CALLBACK_URL, CALLBACK_TIMEOUT, dataToSend);
 };
-exports.callbackHandler = callbackHandler;
 const callbackRequest = (url, timeout, data) => {
     const stringifiedData = JSON.stringify(data);
     const options = {
@@ -49,7 +42,7 @@ const callbackRequest = (url, timeout, data) => {
             "Content-Length": stringifiedData.length,
         },
     };
-    const req = http_1.default.request(options);
+    const req = http.request(options);
     req.on("timeout", () => {
         console.warn("Callback request timed out.");
         req.abort();
