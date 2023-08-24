@@ -1,9 +1,9 @@
-import { encodeYDocContent } from "@/lib/ydoc_utils";
 import { Note, PrismaClient } from "@prisma/client";
 import { DateTime } from "luxon";
 import * as Y from "yjs";
-import { logger } from "../common/logging/log";
-import { getUniqueNoteSlug } from "@/server/words/words";
+import { encodeYDocContent } from "../notesmith-common/build/src/yjs/ydoc_utils";
+import Logger from "../notesmith-common/build/src/logging";
+import { getUniqueNoteSlug } from "../notesmith-app/src/server/words/words";
 
 async function MockNotes(id: string) {
 	if (process.env.NODE_ENV !== "development") {
@@ -54,7 +54,7 @@ async function MockNotes(id: string) {
 
 	await Promise.all(promises);
 
-	logger.info(`Successfully created ${promises.length} notes.`);
+	Logger.info(`Successfully created ${promises.length} notes.`);
 }
 
 MockNotes(process.argv[2]);

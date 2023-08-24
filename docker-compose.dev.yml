@@ -1,5 +1,12 @@
 services:
     app:
-        command: sh -c 'npm run syncDangerous && npm run nextDev'
+        # command: sh -c 'npm install && npm run syncDangerous && npm run dev'
+        build:
+            context: .
+            dockerfile: notesmith-app/Dockerfile
+
     ws:
-        command: npm run wsDev
+        build:
+            context: .
+            dockerfile: notesmith-ws/Dockerfile
+        # command: sh -c 'npm install && npm run dev'

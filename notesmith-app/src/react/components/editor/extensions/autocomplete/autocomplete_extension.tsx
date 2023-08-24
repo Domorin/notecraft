@@ -32,7 +32,7 @@ interface Options {
 		items: ComponentProps<typeof AutocompleteCommandsList> | null
 	) => void;
 }
-// https://codesandbox.io/s/tiptap-react-slash-command-e3j3u?file=/src/tiptap.jsx
+// https://codesandbox.io/s/tiptap-react-slash-command-e3j3u?file=/src/tiptap
 const Commands = Extension.create<Options>({
 	name: "commandAutocomplete",
 

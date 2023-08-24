@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import * as Y from "yjs";
 
-import { CustomMessage, UserPresence } from "../../../../common/ws/types";
-import { CustomProvider } from "../../../../common/yjs/custom_provider";
 import { useNoteMetadataQuery } from "../../hooks/trpc/use_note_metadata_query";
 import { useUpdateMetadata } from "../../hooks/trpc/use_update_metadata";
 import { WysiwygEditor } from "./markdown_editor";
@@ -10,6 +8,11 @@ import { Presences } from "./presences";
 import { StaticNote } from "./static_page";
 import { Spinner } from "../spinner";
 import classNames from "classnames";
+import { CustomProvider } from "@notesmith/common/build/src/yjs";
+import {
+	CustomMessage,
+	UserPresence,
+} from "@notesmith/common/build/src/ws_types";
 
 export function NoteView(props: { slug: string; doc: Y.Doc }) {
 	const { slug, doc } = props;

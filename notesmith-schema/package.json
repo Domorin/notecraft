@@ -1,0 +1,23 @@
+{
+	"name": "notesmith-schema",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"scripts": {
+		"generate": "prisma generate",
+		"push": "prisma db push",
+		"format": "prisma format",
+		"studio": "prisma studio",
+		"syncDangerous": "npx prisma db push --accept-data-loss --force-reset",
+		"migrate": "npx prisma migrate deploy"
+	},
+	"dependencies": {
+		"@prisma/client": "^4.16.1"
+	},
+	"devDependencies": {
+		"prisma": "^4.16.2"
+	}
+}

@@ -1,5 +1,10 @@
 services:
     app:
-        command: sh -c 'npm run nextBuild && npm run applyMigrations && npm run nextStart'
+        build:
+            context: .
+            dockerfile: notesmith-app/Dockerfile
+
     ws:
-        command: sh -c 'npm run wsBuild && npm run wsStart'
+        build:
+            context: .
+            dockerfile: notesmith-ws/Dockerfile

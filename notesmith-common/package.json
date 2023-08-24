@@ -2,12 +2,16 @@
 	"name": "@notesmith/common",
 	"version": "1.0.0",
 	"description": "",
+	"main": "build/src/index.js",
+	"types": "build/src/index.d.ts",
 	"type": "module",
-	"main": "dist/index.js",
 	"scripts": {
-		"build": "rm -rf dist && npx tsc --build"
+		"build": "rm -rf build && npx tsc"
 	},
 	"keywords": [],
+	"dependencies": {
+		"redis": "^4.6.7"
+	},
 	"author": "",
 	"license": "ISC"
 }

@@ -7,18 +7,9 @@ import SuperJSON from "superjson";
 import { WebSocket } from "ws";
 import { applyUpdateV2 } from "yjs";
 
-import Logger from "@notesmith/common/Logger";
-
-import {
-	CustomAwareness,
-	applyAwarenessUpdate,
-	encodeAwarenessUpdate,
-	removeAwarenessStates,
-	encodeYDocContent,
-} from "@notesmith/common/YJS";
-import { UserPresence, CustomMessage } from "@notesmith/common/WSTypes";
+import { Logger, YJS, WSTypes } from "@notesmith/common";
 import { callbackHandler, isCallbackSet } from "./callback.js";
-import { WsRedisType } from "./server.js";
+import { WsRedisType } from "./index.js";
 import { getUsername } from "./usernames.js";
 
 const hexColors = [
@@ -66,7 +57,7 @@ export const saveDoc = debounce(
 			{
 				slug: doc.name,
 				userId: userId,
-				content: Array.from(encodeYDocContent(doc)),
+				content: Array.from(YJS.encodeYDocContent(doc)),
 			},
 			{
 				ignoreResponse: true,
@@ -82,14 +73,14 @@ export class WSSharedDoc extends Y.Doc {
 	 * Maps from conn to set of controlled client ids. Delete all client ids from awareness when this conn is closed
 	 */
 	// conns: Map<WebSocket, Set<number>>;
-	conns: Map<WebSocket, { userId: string; clientInfo: UserPresence }>;
+	conns: Map<WebSocket, { userId: string; clientInfo: WSTypes.UserPresence }>;
 	allowEveryoneToEdit: boolean;
 	creatorId: string;
 
 	redis: WsRedisType;
 
 	name: string;
-	awareness: CustomAwareness;
+	awareness: YJS.CustomAwareness;
 	constructor(
 		redis: WsRedisType,
 		name: string,
@@ -105,7 +96,7 @@ export class WSSharedDoc extends Y.Doc {
 		this.creatorId = creatorId;
 
 		this.conns = new Map();
-		this.awareness = new CustomAwareness(this);
+		this.awareness = new YJS.CustomAwareness(this);
 		this.awareness.setLocalState(null);
 
 		const awarenessChangeHandler = (
@@ -153,7 +144,7 @@ export class WSSharedDoc extends Y.Doc {
 			encoding.writeVarUint(encoder, messageAwareness);
 			encoding.writeVarUint8Array(
 				encoder,
-				encodeAwarenessUpdate(this.awareness, changedClients)
+				YJS.encodeAwarenessUpdate(this.awareness, changedClients)
 			);
 			const buff = encoding.toUint8Array(encoder);
 
@@ -236,7 +227,7 @@ export class WSSharedDoc extends Y.Doc {
 					}
 					break;
 				case messageAwareness: {
-					applyAwarenessUpdate(
+					YJS.applyAwarenessUpdate(
 						this.awareness,
 						decoding.readVarUint8Array(decoder),
 						conn
@@ -306,7 +297,7 @@ export class WSSharedDoc extends Y.Doc {
 				encoding.writeVarUint(encoder, messageAwareness);
 				encoding.writeVarUint8Array(
 					encoder,
-					encodeAwarenessUpdate(
+					YJS.encodeAwarenessUpdate(
 						this.awareness,
 						Array.from(awarenessStates.keys())
 					)
@@ -319,7 +310,7 @@ export class WSSharedDoc extends Y.Doc {
 		this.broadcastPresenceUpdate();
 	}
 
-	broadcastAll(message: CustomMessage) {
+	broadcastAll(message: WSTypes.CustomMessage) {
 		for (const ws of this.conns.keys()) {
 			this.send(ws, SuperJSON.stringify(message));
 		}
@@ -351,7 +342,7 @@ export class WSSharedDoc extends Y.Doc {
 			}
 
 			if (controlledId) {
-				removeAwarenessStates(this.awareness, [controlledId], null);
+				YJS.removeAwarenessStates(this.awareness, [controlledId], null);
 			}
 			this.broadcastPresenceUpdate();
 		}

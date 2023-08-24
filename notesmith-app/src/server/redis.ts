@@ -1,13 +1,13 @@
-import initRedis from "@notesmith/common/Redis";
-import { prisma } from "./prisma.js";
-import { updateNoteMetadataForWeb } from "./routers/note.js";
+import { Redis } from "@notesmith/common";
+import { prisma } from "./prisma";
+import { updateNoteMetadataForWeb } from "./routers/note";
 
 /**
  * Instantiates a single instance redisClient and save it on the global object.
  * @link https://www.prisma.io/docs/support/help-articles/nextjs-prisma-client-dev-practices
  */
 
-type AppRedis = ReturnType<typeof initRedis<"App">>;
+type AppRedis = ReturnType<typeof Redis.initRedis<"App">>;
 
 const globalForRedis = globalThis as unknown as {
 	redis: AppRedis | undefined;
@@ -16,7 +16,7 @@ const globalForRedis = globalThis as unknown as {
 // TODO: figure out why this is connecting twice on prod and make sure its fine too
 export const redis: AppRedis =
 	globalForRedis.redis ??
-	initRedis({
+	Redis.initRedis({
 		service: "App",
 		rpcHandler: {
 			GetNotePermissions: async (message) => {

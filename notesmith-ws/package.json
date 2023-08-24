@@ -4,18 +4,22 @@
 	"description": "",
 	"type": "module",
 	"scripts": {
-		"start": "npx tsx watch src/server.ts",
-		"build": "rm -rf build && npx tsc --build"
+		"dev": "npx tsx watch src/index.ts",
+		"build": "rm -rf build && npx tsc --build",
+		"start": "node build/index.js"
 	},
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
 		"@notesmith/common": "^1.0.0",
+		"cookie": "^0.5.0",
+		"dotenv": "^16.3.1",
 		"lodash.debounce": "^4.0.8",
 		"ws": "^8.13.0"
 	},
 	"devDependencies": {
+		"@types/cookie": "^0.5.1",
 		"@types/lodash.debounce": "^4.0.7",
 		"@types/ws": "^8.5.5"
 	}

@@ -74,7 +74,7 @@ export const pendingMessages: Record<
 > = {};
 
 let number = 0;
-export function getNextId() {
+function getNextId() {
 	return number++ % Number.MAX_SAFE_INTEGER;
 }
 
@@ -96,7 +96,7 @@ export type RedisChannelType = {
 	};
 };
 
-export default function initRedis<T extends Service>(context: {
+export function initRedis<T extends Service>(context: {
 	service: T;
 	rpcHandler: ServiceRPCsWithError<T>;
 }) {
@@ -113,13 +113,17 @@ export default function initRedis<T extends Service>(context: {
 
 	const service = context.service;
 
-	Logger.info("Connecting to redis...");
-	const publisherConnectPromise = publisherClient
-		.connect()
-		.then(() => Logger.info("Connected to redis publisher"));
-	const subscriberConnectPromise = subscriberClient
-		.connect()
-		.then(() => Logger.info("Connected to redis subscriber"));
+	let publisherConnectPromise: Promise<void>;
+	let subscriberConnectPromise: Promise<void>;
+	if (process.env.NEXT_PHASE !== "phase-production-build") {
+		Logger.info("Connecting to redis...");
+		publisherConnectPromise = publisherClient
+			.connect()
+			.then(() => Logger.info("Connected to redis publisher"));
+		subscriberConnectPromise = subscriberClient
+			.connect()
+			.then(() => Logger.info("Connected to redis subscriber"));
+	}
 
 	publisherClient.on("error", (err) =>
 		Logger.error("Redis Client Error", err)

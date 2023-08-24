@@ -1,6 +1,6 @@
+import { UserPresence } from "@notesmith/common/build/src/ws_types";
 import classNames from "classnames";
 import fontColorContrast from "font-color-contrast";
-import { UserPresence } from "../../../../common/ws/types";
 
 export function Presences(props: {
 	presences: UserPresence[];
@@ -28,7 +28,7 @@ export function Presence(props: {
 		: undefined;
 	return (
 		<div
-			className="placeholder avatar tooltip overflow-visible border-2 border-neutral-focus"
+			className="placeholder avatar tooltip border-neutral-focus overflow-visible border-2"
 			data-tip={props.tooltip}
 		>
 			<div

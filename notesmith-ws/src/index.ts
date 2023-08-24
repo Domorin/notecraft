@@ -1,11 +1,11 @@
+import "dotenv/config";
 import * as cookie from "cookie";
 import http from "http";
 import { WebSocket, WebSocketServer } from "ws";
 
-import initRedis from "@notesmith/common/Redis";
-import { CustomMessage } from "@notesmith/common/WSTypes";
+import { Redis, WSTypes, Logger } from "@notesmith/common";
+
 import { docs, getOrCreateYDoc } from "./utils.js";
-import Logger from "@notesmith/common/Logger";
 
 const wss = new WebSocketServer({ noServer: true });
 
@@ -17,7 +17,7 @@ export type ConnConnection = {
 // TODO: from envirment
 export const host = "localhost";
 
-export type WsRedisType = ReturnType<typeof initRedis<"Ws">>;
+export type WsRedisType = ReturnType<typeof Redis.initRedis<"Ws">>;
 
 process
 	.on("unhandledRejection", (reason, p) => {
@@ -34,7 +34,7 @@ function initWSServer() {
 		response.end("okay");
 	});
 
-	const redis = initRedis({
+	const redis = Redis.initRedis({
 		service: "Ws",
 		rpcHandler: {
 			GetHost: async (message) => {
@@ -68,7 +68,10 @@ function initWSServer() {
 		},
 	});
 
-	function docBroadcastAll(topicName: string, message: CustomMessage) {
+	function docBroadcastAll(
+		topicName: string,
+		message: WSTypes.CustomMessage
+	) {
 		docs.get(topicName)?.broadcastAll(message);
 	}
 
@@ -92,6 +95,8 @@ function initWSServer() {
 	server.on("upgrade", async (request, socket, head) => {
 		// You may check auth of request here..
 		// See https://github.com/websockets/ws#client-authentication
+
+		console.log("Got upgrade request");
 
 		const userId = cookie.parse(request.headers.cookie || "")["id"];
 
@@ -117,7 +122,7 @@ function initWSServer() {
 	});
 
 	server.listen(4444, () => {
-		Logger.info(`running at '${host}' on port ${4444}`);
+		Logger.info(`Running at '${host}' on port ${4444}`);
 	});
 }
 

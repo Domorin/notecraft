@@ -5,30 +5,30 @@
 	"workspaces": [
 		"notesmith-ws",
 		"notesmith-app",
-		"notesmith-common"
+		"notesmith-common",
+		"notesmith-schema"
 	],
+	"prisma": {
+		"schema": "notesmith-common/prisma/schema.prisma"
+	},
 	"scripts": {
-		"launch": "docker compose up",
-		"nextDev": "next dev",
-		"wsDev": "npx tsx watch ws/src/server.ts",
-		"nextBuild": "next build",
-		"wsBuild": "npx tsc --project tsconfig.ws_server.json",
-		"nextStart": "next start",
-		"wsStart": "node build/ws_build/ws/src/server.js",
 		"lint": "next lint",
-		"syncDangerous": "npx prisma db push --accept-data-loss --force-reset",
-		"applyMigrations": "npx prisma migrate deploy",
 		"generate": "npx prisma generate",
 		"studio": "npx prisma studio",
 		"resourcesDev": "docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d && lazydocker",
 		"resourcesProd": "docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d && lazydocker"
 	},
-	"dependencies": {},
+	"dependencies": {
+		"lib0": "^0.2.52",
+		"superjson": "^1.13.1",
+		"y-protocols": "^1.0.5",
+		"yjs": "^13.6.7"
+	},
 	"devDependencies": {
 		"@typescript-eslint/eslint-plugin": "^6.2.1",
 		"@typescript-eslint/parser": "^6.2.1",
-		"eslint-config-next": "13.4.7",
 		"eslint": "^8.46.0",
+		"eslint-config-next": "13.4.7",
 		"eslint-config-prettier": "^8.10.0",
 		"prettier": "^2.8.8",
 		"prettier-plugin-tailwindcss": "^0.3.0",

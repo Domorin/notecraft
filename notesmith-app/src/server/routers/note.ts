@@ -1,25 +1,17 @@
 import { Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
-
-// @ts-expect-error Issue with y-prosemirror, see here: https://github.com/yjs/y-prosemirror/pull/137
-import { yDocToProsemirrorJSON as untypedYDocToProsemirrorJSON } from "y-prosemirror";
-const yDocToProsemirrorJSON = untypedYDocToProsemirrorJSON as (
-	doc: Y.Doc,
-	xmlFragment: string
-) => Record<string, unknown>;
+import { yDocToProsemirrorJSON } from "y-prosemirror";
 
 import * as Y from "yjs";
 import { z } from "zod";
-import {
-	NoteMetadataValues,
-	PrismaNoteMetadata,
-} from "@notesmith/common/PrismaTypes";
-import { encodeYDocContent, parseYDocContent } from "@notesmith/common/YJS";
-import { titleLimiter } from "../../lib/validators.js";
-import { prisma } from "../prisma.js";
-import { redis } from "../redis.js";
-import { authedProcedure, router } from "../trpc.js";
-import { getUniqueNoteSlug } from "../words/words.js";
+import {} from "@notesmith/common";
+
+import { YJS, PrismaTypes } from "@notesmith/common";
+import { titleLimiter } from "../../lib/validators";
+import { prisma } from "../prisma";
+import { redis } from "../redis";
+import { authedProcedure, router } from "../trpc";
+import { getUniqueNoteSlug } from "../words/words";
 
 export type CustomError = {
 	code: "NOT_FOUND";
@@ -36,7 +28,9 @@ function CreateCustomError(error: CustomError) {
  * Not a huge deal since all notes are public, but still shouldn't make it that easy
  */
 function parseNoteMetadataForWeb(
-	metadataWithCreatorId: PrismaNoteMetadata & { creatorId: string },
+	metadataWithCreatorId: PrismaTypes.PrismaNoteMetadata & {
+		creatorId: string;
+	},
 	userId: string
 ) {
 	const { creatorId, ...metadata } = metadataWithCreatorId;
@@ -81,7 +75,7 @@ export async function updateNoteMetadataForWeb(
 		// ...params,
 		data: params.data,
 		where: params.where,
-		select: NoteMetadataValues,
+		select: PrismaTypes.NoteMetadataValues,
 	});
 
 	const parsedNote = parseNoteMetadataForWeb(updateResult, userId);
@@ -129,7 +123,7 @@ export const noteRouter = router({
 
 				buffer = duplicatedNote.content;
 			} else {
-				buffer = Buffer.from(encodeYDocContent(new Y.Doc()));
+				buffer = Buffer.from(YJS.encodeYDocContent(new Y.Doc()));
 			}
 
 			const note = await prisma.note.create({
@@ -147,7 +141,7 @@ export const noteRouter = router({
 						},
 					},
 				},
-				select: NoteMetadataValues,
+				select: PrismaTypes.NoteMetadataValues,
 			});
 			return parseNoteMetadataForWeb(note, userId);
 		}),
@@ -158,7 +152,7 @@ export const noteRouter = router({
 				where: {
 					slug: input.slug,
 				},
-				select: NoteMetadataValues,
+				select: PrismaTypes.NoteMetadataValues,
 			});
 
 			if (!metadata) {
@@ -198,7 +192,7 @@ export const noteRouter = router({
 				},
 			});
 
-			const doc = parseYDocContent(note.content);
+			const doc = YJS.parseYDocContent(note.content);
 
 			return { docJson: yDocToProsemirrorJSON(doc, "default") };
 		}),
@@ -239,7 +233,7 @@ export const noteRouter = router({
 	listCreated: authedProcedure.query(async ({ ctx: { userId } }) => {
 		return prisma.note
 			.findMany({
-				select: NoteMetadataValues,
+				select: PrismaTypes.NoteMetadataValues,
 				orderBy: {
 					updatedAt: "desc",
 				},

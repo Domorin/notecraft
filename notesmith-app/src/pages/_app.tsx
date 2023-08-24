@@ -1,11 +1,11 @@
 import { useQueryClient } from "@tanstack/react-query";
-import type { AppType } from "next/app.js";
-import { useRouter } from "next/router.js";
+import type { AppType } from "next/app";
+import { useRouter } from "next/router";
 import { useEffect, useRef } from "react";
-import { trpcRouter } from "../utils/trpc.js";
+import { trpc } from "../utils/trpc";
 import "./globals.scss";
-import { usePageSlug } from "@/react/hooks/use_page_id.jsx";
-import { handleError } from "@/react/utils/error_handler.js";
+import { usePageSlug } from "@/react/hooks/use_page_id";
+import { handleError } from "@/react/utils/error_handler";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
 	const router = useRouter();
@@ -34,4 +34,4 @@ const MyApp: AppType = ({ Component, pageProps }) => {
 	return <Component {...pageProps} />;
 };
 
-export default trpcRouter.withTRPC(MyApp);
+export default trpc.withTRPC(MyApp);
