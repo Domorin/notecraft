@@ -17,8 +17,6 @@ COPY notesmith-app/tsconfig.json notesmith-app/
 COPY notesmith-app/tsconfig.json notesmith-app/
 COPY notesmith-app/tailwind.config.js notesmith-app/
 COPY notesmith-app/postcss.config.js notesmith-app/
-# Next expects .env in root of next directory, so just copy it there as well
-COPY .env notesmith-app/
 
 # COPY NOTESMITH-SCHEMA
 COPY notesmith-schema notesmith-schema
