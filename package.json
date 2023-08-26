@@ -16,7 +16,8 @@
 		"devResourcesUp": "docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d && lazydocker",
 		"devResourcesRemove": "docker compose -f docker-compose.yml -f docker-compose.dev.yml down",
 		"prodResourcesUp": "docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d && lazydocker",
-		"prodResourcesRemove": "docker compose -f docker-compose.yml -f docker-compose.prod.yml down"
+		"prodResourcesRemove": "docker compose -f docker-compose.yml -f docker-compose.prod.yml down",
+		"prodResourcesStop": "docker compose -f docker-compose.yml -f docker-compose.prod.yml stop"
 	},
 	"dependencies": {
 		"lib0": "^0.2.52",

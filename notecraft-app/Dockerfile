@@ -3,7 +3,7 @@ WORKDIR /app
 
 # Copy root package.json
 COPY package.json package-lock.json ./
-COPY .env ./
+COPY .env.prod ./.env
 
 # COPY notecraft-COMMON
 COPY notecraft-common/src notecraft-common/src
