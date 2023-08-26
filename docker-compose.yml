@@ -15,18 +15,33 @@ services:
         image: traefik:v2.10
         # Enables the web UI and tells Traefik to listen to docker
         command:
-            - "--log.level=DEBUG"
+            - "--log.level=WARN"
             - "--api.insecure=true"
             - "--providers.docker=true"
             - "--providers.docker.exposedbydefault=false"
+            - "--entrypoints.websecure.address=:443"
+            - "--entrypoints.websecure.http.tls=true"
+            - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+            # Debugging
+            # - "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+            - "--certificatesresolvers.myresolver.acme.email=cclutzel@gmail.com"
+            - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+        labels:
+            # Dashboard
+            - "traefik.enable=true"
+            - "traefik.http.routers.dashboard.rule=Host(`notecraft.app`) && PathPrefix(`/dashboard`)"
+            - "traefik.http.routers.dashboard.entrypoints=websecure"
+            - "traefik.http.routers.dashboard.service=api@internal"
         ports:
             # The HTTP port
             - "80:80"
+            - "443:443"
             # The Web UI (enabled by --api.insecure=true)
             - "8080:8080"
         volumes:
             # So that Traefik can listen to the Docker events
             - /var/run/docker.sock:/var/run/docker.sock
+            - ./letsencrypt:/letsencrypt
     redis:
         image: redis:7
         container_name: ${REDIS_HOST}
@@ -35,9 +50,9 @@ services:
             - postgres
             - redis
         # volumes:
-        #     - ./notesmith-app:/app
+        #     - ./notecraft-app:/app
         #     - ./prisma:/app/prisma
-        #     - ./notesmith-common:/app/notesmith-common
+        #     - ./notecraft-common:/app/notecraft-common
         # working_dir: /app
         # By default, Traefik uses the first exposed port of a container
         expose:
@@ -47,13 +62,16 @@ services:
             - REDIS_HOST
         labels:
             - "traefik.enable=true"
-            - "traefik.http.routers.app.rule=Host(`localhost`) && (!Headers(`upgrade`, `websocket`) || PathPrefix(`/_next`))"
+            # - "traefik.http.routers.app.rule=Host(`${NEXT_PUBLIC_WEB_APP_URL}`) && (!Headers(`upgrade`, `websocket`) || PathPrefix(`/_next`))"
+            - "traefik.http.routers.app.rule=Host(`notecraft.app`)"
+            - "traefik.http.routers.app.entrypoints=websecure"
+            - "traefik.http.routers.app.tls.certresolver=myresolver"
     ws:
         depends_on:
             - redis
         # volumes:
-        #     - ./notesmith-ws:/app
-        #     - ./notesmith-common:/app/notesmith-common
+        #     - ./notecraft-ws:/app
+        #     - ./notecraft-common:/app/notecraft-common
         # working_dir: /app
         expose:
             - "4444"
@@ -63,4 +81,7 @@ services:
             - SOCKET_PORT
         labels:
             - "traefik.enable=true"
-            - "traefik.http.routers.ws.rule=Host(`localhost`) && Headers(`upgrade`, `websocket`) && !PathPrefix(`/_next`)"
+            # - "traefik.http.routers.ws.rule=Host(`${NEXT_PUBLIC_WEB_APP_URL}`) && Headers(`upgrade`, `websocket`) && !PathPrefix(`/_next`)"
+            - "traefik.http.routers.ws.rule=Host(`notecraft.app`) && Headers(`upgrade`, `websocket`) && !PathPrefix(`/_next`)"
+            - "traefik.http.routers.ws.entrypoints=websecure"
+            - "traefik.http.routers.ws.tls.certresolver=myresolver"

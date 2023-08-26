@@ -4,9 +4,9 @@ import { yDocToProsemirrorJSON } from "y-prosemirror";
 
 import * as Y from "yjs";
 import { z } from "zod";
-import {} from "@notesmith/common";
+import {} from "@notecraft/common";
 
-import { YJS, PrismaTypes } from "@notesmith/common";
+import { YJS, PrismaTypes } from "@notecraft/common";
 import { titleLimiter } from "../../lib/validators";
 import { prisma } from "../prisma";
 import { redis } from "../redis";

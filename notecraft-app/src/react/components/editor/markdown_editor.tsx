@@ -6,7 +6,7 @@ import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 import { EditorContent, useEditor } from "@tiptap/react";
 import { ComponentProps, useCallback, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { WSTypes, YJS } from "@notesmith/common";
+import { WSTypes, YJS } from "@notecraft/common";
 import { Cursor } from "./cursor";
 import { EditorBubbleMenu } from "./editor_bubble_menu";
 import { EditorLinkTooltip } from "./editor_link_tooltip";

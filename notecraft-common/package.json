@@ -1,5 +1,5 @@
 {
-	"name": "@notesmith/common",
+	"name": "@notecraft/common",
 	"version": "1.0.0",
 	"description": "",
 	"main": "build/src/index.js",

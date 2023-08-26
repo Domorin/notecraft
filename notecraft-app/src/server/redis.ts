@@ -1,4 +1,4 @@
-import { Redis } from "@notesmith/common";
+import { Redis } from "@notecraft/common";
 import { prisma } from "./prisma";
 import { updateNoteMetadataForWeb } from "./routers/note";
 

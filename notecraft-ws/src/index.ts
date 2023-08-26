@@ -3,7 +3,7 @@ import * as cookie from "cookie";
 import http from "http";
 import { WebSocket, WebSocketServer } from "ws";
 
-import { Redis, WSTypes, Logger } from "@notesmith/common";
+import { Redis, WSTypes, Logger } from "@notecraft/common";
 
 import { docs, getOrCreateYDoc } from "./utils.js";
 
@@ -15,7 +15,7 @@ export type ConnConnection = {
 };
 
 // TODO: from envirment
-export const host = "localhost";
+export const host = process.env.NEXT_PUBLIC_WEB_APP_URL;
 
 export type WsRedisType = ReturnType<typeof Redis.initRedis<"Ws">>;
 
@@ -122,7 +122,7 @@ function initWSServer() {
 	});
 
 	server.listen(4444, () => {
-		Logger.info(`Running at '${host}' on port ${4444}`);
+		Logger.info(`Running on port ${4444}`);
 	});
 }
 

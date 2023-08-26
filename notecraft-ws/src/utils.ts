@@ -7,7 +7,7 @@ import SuperJSON from "superjson";
 import { WebSocket } from "ws";
 import { applyUpdateV2 } from "yjs";
 
-import { Logger, YJS, WSTypes } from "@notesmith/common";
+import { Logger, YJS, WSTypes } from "@notecraft/common";
 import { callbackHandler, isCallbackSet } from "./callback.js";
 import { WsRedisType } from "./index.js";
 import { getUsername } from "./usernames.js";

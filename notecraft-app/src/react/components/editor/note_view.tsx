@@ -8,11 +8,11 @@ import { Presences } from "./presences";
 import { StaticNote } from "./static_page";
 import { Spinner } from "../spinner";
 import classNames from "classnames";
-import { CustomProvider } from "@notesmith/common/build/src/yjs";
+import { CustomProvider } from "@notecraft/common/build/src/yjs";
 import {
 	CustomMessage,
 	UserPresence,
-} from "@notesmith/common/build/src/ws_types";
+} from "@notecraft/common/build/src/ws_types";
 
 export function NoteView(props: { slug: string; doc: Y.Doc }) {
 	const { slug, doc } = props;
@@ -27,7 +27,7 @@ export function NoteView(props: { slug: string; doc: Y.Doc }) {
 	const metadataQuery = useNoteMetadataQuery(props.slug);
 
 	useEffect(() => {
-		const provider = new CustomProvider("ws://localhost", slug, doc, {
+		const provider = new CustomProvider(`wss://notecraft.app`, slug, doc, {
 			disableBc: true,
 
 			customMessageHandler: (m: CustomMessage) => {

@@ -1,0 +1,1 @@
+rsync -v -r --exclude='node_modules' . note-smith-production:/home/domorin/notecraft/

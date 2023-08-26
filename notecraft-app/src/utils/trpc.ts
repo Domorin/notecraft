@@ -16,11 +16,8 @@ function getBaseUrl() {
 		// reference for render.com
 		return `http://${process.env.RENDER_INTERNAL_HOSTNAME}:${process.env.PORT}`;
 
-	if (!process.env.APP_PORT) {
-		throw new Error("APP_PORT is not defined");
-	}
 	// assume localhost
-	return `http://localhost:${process.env.APP_PORT}`;
+	return `https://${process.env.NEXT_PUBLIC_WEB_APP_URL}`;
 }
 
 export const trpc = createTRPCNext<AppRouter>({

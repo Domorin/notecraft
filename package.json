@@ -3,20 +3,20 @@
 	"version": "0.1.0",
 	"private": true,
 	"workspaces": [
-		"notesmith-ws",
-		"notesmith-app",
-		"notesmith-common",
-		"notesmith-schema"
+		"notecraft-ws",
+		"notecraft-app",
+		"notecraft-common",
+		"notecraft-schema"
 	],
 	"prisma": {
-		"schema": "notesmith-common/prisma/schema.prisma"
+		"schema": "notecraft-common/prisma/schema.prisma"
 	},
 	"scripts": {
 		"lint": "next lint",
-		"generate": "npx prisma generate",
-		"studio": "npx prisma studio",
-		"resourcesDev": "docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d && lazydocker",
-		"resourcesProd": "docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d && lazydocker"
+		"devResourcesUp": "docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d && lazydocker",
+		"devResourcesRemove": "docker compose -f docker-compose.yml -f docker-compose.dev.yml down",
+		"prodResourcesUp": "docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d && lazydocker",
+		"prodResourcesRemove": "docker compose -f docker-compose.yml -f docker-compose.prod.yml down"
 	},
 	"dependencies": {
 		"lib0": "^0.2.52",

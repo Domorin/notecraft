@@ -1,4 +1,4 @@
-import { UserPresence } from "@notesmith/common/build/src/ws_types";
+import { UserPresence } from "@notecraft/common/build/src/ws_types";
 import classNames from "classnames";
 import fontColorContrast from "font-color-contrast";
 

@@ -1,20 +1,20 @@
 {
-	"name": "notesmith-app",
+	"name": "notecraft-app",
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
 		"dev": "next dev",
 		"build": "next build",
-		"start": "npm run migrate --workspace=notesmith-schema && next start"
+		"start": "npm run migrate --workspace=notecraft-schema && next start"
 	},
 	"prisma": {
-		"schema": "../notesmith-schema/prisma/schema.prisma"
+		"schema": "../notecraft-schema/prisma/schema.prisma"
 	},
 	"dependencies": {
 		"@fortawesome/fontawesome-svg-core": "^6.4.0",
 		"@fortawesome/free-solid-svg-icons": "^6.4.0",
 		"@fortawesome/react-fontawesome": "^0.2.0",
-		"@notesmith/common": "^1.0.0",
+		"@notecraft/common": "^1.0.0",
 		"@tanstack/react-query": "^4.29.17",
 		"@tanstack/react-query-devtools": "^4.32.1",
 		"@tiptap/extension-collaboration": "^2.0.4",

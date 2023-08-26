@@ -1,5 +1,5 @@
 {
-	"name": "@notesmith/ws",
+	"name": "@notecraft/ws",
 	"version": "1.0.0",
 	"description": "",
 	"type": "module",
@@ -12,7 +12,7 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
-		"@notesmith/common": "^1.0.0",
+		"@notecraft/common": "^1.0.0",
 		"cookie": "^0.5.0",
 		"dotenv": "^16.3.1",
 		"lodash.debounce": "^4.0.8",

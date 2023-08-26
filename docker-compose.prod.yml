@@ -1,10 +1,5 @@
 services:
     app:
-        build:
-            context: .
-            dockerfile: notesmith-app/Dockerfile
-
+        image: notecraft-app
     ws:
-        build:
-            context: .
-            dockerfile: notesmith-ws/Dockerfile
+        image: notecraft-ws
