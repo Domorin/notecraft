@@ -26,7 +26,7 @@ export default function MainPage(props: { is_not_found?: boolean }) {
 			}}
 		>
 			{openModal}
-			<div className="flex h-screen items-center justify-center bg-base-300">
+			<div className="from-base-200 via-base-300 to-base-100 flex h-screen items-center justify-center bg-gradient-to-br">
 				<ReactQueryDevtools />
 				<Toaster position="bottom-center">
 					{(t) => (
@@ -52,11 +52,11 @@ export default function MainPage(props: { is_not_found?: boolean }) {
 					)}
 				</Toaster>
 				<ThemePicker />
-				<div className="rounded-box m-12 flex h-3/4 shadow-lg">
-					<div className="rounded-l-box h-full w-[12rem] overflow-hidden border-y-2 border-l-2 border-neutral bg-base-200">
+				<div className="rounded-box shadow-primary m-12 flex h-3/4 drop-shadow-lg">
+					<div className="rounded-l-box border-neutral bg-base-200 h-full w-[12rem] overflow-hidden border-y-2 border-l-2">
 						<Sidebar />
 					</div>
-					<div className="rounded-r-box h-full flex-grow-0 border-y-2 border-r-2 border-neutral bg-base-100 lg:w-[64rem]">
+					<div className="rounded-r-box border-neutral bg-base-100 h-full flex-grow-0 border-y-2 border-r-2 lg:w-[64rem]">
 						{!props.is_not_found ? (
 							<Note key={slug} />
 						) : (

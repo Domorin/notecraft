@@ -37,7 +37,7 @@
 	}
 
 	a {
-		@apply cursor-pointer text-base-content underline;
+		@apply text-base-content cursor-pointer underline;
 	}
 
 	> * + * {
@@ -71,7 +71,7 @@
 					opacity: 0.2; */
 
 					&:disabled {
-						@apply cursor-default border-primary bg-inherit opacity-100;
+						@apply border-primary cursor-default bg-inherit opacity-100;
 					}
 				}
 			}
@@ -128,11 +128,11 @@
 	}
 
 	:not(pre) > code {
-		@apply rounded-sm border border-base-content border-opacity-20 bg-base-300 px-1 font-mono text-base-content;
+		@apply border-base-content bg-base-300 text-base-content rounded-sm border border-opacity-20 px-1 font-mono;
 	}
 
 	pre {
-		@apply w-full rounded-sm border border-base-content border-opacity-20 bg-base-300 p-2 font-mono text-base-content;
+		@apply border-base-content bg-base-300 text-base-content w-full rounded-sm border border-opacity-20 p-2 font-mono;
 	}
 
 	img {
@@ -145,7 +145,7 @@
 	}
 
 	blockquote {
-		@apply rounded-sm border-l-4 border-accent bg-accent  bg-opacity-20 p-4;
+		@apply border-accent bg-accent rounded-sm border-l-4  bg-opacity-20 p-4;
 	}
 
 	table {
