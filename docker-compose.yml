@@ -1,15 +1,14 @@
 version: "3"
 
+# Environment variable notes:
+# We set the env_file property in multiple places. This will pass the env variables declared there INTO the container
+# We also run docker compuse up with --env-file. This sets the environment before running up. This allows us to use environment variables in the docker compose definition, such as NEXT_PUBLIC_WEB_APP_URL
+
 services:
     postgres:
         image: postgres
         expose:
             - "5432"
-        environment:
-            - POSTGRES_NAME
-            - POSTGRES_USERNAME
-            - POSTGRES_PASSWORD
-            - POSTGRES_DATABASE
     reverse-proxy:
         # The official v2 Traefik docker image
         image: traefik:v2.10
@@ -36,25 +35,15 @@ services:
         depends_on:
             - postgres
             - redis
-        # volumes:
-        #     - ./notecraft-app:/app
-        #     - ./prisma:/app/prisma
-        #     - ./notecraft-common:/app/notecraft-common
-        # working_dir: /app
         # By default, Traefik uses the first exposed port of a container
         expose:
             - "3000"
         labels:
             - "traefik.enable=true"
-            - "traefik.http.routers.app.rule=Host(`${NEXT_PUBLIC_WEB_APP_URL}`) && !Headers(`upgrade`, `websocket`)"
-            # - "traefik.http.routers.app.rule=Host(`${NEXT_PUBLIC_WEB_APP_URL}`)"
+            - "traefik.http.routers.app.rule=Host(`${NEXT_PUBLIC_WEB_APP_URL}`) && (!Headers(`upgrade`, `websocket`) || PathPrefix(`/_next`))"
     ws:
         depends_on:
             - redis
-        # volumes:
-        #     - ./notecraft-ws:/app
-        #     - ./notecraft-common:/app/notecraft-common
-        # working_dir: /app
         expose:
             - "4444"
         labels:

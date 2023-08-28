@@ -1,4 +1,7 @@
 services:
+    postgres:
+        env_file:
+            - .env.production
     reverse-proxy:
         command:
             - "--log.level=DEBUG"

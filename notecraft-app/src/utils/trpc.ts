@@ -16,8 +16,13 @@ function getBaseUrl() {
 		// reference for render.com
 		return `http://${process.env.RENDER_INTERNAL_HOSTNAME}:${process.env.PORT}`;
 
+	if (process.env.NEXT_PUBLIC_WEB_APP_URL === "localhost")
+		return process.env.NEXT_PUBLIC_WEB_APP_URL === "localhost"
+			? "http://localhost:3000"
+			: `https://${process.env.NEXT_PUBLIC_WEB_APP_URL}`;
+
 	// assume localhost
-	return `https://${process.env.NEXT_PUBLIC_WEB_APP_URL}`;
+	// return `https://${process.env.NEXT_PUBLIC_WEB_APP_URL}`;
 	// return `${process.env.NEXT_PUBLIC_WEB_APP_PROTOCOL}://${process.env.NEXT_PUBLIC_WEB_APP_URL}`;
 }
 
