@@ -3,9 +3,7 @@ FROM node:18
 WORKDIR /app
 
 # Copy root package.json
-COPY package.json package-lock.json ./
-COPY .env.prod ./
-
+COPY package.json package-lock.json .env.production ./
 
 # COPY notecraft-COMMON
 COPY notecraft-common/src notecraft-common/src

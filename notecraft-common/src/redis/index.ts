@@ -100,10 +100,6 @@ export function initRedis<T extends Service>(context: {
 	service: T;
 	rpcHandler: ServiceRPCsWithError<T>;
 }) {
-	if (!process.env.REDIS_HOST) {
-		throw new Error("REDIS_HOST not set");
-	}
-
 	const publisherClient = createClient({
 		url: `redis://${process.env.REDIS_HOST}:6379`,
 	});
@@ -116,6 +112,10 @@ export function initRedis<T extends Service>(context: {
 	let publisherConnectPromise: Promise<void>;
 	let subscriberConnectPromise: Promise<void>;
 	if (process.env.NEXT_PHASE !== "phase-production-build") {
+		if (!process.env.REDIS_HOST) {
+			throw new Error("REDIS_HOST not set");
+		}
+
 		Logger.info("Connecting to redis...");
 		publisherConnectPromise = publisherClient
 			.connect()

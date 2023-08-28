@@ -3,8 +3,8 @@ version: "3"
 services:
     postgres:
         image: postgres
-        ports:
-            - 5432:5432
+        expose:
+            - "5432"
         environment:
             - POSTGRES_NAME
             - POSTGRES_USERNAME
@@ -14,17 +14,12 @@ services:
         # The official v2 Traefik docker image
         image: traefik:v2.10
         # Enables the web UI and tells Traefik to listen to docker
-        command:
-            - "--log.level=WARN"
-            - "--api.insecure=true"
-            - "--providers.docker=true"
-            - "--providers.docker.exposedbydefault=false"
         labels:
             # Dashboard
             - "traefik.enable=true"
-            # - "traefik.http.routers.dashboard.rule=Host(`${NEXT_PUBLIC_WEB_APP_URL}`) && PathPrefix(`/dashboard`)"
-            # - "traefik.http.routers.dashboard.entrypoints=websecure"
-            # - "traefik.http.routers.dashboard.service=api@internal"
+            - "traefik.http.routers.dashboard.rule=Host(`${NEXT_PUBLIC_WEB_APP_URL}`) && PathPrefix(`/dashboard`)"
+            - "traefik.http.routers.dashboard.entrypoints=websecure"
+            - "traefik.http.routers.dashboard.service=api@internal"
         ports:
             # The HTTP port
             - "80:80"
@@ -49,9 +44,6 @@ services:
         # By default, Traefik uses the first exposed port of a container
         expose:
             - "3000"
-        environment:
-            - DATABASE_URL=postgresql://${POSTGRES_USERNAME}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DATABASE}
-            - REDIS_HOST
         labels:
             - "traefik.enable=true"
             - "traefik.http.routers.app.rule=Host(`${NEXT_PUBLIC_WEB_APP_URL}`) && !Headers(`upgrade`, `websocket`)"
@@ -65,10 +57,6 @@ services:
         # working_dir: /app
         expose:
             - "4444"
-        environment:
-            - NODE_ENV
-            - REDIS_HOST
-            - SOCKET_PORT
         labels:
             - "traefik.enable=true"
             # - "traefik.http.routers.ws.rule=Host(`${NEXT_PUBLIC_WEB_APP_URL}`) && Headers(`upgrade`, `websocket`) && !PathPrefix(`/_next`)"

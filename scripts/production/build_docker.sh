@@ -10,11 +10,8 @@ echo "Saving images..."
 docker save notecraft-ws notecraft-app -o tmp/images.tar
 echo "Done saving images"
 echo "Sending images to production server"
-# Copy .env.prod to .env for production (and delete it after)
-cp .env.prod .env
-rsync -v -r -P x.json docker-compose.yml docker-compose.prod.yml .env tmp note-smith-production:/home/domorin/notecraft/
+rsync -v -r -P package.json docker-compose.yml docker-compose.prod.yml .env.production tmp note-smith-production:/home/domorin/notecraft/
 echo "Done sending images to production server"
-rm .env
 rm -rf tmp
 
 # Stop app and ws containers and remove their images

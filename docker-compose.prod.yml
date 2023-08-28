@@ -1,6 +1,10 @@
 services:
     reverse-proxy:
         command:
+            - "--log.level=DEBUG"
+            - "--api.insecure=true"
+            - "--providers.docker=true"
+            - "--providers.docker.exposedbydefault=false"
             - "--entrypoints.websecure.address=:443"
             - "--entrypoints.websecure.http.tls=true"
             - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
@@ -13,11 +17,15 @@ services:
 
     app:
         image: notecraft-app
+        env_file:
+            - .env.production
         labels:
             - "traefik.http.routers.app.entrypoints=websecure"
             - "traefik.http.routers.app.tls.certresolver=myresolver"
     ws:
         image: notecraft-ws
+        env_file:
+            - .env.production
         labels:
             - "traefik.http.routers.ws.entrypoints=websecure"
             - "traefik.http.routers.ws.tls.certresolver=myresolver"
