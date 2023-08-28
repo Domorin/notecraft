@@ -14,7 +14,6 @@ export type ConnConnection = {
 	userId: string;
 };
 
-// TODO: from envirment
 export const host = process.env.NEXT_PUBLIC_WEB_APP_URL;
 
 export type WsRedisType = ReturnType<typeof Redis.initRedis<"Ws">>;

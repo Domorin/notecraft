@@ -1,5 +1,23 @@
 services:
+    reverse-proxy:
+        command:
+            - "--entrypoints.websecure.address=:443"
+            - "--entrypoints.websecure.http.tls=true"
+            - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+            # Debugging
+            # - "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+            - "--certificatesresolvers.myresolver.acme.email=cclutzel@gmail.com"
+            - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+        volumes:
+            - ./letsencrypt:/letsencrypt
+
     app:
         image: notecraft-app
+        labels:
+            - "traefik.http.routers.app.entrypoints=websecure"
+            - "traefik.http.routers.app.tls.certresolver=myresolver"
     ws:
         image: notecraft-ws
+        labels:
+            - "traefik.http.routers.ws.entrypoints=websecure"
+            - "traefik.http.routers.ws.tls.certresolver=myresolver"

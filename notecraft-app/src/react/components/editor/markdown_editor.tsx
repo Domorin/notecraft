@@ -1,12 +1,12 @@
 import { useModal } from "@/react/hooks/use_modal";
 import { RouterOutput } from "@/server/routers/_app";
+import { WSTypes, YJS } from "@notecraft/common";
 import { Editor as CoreEditor } from "@tiptap/core";
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 import { EditorContent, useEditor } from "@tiptap/react";
 import { ComponentProps, useCallback, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { WSTypes, YJS } from "@notecraft/common";
 import { Cursor } from "./cursor";
 import { EditorBubbleMenu } from "./editor_bubble_menu";
 import { EditorLinkTooltip } from "./editor_link_tooltip";
@@ -40,6 +40,8 @@ export function WysiwygEditor(props: {
 	const ref = useRef(props.presences);
 	const { openModal } = useModal("EditorLinkInput");
 
+	const [isEditorReady, setIsEditorReady] = useState(false);
+
 	const [hoveredLinkDom, setHoveredLink] = useState<HTMLAnchorElement | null>(
 		null
 	);
@@ -64,6 +66,13 @@ export function WysiwygEditor(props: {
 	}
 
 	const editor = useEditor({
+		onCreate: ({ editor }) => {
+			setIsEditorReady(true);
+			editor.setEditable(
+				props.metadata.allowAnyoneToEdit ||
+					props.metadata.isCreatedByYou
+			);
+		},
 		extensions: [
 			...baseExtensions,
 			Collaboration.configure({
@@ -122,13 +131,16 @@ export function WysiwygEditor(props: {
 		],
 	});
 
-	if (!editor) {
+	if (!editor || !isEditorReady) {
 		return <StaticNote />;
 	}
 
-	editor.setEditable(
-		props.metadata.allowAnyoneToEdit || props.metadata.isCreatedByYou
-	);
+	const isEditable =
+		props.metadata.allowAnyoneToEdit || props.metadata.isCreatedByYou;
+
+	if (editor.isEditable !== isEditable) {
+		editor.setEditable(isEditable);
+	}
 
 	// TODO: show EditorLinkTooltip on selection
 	return (

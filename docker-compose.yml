@@ -19,19 +19,12 @@ services:
             - "--api.insecure=true"
             - "--providers.docker=true"
             - "--providers.docker.exposedbydefault=false"
-            - "--entrypoints.websecure.address=:443"
-            - "--entrypoints.websecure.http.tls=true"
-            - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
-            # Debugging
-            # - "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
-            - "--certificatesresolvers.myresolver.acme.email=cclutzel@gmail.com"
-            - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
         labels:
             # Dashboard
             - "traefik.enable=true"
-            - "traefik.http.routers.dashboard.rule=Host(`notecraft.app`) && PathPrefix(`/dashboard`)"
-            - "traefik.http.routers.dashboard.entrypoints=websecure"
-            - "traefik.http.routers.dashboard.service=api@internal"
+            # - "traefik.http.routers.dashboard.rule=Host(`${NEXT_PUBLIC_WEB_APP_URL}`) && PathPrefix(`/dashboard`)"
+            # - "traefik.http.routers.dashboard.entrypoints=websecure"
+            # - "traefik.http.routers.dashboard.service=api@internal"
         ports:
             # The HTTP port
             - "80:80"
@@ -41,7 +34,6 @@ services:
         volumes:
             # So that Traefik can listen to the Docker events
             - /var/run/docker.sock:/var/run/docker.sock
-            - ./letsencrypt:/letsencrypt
     redis:
         image: redis:7
         container_name: ${REDIS_HOST}
@@ -62,10 +54,8 @@ services:
             - REDIS_HOST
         labels:
             - "traefik.enable=true"
-            # - "traefik.http.routers.app.rule=Host(`${NEXT_PUBLIC_WEB_APP_URL}`) && (!Headers(`upgrade`, `websocket`) || PathPrefix(`/_next`))"
-            - "traefik.http.routers.app.rule=Host(`notecraft.app`)"
-            - "traefik.http.routers.app.entrypoints=websecure"
-            - "traefik.http.routers.app.tls.certresolver=myresolver"
+            - "traefik.http.routers.app.rule=Host(`${NEXT_PUBLIC_WEB_APP_URL}`) && !Headers(`upgrade`, `websocket`)"
+            # - "traefik.http.routers.app.rule=Host(`${NEXT_PUBLIC_WEB_APP_URL}`)"
     ws:
         depends_on:
             - redis
@@ -82,6 +72,4 @@ services:
         labels:
             - "traefik.enable=true"
             # - "traefik.http.routers.ws.rule=Host(`${NEXT_PUBLIC_WEB_APP_URL}`) && Headers(`upgrade`, `websocket`) && !PathPrefix(`/_next`)"
-            - "traefik.http.routers.ws.rule=Host(`notecraft.app`) && Headers(`upgrade`, `websocket`) && !PathPrefix(`/_next`)"
-            - "traefik.http.routers.ws.entrypoints=websecure"
-            - "traefik.http.routers.ws.tls.certresolver=myresolver"
+            - "traefik.http.routers.ws.rule=Host(`${NEXT_PUBLIC_WEB_APP_URL}`) && Headers(`upgrade`, `websocket`) && !PathPrefix(`/_next`)"

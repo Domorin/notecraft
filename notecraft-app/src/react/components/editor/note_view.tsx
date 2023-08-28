@@ -27,22 +27,27 @@ export function NoteView(props: { slug: string; doc: Y.Doc }) {
 	const metadataQuery = useNoteMetadataQuery(props.slug);
 
 	useEffect(() => {
-		const provider = new CustomProvider(`wss://notecraft.app`, slug, doc, {
-			disableBc: true,
+		const provider = new CustomProvider(
+			`${process.env.NEXT_PUBLIC_WEB_SOCKET_PROTOCOL}://${process.env.NEXT_PUBLIC_WEB_APP_URL}`,
+			slug,
+			doc,
+			{
+				disableBc: true,
 
-			customMessageHandler: (m: CustomMessage) => {
-				switch (m.type) {
-					case "presencesUpdated":
-						setPresences(m.users);
-						break;
-					case "noteMetadataUpdate": {
-						const { type: _type, ...val } = m;
-						setNoteMetadata(val);
-						break;
+				customMessageHandler: (m: CustomMessage) => {
+					switch (m.type) {
+						case "presencesUpdated":
+							setPresences(m.users);
+							break;
+						case "noteMetadataUpdate": {
+							const { type: _type, ...val } = m;
+							setNoteMetadata(val);
+							break;
+						}
 					}
-				}
-			},
-		});
+				},
+			}
+		);
 
 		provider.on("synced", (synced: boolean) => {
 			setIsSynced(synced);
@@ -109,6 +114,7 @@ export function NoteView(props: { slug: string; doc: Y.Doc }) {
 				</div>
 				{isLoaded ? (
 					<WysiwygEditor
+						key={props.slug}
 						{...props}
 						provider={provider}
 						presences={presences}

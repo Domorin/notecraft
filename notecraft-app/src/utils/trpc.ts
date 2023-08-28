@@ -17,7 +17,8 @@ function getBaseUrl() {
 		return `http://${process.env.RENDER_INTERNAL_HOSTNAME}:${process.env.PORT}`;
 
 	// assume localhost
-	return `https://${process.env.NEXT_PUBLIC_WEB_APP_URL}`;
+	return `http://localhost:3000`;
+	return `${process.env.NEXT_PUBLIC_WEB_APP_PROTOCOL}://${process.env.NEXT_PUBLIC_WEB_APP_URL}`;
 }
 
 export const trpc = createTRPCNext<AppRouter>({
