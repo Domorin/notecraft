@@ -124,8 +124,8 @@ export function WysiwygEditor(props: {
 					items: getSuggestionItems,
 					render: createRenderItems(setShowingAutocomplete),
 				},
-				showMenu: (bool) => {
-					setShowingAutocomplete(bool);
+				showMenu: (props) => {
+					setShowingAutocomplete(props);
 				},
 			}),
 		],
@@ -145,7 +145,7 @@ export function WysiwygEditor(props: {
 	// TODO: show EditorLinkTooltip on selection
 	return (
 		<>
-			{commandAutocompleteMenuProps && (
+			{editor.isFocused && commandAutocompleteMenuProps && (
 				<AutocompleteCommandsList {...commandAutocompleteMenuProps} />
 			)}
 			{/* {showingAutocomplete?.render()} */}

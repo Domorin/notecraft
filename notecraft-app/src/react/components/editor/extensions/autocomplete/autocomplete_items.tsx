@@ -7,7 +7,7 @@ const getSuggestionItems: SuggestionOptions<MarkDescriptor>["items"] = ({
 	return EditorCommands.filter(
 		(item) =>
 			!item.hideOnAutocompleteMenu &&
-			item.title.toLowerCase().startsWith(query.toLowerCase())
+			item.title.toLowerCase().includes(query.toLowerCase())
 	);
 };
 

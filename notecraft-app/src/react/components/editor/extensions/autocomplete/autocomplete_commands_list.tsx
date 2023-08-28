@@ -115,7 +115,7 @@ export const AutocompleteCommandsList = forwardRef(
 
 		return createPortal(
 			<div
-				className="rounded-box absolute max-h-64 w-fit overflow-auto border border-neutral bg-base-300 shadow"
+				className="rounded-box border-neutral bg-base-300 absolute max-h-64 w-fit overflow-auto border shadow"
 				ref={positionRef}
 			>
 				<ul
@@ -124,7 +124,7 @@ export const AutocompleteCommandsList = forwardRef(
 					ref={ref as any}
 				>
 					{props.items.length === 0 && (
-						<div className="p-2">No commands found</div>
+						<div className="p-2 text-sm">No commands found</div>
 					)}
 					{props.items.map((item, index) => (
 						<li

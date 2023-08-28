@@ -52,7 +52,7 @@ export default function MainPage(props: { is_not_found?: boolean }) {
 					)}
 				</Toaster>
 				<ThemePicker />
-				<div className="rounded-box shadow-primary m-12 flex h-3/4 drop-shadow-lg">
+				<div className="rounded-box shadow-primary m-12 flex h-5/6 drop-shadow-lg">
 					<div className="rounded-l-box border-neutral bg-base-200 h-full w-[12rem] overflow-hidden border-y-2 border-l-2">
 						<Sidebar />
 					</div>
