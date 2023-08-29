@@ -1,5 +1,9 @@
-import MainPage from "@/react/components/main";
+import MainPageContainer from "@/react/components/main_page_container";
 
 export default function NotFoundPage() {
-	return <MainPage is_not_found />;
+	return (
+		<MainPageContainer>
+			<NotFoundPage />
+		</MainPageContainer>
+	);
 }

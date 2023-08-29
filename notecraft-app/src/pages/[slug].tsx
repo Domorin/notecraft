@@ -1,11 +1,18 @@
-import MainPage from "@/react/components/main";
+import MainPageContainer from "@/react/components/main_page_container";
+import Note from "@/react/components/note/note";
+import { usePageSlug } from "@/react/hooks/use_page_id";
 import { appRouter } from "@/server/routers/_app";
 import { createServerSideHelpers } from "@trpc/react-query/server";
 import { GetServerSidePropsContext } from "next";
 import superjson from "superjson";
 
 export default function NoteWithId() {
-	return <MainPage />;
+	const slug = usePageSlug();
+	return (
+		<MainPageContainer>
+			<Note key={slug} />
+		</MainPageContainer>
+	);
 }
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {

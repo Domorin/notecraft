@@ -5,15 +5,10 @@ import classNames from "classnames";
 import { ReactNode, useState } from "react";
 import toast, { Toaster, resolveValue } from "react-hot-toast";
 import { ModalContext } from "../hooks/use_modal";
-import { usePageSlug } from "../hooks/use_page_id";
-import { NotFoundPage } from "./not_found_page";
-import Note from "./note/note";
 import Sidebar from "./sidebar/sidebar";
 import ThemePicker from "./theme_picker";
 
-export default function MainPage(props: { is_not_found?: boolean }) {
-	const slug = usePageSlug();
-
+export default function MainPageContainer(props: { children: ReactNode }) {
 	const [openModal, setOpenModal] = useState(null as ReactNode | null);
 
 	return (
@@ -57,11 +52,7 @@ export default function MainPage(props: { is_not_found?: boolean }) {
 						<Sidebar />
 					</div>
 					<div className="rounded-r-box border-neutral bg-base-100 h-full flex-grow-0 border-y-2 border-r-2 lg:w-[64rem]">
-						{!props.is_not_found ? (
-							<Note key={slug} />
-						) : (
-							<NotFoundPage />
-						)}
+						{props.children}
 					</div>
 				</div>
 			</div>

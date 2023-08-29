@@ -2,7 +2,8 @@ import { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 import { router } from "../trpc";
 import { noteRouter } from "./note";
 import { inferReactQueryProcedureOptions } from "@trpc/react-query";
-export const appRouter = router({ note: noteRouter });
+import { adminRouter } from "./admin";
+export const appRouter = router({ note: noteRouter, admin: adminRouter });
 
 // export type definition of API
 export type AppRouter = typeof appRouter;

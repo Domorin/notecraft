@@ -4,7 +4,6 @@ import { yDocToProsemirrorJSON } from "y-prosemirror";
 
 import * as Y from "yjs";
 import { z } from "zod";
-import {} from "@notecraft/common";
 
 import { YJS, PrismaTypes } from "@notecraft/common";
 import { titleLimiter } from "../../lib/validators";
