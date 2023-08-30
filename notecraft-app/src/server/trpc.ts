@@ -1,13 +1,11 @@
+import { getEphemeralUserId } from "@/utils/user";
 import { initTRPC } from "@trpc/server";
-import { CreateHTTPContextOptions } from "@trpc/server/adapters/standalone";
-import { CreateWSSContextFnOptions } from "@trpc/server/adapters/ws";
+import { CreateNextContextOptions } from "@trpc/server/adapters/next";
 import * as cookie from "cookie";
-import { prisma } from "./prisma";
 import superjson from "superjson";
+import { prisma } from "./prisma";
 
-export const createContext = async (
-	opts: CreateHTTPContextOptions | CreateWSSContextFnOptions
-) => {
+export const createContext = async (opts: CreateNextContextOptions) => {
 	// https://stackoverflow.com/a/73200295
 
 	return {
@@ -35,11 +33,11 @@ export const procedure = t.procedure;
 
 export const authedProcedure = t.procedure.use(
 	t.middleware(async ({ ctx, next }) => {
-		let userId = cookie.parse(ctx.api.req.headers.cookie || "")["id"];
+		let userId = getEphemeralUserId(ctx.api.req);
 
 		const shouldCreateNewUser = !userId || !isValidUserId(userId);
 
-		if (shouldCreateNewUser && "setHeader" in ctx.api.res) {
+		if (shouldCreateNewUser) {
 			// TODO: do not make a user if they have cookies disabled
 			const user = await prisma.user.create({
 				data: {},
@@ -50,7 +48,7 @@ export const authedProcedure = t.procedure.use(
 		if ("setHeader" in ctx.api.res) {
 			ctx.api.res.setHeader(
 				"Set-Cookie",
-				cookie.serialize("id", userId, {
+				cookie.serialize("ephemeralId", userId, {
 					httpOnly: true,
 					sameSite: "strict",
 					// secure: false,

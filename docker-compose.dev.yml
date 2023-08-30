@@ -2,6 +2,21 @@ services:
     postgres:
         env_file:
             - .env.development
+    prisma-studio:
+        image: node:18
+        depends_on:
+            - postgres
+        volumes:
+            - .:/app
+        ports:
+            - "5555:5555"
+        env_file:
+            - .env.development
+        command: sh -c 'npm install && npx dotenv -e ./../.env.development -- npm run studio --workspace=notecraft-schema'
+        # labels:
+        #     - "traefik.enable=true"
+        #     # - "traefik.http.routers.ws.rule=Host(`${NEXT_PUBLIC_WEB_APP_URL}`) && Headers(`upgrade`, `websocket`) && !PathPrefix(`/_next`)"
+        #     - "traefik.http.routers.ws.rule=Host(`studio.localhost`)"
     reverse-proxy:
         command:
             - "--log.level=DEBUG"

@@ -1,19 +1,14 @@
+import { handleError } from "@/react/utils/error_handler";
 import { useQueryClient } from "@tanstack/react-query";
-import type { AppType } from "next/app";
+import type { AppProps, AppType } from "next/app";
 import { useRouter } from "next/router";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { trpc } from "../utils/trpc";
 import "./globals.scss";
-import { usePageSlug } from "@/react/hooks/use_page_id";
-import { handleError } from "@/react/utils/error_handler";
 
-const MyApp: AppType = ({ Component, pageProps }) => {
+const MyApp: AppType = ({ Component, pageProps }: AppProps) => {
 	const router = useRouter();
 	const queryClient = useQueryClient();
-	const slug = usePageSlug();
-	const ref = useRef(slug);
-
-	ref.current = slug;
 
 	useEffect(() => {
 		// These should be set when the queryClient is created but couldn't figure out how to do it with TRPC's NextJs business
