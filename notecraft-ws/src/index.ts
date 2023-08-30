@@ -3,7 +3,7 @@ import * as cookie from "cookie";
 import http from "http";
 import { WebSocket, WebSocketServer } from "ws";
 
-import { Redis, WSTypes, Logger } from "@notecraft/common";
+import { Redis, WSTypes, Logger, GetEnvVar } from "@notecraft/common";
 
 import { docs, getOrCreateYDoc } from "./utils.js";
 
@@ -14,7 +14,7 @@ export type ConnConnection = {
 	userId: string;
 };
 
-export const host = process.env.NEXT_PUBLIC_WEB_APP_URL;
+export const host = GetEnvVar("NEXT_PUBLIC_WEB_APP_URL");
 
 export type WsRedisType = ReturnType<typeof Redis.initRedis<"Ws">>;
 

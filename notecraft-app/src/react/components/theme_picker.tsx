@@ -59,17 +59,17 @@ export default function ThemePicker() {
 	}, []);
 
 	return (
-		<div className="dropdown-end dropdown absolute right-4 top-4 mb-32">
+		<div className="dropdown-end dropdown">
 			<label
 				title={"Theme"}
 				tabIndex={0}
-				className="btn-ghost rounded-btn btn-sm btn text-xl"
+				className="btn-ghost rounded-btn btn"
 			>
 				<FontAwesomeIcon className="" icon={faPalette} />
 			</label>
 			<ul
 				tabIndex={0}
-				className="dropdown-content menu rounded-box z-[10] max-h-80 w-52 flex-nowrap overflow-scroll bg-base-100 p-2 shadow"
+				className="dropdown-content menu rounded-box bg-base-100 z-[10] max-h-80 w-52 flex-nowrap overflow-scroll p-2 shadow"
 			>
 				{themes.map((theme) => (
 					<li key={theme} onClick={() => updateTheme(theme)}>

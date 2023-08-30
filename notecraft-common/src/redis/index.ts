@@ -2,6 +2,7 @@ import { createClient } from "redis";
 import SuperJSON from "superjson";
 import Logger from "../logging/index.js";
 import { PrismaNoteMetadata } from "../prisma_types/index.js";
+import { GetEnvVar } from "../index.js";
 
 type Service = "App" | "Ws";
 
@@ -101,10 +102,10 @@ export function initRedis<T extends Service>(context: {
 	rpcHandler: ServiceRPCsWithError<T>;
 }) {
 	const publisherClient = createClient({
-		url: `redis://${process.env.REDIS_HOST}:6379`,
+		url: `redis://${GetEnvVar("REDIS_HOST")}:6379`,
 	});
 	const subscriberClient = createClient({
-		url: `redis://${process.env.REDIS_HOST}:6379`,
+		url: `redis://${GetEnvVar("REDIS_HOST")}:6379`,
 	});
 
 	const service = context.service;
@@ -112,7 +113,7 @@ export function initRedis<T extends Service>(context: {
 	let publisherConnectPromise: Promise<void>;
 	let subscriberConnectPromise: Promise<void>;
 	if (process.env.NEXT_PHASE !== "phase-production-build") {
-		if (!process.env.REDIS_HOST) {
+		if (!GetEnvVar("REDIS_HOST")) {
 			throw new Error("REDIS_HOST not set");
 		}
 

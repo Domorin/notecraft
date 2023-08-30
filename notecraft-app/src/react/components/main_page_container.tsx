@@ -5,11 +5,11 @@ import classNames from "classnames";
 import { ReactNode, useState } from "react";
 import toast, { Toaster, resolveValue } from "react-hot-toast";
 import { ModalContext } from "../hooks/use_modal";
+import { Navbar } from "./navbar/navbar";
 import Sidebar from "./sidebar/sidebar";
-import ThemePicker from "./theme_picker";
 
 export default function MainPageContainer(props: { children: ReactNode }) {
-	const [openModal, setOpenModal] = useState(null as ReactNode | null);
+	const [openedModal, setOpenModal] = useState(null as ReactNode | null);
 
 	return (
 		<ModalContext.Provider
@@ -20,7 +20,7 @@ export default function MainPageContainer(props: { children: ReactNode }) {
 				},
 			}}
 		>
-			{openModal}
+			{openedModal}
 			<div className="from-base-200 via-base-300 to-base-100 flex h-screen items-center justify-center bg-gradient-to-br">
 				<ReactQueryDevtools />
 				<Toaster position="bottom-center">
@@ -46,7 +46,7 @@ export default function MainPageContainer(props: { children: ReactNode }) {
 						</div>
 					)}
 				</Toaster>
-				<ThemePicker />
+				<Navbar />
 				<div className="rounded-box shadow-primary m-12 flex h-5/6 drop-shadow-lg">
 					<div className="rounded-l-box border-neutral bg-base-200 h-full w-[12rem] overflow-hidden border-y-2 border-l-2">
 						<Sidebar />

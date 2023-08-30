@@ -1,4 +1,4 @@
-import { getEphemeralUserId } from "@/utils/user";
+import { getUserIdFromCookie } from "@/utils/user";
 import { initTRPC } from "@trpc/server";
 import { CreateNextContextOptions } from "@trpc/server/adapters/next";
 import * as cookie from "cookie";
@@ -33,7 +33,7 @@ export const procedure = t.procedure;
 
 export const authedProcedure = t.procedure.use(
 	t.middleware(async ({ ctx, next }) => {
-		let userId = getEphemeralUserId(ctx.api.req);
+		let userId = getUserIdFromCookie(ctx.api.req);
 
 		const shouldCreateNewUser = !userId || !isValidUserId(userId);
 
@@ -45,10 +45,11 @@ export const authedProcedure = t.procedure.use(
 			userId = user.id;
 		}
 
+		// TODO: consider what happens if userId is leaked for a logged in user
 		if ("setHeader" in ctx.api.res) {
 			ctx.api.res.setHeader(
 				"Set-Cookie",
-				cookie.serialize("ephemeralId", userId, {
+				cookie.serialize("userId", userId, {
 					httpOnly: true,
 					sameSite: "strict",
 					// secure: false,

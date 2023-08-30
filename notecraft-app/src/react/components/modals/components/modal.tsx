@@ -10,7 +10,12 @@ export const Modal = (
 	return (
 		<div>
 			<dialog className="modal modal-open">
-				{props.children}
+				<form
+					method="dialog"
+					className="modal-box bg-base-200 border-neutral w-fit border pb-4"
+				>
+					{props.children}
+				</form>
 				<form method="dialog" className="modal-backdrop">
 					<button onClick={props.closeModal}>close</button>
 				</form>

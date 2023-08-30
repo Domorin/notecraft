@@ -1,8 +1,8 @@
 import * as cookie from "cookie";
 import { IncomingMessage } from "http";
 
-const ephemeralCookieIdName = "ephemeralId";
+const userIdCookieName = "userId";
 
-export function getEphemeralUserId(req: IncomingMessage) {
-	return cookie.parse(req.headers.cookie || "")[ephemeralCookieIdName];
+export function getUserIdFromCookie(req: IncomingMessage) {
+	return cookie.parse(req.headers.cookie || "")[userIdCookieName];
 }

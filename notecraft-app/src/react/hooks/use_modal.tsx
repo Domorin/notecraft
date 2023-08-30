@@ -7,7 +7,8 @@ import {
 	useContext,
 	useState,
 } from "react";
-import { EditorModalLinkInput } from "../components/modals/modal_editor_link_input";
+import { EditorModalLinkInput } from "../components/modals/modal_editor_link_input_modal";
+import { LoginModal } from "../components/modals/login_modal";
 
 export const ModalContext = createContext({
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -17,6 +18,7 @@ export const ModalContext = createContext({
 
 const ValidModals = {
 	EditorLinkInput: EditorModalLinkInput,
+	Login: LoginModal,
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 } satisfies Record<string, FC<any>>;
 
@@ -39,11 +41,12 @@ export function useModal<T extends keyof typeof ValidModals>(component: T) {
 				>
 			) => {
 				setIsOpen(true);
+
+				const Modal = ValidModals[component];
+
 				openModal(
-					ValidModals[component]({
-						...props,
-						closeModal: closeModalCallback,
-					})
+					// @ts-expect-error - Not bothering fixing this right now
+					<Modal {...props} closeModal={closeModalCallback} />
 				);
 			},
 			[closeModalCallback, component, openModal]

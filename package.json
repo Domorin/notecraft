@@ -20,6 +20,9 @@
 		"prodResourcesStop": "docker compose -f docker-compose.yml -f docker-compose.prod.yml stop"
 	},
 	"dependencies": {
+		"@fortawesome/free-brands-svg-icons": "^6.4.2",
+		"@googleapis/oauth2": "^1.0.4",
+		"cryptr": "^6.2.0",
 		"dotenv-cli": "^7.3.0",
 		"lib0": "^0.2.52",
 		"superjson": "^1.13.1",

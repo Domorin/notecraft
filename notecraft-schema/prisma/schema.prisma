@@ -8,6 +8,26 @@ generator client {
 model User {
   id           String @id @default(uuid())
   createdNotes Note[] @relation("CreatedBy")
+
+  Account Account?
+}
+
+enum TokenType {
+  Google
+}
+
+model Account {
+  id                 String    @id @default(uuid())
+  type               TokenType
+  accessToken        String?
+  accessTokenExpires DateTime?
+  refreshToken       String?
+
+  // // For Google, this is email
+  // displayName String
+
+  User   User   @relation(fields: [userId], references: [id])
+  userId String @unique
 }
 
 model Note {
