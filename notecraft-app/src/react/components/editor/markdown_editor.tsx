@@ -1,5 +1,4 @@
 import { useModal } from "@/react/hooks/use_modal";
-import { RouterOutput } from "@/server/routers/_app";
 import { WSTypes, YJS } from "@notecraft/common";
 import { Editor as CoreEditor } from "@tiptap/core";
 import Collaboration from "@tiptap/extension-collaboration";
@@ -18,6 +17,7 @@ import { baseExtensions } from "./extensions/base_extensions";
 import { CustomLink } from "./extensions/custom_link_mark";
 import { createHoverExtension } from "./extensions/hover_extension";
 import { StaticNote } from "./static_page";
+import { RouterOutput } from "@/server/trpc/routers/_app";
 
 export function getCurrentMark(editor: CoreEditor, name: "customLink") {
 	if (!editor.isActive(name)) {

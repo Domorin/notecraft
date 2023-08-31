@@ -1,5 +1,6 @@
+import { withSessionRoute } from "@/lib/session";
 import { encrypt } from "@/utils/crypto";
-import { getUserIdFromCookie } from "@/utils/user";
+import { getEphemeralUserIdFromCookie } from "@/utils/user";
 import { auth } from "@googleapis/oauth2";
 import { GetEnvVar } from "@notecraft/common";
 import { OAuth2Client } from "googleapis-common";
@@ -23,29 +24,24 @@ export function GoogleOAuth() {
 }
 
 export interface GCalAuthState {
-	userId: string;
+	ephemeralUserId: string;
 }
 
-export default function authHandler(req: NextApiRequest, res: NextApiResponse) {
-	console.log("got auth page!");
-
-	const userId = getUserIdFromCookie(req);
-
-	if (!userId) {
-		throw new Error("No user ID found in cookie!");
-	}
+function authHandler(req: NextApiRequest, res: NextApiResponse) {
+	const ephemeralUserId = getEphemeralUserIdFromCookie(req);
 
 	// Encrypt user ID, this is not a big deal, but do not want it visible in the URL
 
-	const encrypedUserId = encrypt(userId);
+	const encrypedUserId = encrypt(ephemeralUserId ?? "");
 
 	const url = GoogleOAuth().generateAuthUrl({
 		scope: "openid email profile",
 		state: JSON.stringify({
-			userId: encrypedUserId,
+			ephemeralUserId: encrypedUserId,
 		} as GCalAuthState),
-		// include_granted_scopes: true,
 	});
 
 	return res.redirect(url);
 }
+
+export default withSessionRoute(authHandler);

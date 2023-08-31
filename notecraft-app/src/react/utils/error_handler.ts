@@ -50,7 +50,7 @@ export function handleError(
 			}
 
 			// If it is not an error code that triggers this, then ignore
-			if (!MetadataErrorTriggers[key].includes(error.data.code)) {
+			if (!MetadataErrorTriggers[key].includes(error.data?.code)) {
 				continue;
 			}
 

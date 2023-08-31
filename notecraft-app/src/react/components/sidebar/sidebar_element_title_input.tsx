@@ -1,7 +1,7 @@
 import { faCheck, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useRef, useState } from "react";
-import { RouterOutput } from "@/server/routers/_app";
+import { RouterOutput } from "@/server/trpc/routers/_app";
 import { useUpdateTitleMutation } from "../../hooks/trpc/use_update_title_mutation";
 import { titleLimiter } from "@/lib/validators";
 import { getNoteTitle } from "../../utils/get_note_title";

@@ -1,4 +1,4 @@
-import { RouterOutput } from "@/server/routers/_app";
+import { RouterOutput } from "@/server/trpc/routers/_app";
 import { faLock, faLockOpen } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useUpdateEditPermissionsMutation } from "../../../../hooks/trpc/use_update_edit_permissions_mutation";

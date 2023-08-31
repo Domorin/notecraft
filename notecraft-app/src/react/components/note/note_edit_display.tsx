@@ -1,7 +1,7 @@
 import { DateTime } from "luxon";
 import { useEffect, useState } from "react";
 import { useNoteMetadataQuery } from "../../hooks/trpc/use_note_metadata_query";
-import { RouterOutput } from "@/server/routers/_app";
+import { RouterOutput } from "@/server/trpc/routers/_app";
 
 export function NoteEditDisplaySuspense(props: { slug: string }) {
 	const metadata_query = useNoteMetadataQuery(props.slug);

@@ -56,13 +56,22 @@ export function useNoteListRecent() {
 			[setRecents]
 		),
 		remove: useCallback(
-			(slug: string) =>
+			(slug: string) => {
+				if (slug === "*") {
+					setRecents({});
+					return;
+				}
+
 				setRecents((val) => {
 					const newVal = { ...val };
 					delete newVal[slug];
 					return newVal;
-				}),
+				});
+			},
 			[setRecents]
 		),
+		clear: useCallback(() => {
+			setRecents({});
+		}, [setRecents]),
 	};
 }

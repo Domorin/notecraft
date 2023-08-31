@@ -1,4 +1,4 @@
-import { RouterOutput } from "@/server/routers/_app";
+import { RouterOutput } from "@/server/trpc/routers/_app";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Spinner } from "../../../spinner";

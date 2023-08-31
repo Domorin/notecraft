@@ -1,5 +1,5 @@
 import { useNoteListRecent } from "@/react/hooks/use_recents";
-import { RouterOutput } from "@/server/routers/_app";
+import { RouterOutput } from "@/server/trpc/routers/_app";
 import { faX } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 

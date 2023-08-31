@@ -6,6 +6,7 @@ import { WebSocket, WebSocketServer } from "ws";
 import { Redis, WSTypes, Logger, GetEnvVar } from "@notecraft/common";
 
 import { docs, getOrCreateYDoc } from "./utils.js";
+import { unsealData } from "iron-session";
 
 const wss = new WebSocketServer({ noServer: true });
 
@@ -97,7 +98,27 @@ function initWSServer() {
 
 		console.log("Got upgrade request");
 
-		const userId = cookie.parse(request.headers.cookie || "")["id"];
+		const cookies = cookie.parse(request.headers.cookie || "");
+
+		let userId: string | undefined;
+
+		const sessionCookie = cookies[GetEnvVar("SESSION_COOKIE_NAME")];
+
+		console.log(cookies);
+
+		// TODO: cookie types should be in common
+		if (sessionCookie) {
+			const data = (await unsealData(sessionCookie, {
+				password: GetEnvVar("SESSION_SECRET"),
+			})) as { user: { id: string } };
+
+			console.log("got session id");
+
+			userId = data.user.id;
+		} else if (cookies["ephemeralUserId"]) {
+			console.log("got ephemeral id");
+			userId = cookies["ephemeralUserId"];
+		}
 
 		if (!userId) {
 			socket.destroy();

@@ -1,10 +1,20 @@
-import { faPalette } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faPalette } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import classNames from "classnames";
 import Cookies from "js-cookie";
-import { useCallback, useEffect, useState } from "react";
+import {
+	MutableRefObject,
+	ReactNode,
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+} from "react";
+import { useAttachChildToParent } from "../hooks/use_attach_child_to_parent";
+import { createPortal } from "react-dom";
+import { useOnClickOutside } from "usehooks-ts";
 
-const themes = [
+export const themes = [
 	"light",
 	"dark",
 	"cupcake",
@@ -36,10 +46,16 @@ const themes = [
 	"winter",
 ] as const;
 
-export default function ThemePicker() {
+function uppercaseFirstLetter(str: string) {
+	return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+export default function ThemePicker(props: { labelOverride?: ReactNode }) {
 	const [selectedTheme, setTheme] = useState(
 		themes[0] as (typeof themes)[number]
 	);
+
+	const [isOpen, setIsOpen] = useState(false);
 
 	const updateTheme = useCallback((theme: (typeof themes)[number]) => {
 		setTheme(theme);
@@ -58,31 +74,68 @@ export default function ThemePicker() {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
+	const parentRef = useRef(null as HTMLLabelElement | null);
+
 	return (
 		<div className="dropdown-end dropdown">
 			<label
+				ref={parentRef}
 				title={"Theme"}
 				tabIndex={0}
-				className="btn-ghost rounded-btn btn"
+				onClick={() => setIsOpen(true)}
+				className="border-neutral rounded-btn flex cursor-pointer items-center gap-1 border px-2 py-1 text-sm"
 			>
-				<FontAwesomeIcon className="" icon={faPalette} />
+				<div>{uppercaseFirstLetter(selectedTheme)}</div>
+				<FontAwesomeIcon className="text-xs" icon={faChevronDown} />
 			</label>
-			<ul
-				tabIndex={0}
-				className="dropdown-content menu rounded-box bg-base-100 z-[10] max-h-80 w-52 flex-nowrap overflow-scroll p-2 shadow"
-			>
-				{themes.map((theme) => (
-					<li key={theme} onClick={() => updateTheme(theme)}>
-						<a
-							className={classNames({
-								active: theme === selectedTheme,
-							})}
-						>
-							{theme}
-						</a>
-					</li>
-				))}
-			</ul>
+			{isOpen &&
+				createPortal(
+					<ThemeDropdown
+						selectedTheme={selectedTheme}
+						updateTheme={updateTheme}
+						parentRef={parentRef}
+						close={() => setIsOpen(false)}
+					/>,
+					document.body
+				)}
 		</div>
+	);
+}
+
+export function ThemeDropdown(props: {
+	updateTheme: (theme: (typeof themes)[number]) => void;
+	selectedTheme: (typeof themes)[number];
+	close: () => void;
+	parentRef: MutableRefObject<HTMLLabelElement | null>;
+}) {
+	const childRef = useRef(null as HTMLUListElement | null);
+
+	useAttachChildToParent(props.parentRef, childRef, (parent, child) => {
+		return {
+			relativeX: parent.width / 2 - child.width / 2,
+			relativeY: child.height / 2 + parent.height / 2,
+		};
+	});
+
+	useOnClickOutside(childRef, props.close);
+
+	return (
+		<ul
+			tabIndex={0}
+			className="dropdown-content menu rounded-box bg-base-100 border-neutral absolute z-[1001] mt-2 max-h-80 w-52 flex-nowrap overflow-scroll border p-2 shadow"
+			ref={childRef}
+		>
+			{themes.map((theme) => (
+				<li key={theme} onClick={() => props.updateTheme(theme)}>
+					<a
+						className={classNames({
+							active: theme === props.selectedTheme,
+						})}
+					>
+						{uppercaseFirstLetter(theme)}
+					</a>
+				</li>
+			))}
+		</ul>
 	);
 }

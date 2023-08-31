@@ -1,16 +1,17 @@
 import { Prisma } from "@prisma/client";
-import { TRPCError } from "@trpc/server";
 import { yDocToProsemirrorJSON } from "y-prosemirror";
 
 import * as Y from "yjs";
 import { z } from "zod";
 
 import { YJS, PrismaTypes } from "@notecraft/common";
-import { titleLimiter } from "../../lib/validators";
-import { prisma } from "../prisma";
-import { redis } from "../redis";
-import { authedProcedure, router } from "../trpc";
-import { getUniqueNoteSlug } from "../words/words";
+import { titleLimiter } from "@/lib/validators";
+import { prisma } from "@/server/prisma";
+import { redis } from "@/server/redis";
+import { getUniqueNoteSlug } from "@/server/words/words";
+import { router } from "../trpc";
+import { baseProcedure } from "../providers/base_procedure";
+import { TRPCError } from "@trpc/server";
 
 export type CustomError = {
 	code: "NOT_FOUND";
@@ -30,18 +31,18 @@ function parseNoteMetadataForWeb(
 	metadataWithCreatorId: PrismaTypes.PrismaNoteMetadata & {
 		creatorId: string;
 	},
-	userId: string
+	user: string
 ) {
 	const { creatorId, ...metadata } = metadataWithCreatorId;
 
 	return {
 		...metadata,
-		isCreatedByYou: creatorId === userId,
+		isCreatedByYou: creatorId === user,
 	};
 }
 
 export async function updateNoteMetadataForWeb(
-	userId: string,
+	user: string,
 	params: {
 		data: Prisma.NoteUpdateInput;
 		where: Prisma.NoteWhereUniqueInput;
@@ -60,7 +61,7 @@ export async function updateNoteMetadataForWeb(
 	}
 
 	const canEdit =
-		note.creatorId === userId ||
+		note.creatorId === user ||
 		(!params.requireCreator && note.allowAnyoneToEdit);
 
 	if (!canEdit) {
@@ -77,7 +78,7 @@ export async function updateNoteMetadataForWeb(
 		select: PrismaTypes.NoteMetadataValues,
 	});
 
-	const parsedNote = parseNoteMetadataForWeb(updateResult, userId);
+	const parsedNote = parseNoteMetadataForWeb(updateResult, user);
 
 	redis.pubsub.publish("NoteMetadataUpdate", {
 		createdAt: parsedNote.createdAt,
@@ -93,13 +94,13 @@ export async function updateNoteMetadataForWeb(
 }
 
 export const noteRouter = router({
-	create: authedProcedure
+	create: baseProcedure
 		.input(
 			z.object({
 				duplicatedSlug: z.string().optional(),
 			})
 		)
-		.mutation(async ({ input, ctx: { userId } }) => {
+		.mutation(async ({ input, ctx: { user } }) => {
 			const slug = await getUniqueNoteSlug();
 
 			let buffer: Buffer | undefined;
@@ -132,21 +133,21 @@ export const noteRouter = router({
 					creator: {
 						connectOrCreate: {
 							create: {
-								id: userId,
+								id: user.id,
 							},
 							where: {
-								id: userId,
+								id: user.id,
 							},
 						},
 					},
 				},
 				select: PrismaTypes.NoteMetadataValues,
 			});
-			return parseNoteMetadataForWeb(note, userId);
+			return parseNoteMetadataForWeb(note, user.id);
 		}),
-	metadata: authedProcedure
+	metadata: baseProcedure
 		.input(z.object({ slug: z.string() }))
-		.query(async ({ input, ctx: { userId } }) => {
+		.query(async ({ input, ctx: { user } }) => {
 			const metadata = await prisma.note.findUnique({
 				where: {
 					slug: input.slug,
@@ -161,9 +162,9 @@ export const noteRouter = router({
 				});
 			}
 
-			return parseNoteMetadataForWeb(metadata, userId);
+			return parseNoteMetadataForWeb(metadata, user.id);
 		}),
-	htmlContent: authedProcedure
+	htmlContent: baseProcedure
 		.input(z.object({ slug: z.string() }))
 		.query(async ({ input }) => {
 			const note = await prisma.note.findUnique({
@@ -195,15 +196,15 @@ export const noteRouter = router({
 
 			return { docJson: yDocToProsemirrorJSON(doc, "default") };
 		}),
-	updateTitle: authedProcedure
+	updateTitle: baseProcedure
 		.input(
 			z.object({
 				slug: z.string(),
 				title: titleLimiter,
 			})
 		)
-		.mutation(async ({ input, ctx: { userId } }) => {
-			return updateNoteMetadataForWeb(userId, {
+		.mutation(async ({ input, ctx: { user } }) => {
+			return updateNoteMetadataForWeb(user.id, {
 				data: { title: input.title, updatedAt: new Date() },
 				where: {
 					slug: input.slug,
@@ -211,15 +212,15 @@ export const noteRouter = router({
 				requireCreator: false,
 			});
 		}),
-	updateEditPermissions: authedProcedure
+	updateEditPermissions: baseProcedure
 		.input(
 			z.object({
 				slug: z.string(),
 				allowAnyoneToEdit: z.boolean(),
 			})
 		)
-		.mutation(async ({ input, ctx: { userId } }) => {
-			return updateNoteMetadataForWeb(userId, {
+		.mutation(async ({ input, ctx: { user } }) => {
+			return updateNoteMetadataForWeb(user.id, {
 				where: {
 					slug: input.slug,
 				},
@@ -229,7 +230,7 @@ export const noteRouter = router({
 				requireCreator: true,
 			});
 		}),
-	listCreated: authedProcedure.query(async ({ ctx: { userId } }) => {
+	listCreated: baseProcedure.query(async ({ ctx: { user } }) => {
 		return prisma.note
 			.findMany({
 				select: PrismaTypes.NoteMetadataValues,
@@ -237,20 +238,20 @@ export const noteRouter = router({
 					updatedAt: "desc",
 				},
 				where: {
-					creatorId: userId,
+					creatorId: user.id,
 				},
 			})
 			.then((val) =>
-				val.map((note) => parseNoteMetadataForWeb(note, userId))
+				val.map((note) => parseNoteMetadataForWeb(note, user.id))
 			);
 	}),
-	delete: authedProcedure
+	delete: baseProcedure
 		.input(
 			z.object({
 				slug: z.string(),
 			})
 		)
-		.mutation(async ({ input, ctx: { userId } }) => {
+		.mutation(async ({ input, ctx: { user } }) => {
 			const note = await prisma.note.findUnique({
 				where: {
 					slug: input.slug,
@@ -269,7 +270,7 @@ export const noteRouter = router({
 				});
 			}
 
-			if (note.creatorId !== userId) {
+			if (note.creatorId !== user.id) {
 				throw new TRPCError({
 					code: "UNAUTHORIZED",
 					message: "You are not the creator of this note",

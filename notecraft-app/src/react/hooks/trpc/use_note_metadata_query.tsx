@@ -1,5 +1,5 @@
 import { createErrorMetadata } from "@/react/utils/error_handler";
-import { ReactQueryOptions } from "@/server/routers/_app";
+import { ReactQueryOptions } from "@/server/trpc/routers/_app";
 import { trpc } from "@/utils/trpc";
 import { TRPCClientError } from "@trpc/react-query";
 

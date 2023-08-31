@@ -1,5 +1,5 @@
-import { RouterOutput } from "@/server/routers/_app";
-import { CustomError } from "@/server/routers/note";
+import { RouterOutput } from "@/server/trpc/routers/_app";
+import { CustomError } from "@/server/trpc/routers/note";
 import { trpc } from "@/utils/trpc";
 import { useRouter } from "next/router";
 import { useEffect } from "react";

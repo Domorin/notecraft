@@ -1,6 +1,6 @@
 import { Redis } from "@notecraft/common";
 import { prisma } from "./prisma";
-import { updateNoteMetadataForWeb } from "./routers/note";
+import { updateNoteMetadataForWeb } from "./trpc/routers//note";
 
 /**
  * Instantiates a single instance redisClient and save it on the global object.

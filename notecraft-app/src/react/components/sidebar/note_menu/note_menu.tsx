@@ -1,6 +1,6 @@
 import { useCreateNoteMutation } from "@/react/hooks/trpc/use_create_note_mutation";
 import { useActiveListContext } from "@/react/hooks/use_active_list_context";
-import { RouterOutput } from "@/server/routers/_app";
+import { RouterOutput } from "@/server/trpc/routers/_app";
 import { faEdit, faEllipsis, faLink } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import classNames from "classnames";
@@ -87,7 +87,7 @@ function MenuPopup(
 
 	return (
 		<ul
-			className="rouded-box dropdown-content menu rounded-box menu-sm absolute z-[1] ml-2 mt-2 w-fit min-w-[14rem] border border-neutral bg-base-300 py-2 text-sm text-base-content shadow"
+			className="rouded-box dropdown-content menu rounded-box menu-sm border-neutral bg-base-300 text-base-content absolute z-[1] ml-2 mt-2 w-fit min-w-[14rem] border py-2 text-sm shadow"
 			ref={ref}
 			onClick={(e) => e.preventDefault()}
 		>
