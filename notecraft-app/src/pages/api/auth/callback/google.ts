@@ -82,7 +82,6 @@ async function authHandler(req: NextApiRequest, res: NextApiResponse) {
 			id: userInfo.sub,
 			type: "Google",
 			User: {
-				// TODO: review this, don't want to lose their notes
 				// If ephemeral user Id exists, associate existing account with it
 				connect: ephemeralUserId
 					? {
@@ -99,10 +98,27 @@ async function authHandler(req: NextApiRequest, res: NextApiResponse) {
 		},
 	});
 
-	// TODO: Think this is overwriting the theme cookie, probably done elsewhere as well. FIX!
+	if (ephemeralUserId && account.userId !== ephemeralUserId) {
+		// If ephemeral user ID does not match the just logged in account, tranfer the ephemeral IDs notes to the created accounts
+		// We make sure to check that the ephemeral ID does not have an account associated with it, otherwise the notes will be 'stolen' from that account
+		await prisma.note.updateMany({
+			data: {
+				creatorId: account.userId,
+			},
+			where: {
+				creator: {
+					id: ephemeralUserId,
+					Account: null,
+				},
+			},
+		});
+	}
+
 	// Delete ephemeral cookie -- Call this first, else session will be overwritten
 	setEphemeralUserIdCookie(res, ephemeralUserId, 0);
 
+	// Signed iron session cookie, should be secure
+	// Was worried about expiry being edited client-side, but iron-session stores its own encrypted expiry that can not be tampered with
 	req.session.user = {
 		id: account.userId,
 		name: userInfo.email,

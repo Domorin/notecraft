@@ -34,7 +34,10 @@ function LogOutButton(props: {
 					{props.userInfo.image && (
 						<div className="avatar">
 							<div className="w-8 overflow-hidden rounded-full">
-								<img src={props.userInfo?.image} />
+								<img
+									src={props.userInfo?.image}
+									referrerPolicy="no-referrer"
+								/>
 							</div>
 						</div>
 					)}
