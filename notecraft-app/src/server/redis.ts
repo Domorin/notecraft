@@ -13,7 +13,6 @@ const globalForRedis = globalThis as unknown as {
 	redis: AppRedis | undefined;
 };
 
-// TODO: figure out why this is connecting twice on prod and make sure its fine too
 export const redis: AppRedis =
 	globalForRedis.redis ??
 	Redis.initRedis({

@@ -19,7 +19,6 @@ function generateEnvTypes() {
 	}
 
 	fs.readFile(`${currentDir}/.env.template`, "utf8", (err, data) => {
-		// TODO: check empty lines?
 		const envLines = data
 			.split("\n")
 			.filter((line) => line.length > 0 && !line.startsWith("#"))

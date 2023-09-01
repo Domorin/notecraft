@@ -18,7 +18,6 @@ function selectItem(props: AutocompleteCommandsListProps, index: number) {
 	const item = props.items[index];
 
 	if (item) {
-		// TODO: try item.command as well
 		props.command(item);
 		// item.command({
 		// 	editor: props.editor,

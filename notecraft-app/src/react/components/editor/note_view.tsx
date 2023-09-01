@@ -61,22 +61,6 @@ export function NoteView(props: { slug: string; doc: Y.Doc }) {
 		};
 	}, [doc, slug, setNoteMetadata]);
 
-	// const [isEditing, setIsEditing] = useState(false);
-
-	// const editingButton = (
-	// 	<div className="flex w-full">
-	// 		<button
-	// 			className="btn-primary btn absolute right-0 z-50 ml-auto"
-	// 			onClick={() => setIsEditing(!isEditing)}
-	// 		>
-	// 			{isEditing ? "Editing" : "Viewing"}
-	// 		</button>
-	// 	</div>
-	// );
-
-	// TODO: this is for debug purposes; should remove
-	const editingButton = <></>;
-
 	const isLoaded = provider && isSynced && metadataQuery.isSuccess;
 
 	const isReadOnly =
@@ -85,45 +69,41 @@ export function NoteView(props: { slug: string; doc: Y.Doc }) {
 		!metadataQuery.data.allowAnyoneToEdit;
 
 	return (
-		<>
-			{" "}
-			{editingButton}
-			<div className="relative flex h-full w-full flex-col">
-				<div
-					className={classNames(
-						"presence absolute z-[1] my-2 flex w-full min-w-0 items-center gap-2 px-2 transition-all hover:opacity-100",
-						{
-							"opacity-100": !isLoaded,
-							"opacity-25": isLoaded,
-						}
-					)}
-				>
-					{isReadOnly && (
-						<div className="badge badge-neutral">View Only</div>
-					)}
-					<div className="ml-auto">
-						{isLoaded ? (
-							<Presences
-								presences={presences}
-								clientId={props.doc.clientID}
-							/>
-						) : (
-							<Spinner />
-						)}
-					</div>
-				</div>
-				{isLoaded ? (
-					<WysiwygEditor
-						key={props.slug}
-						{...props}
-						provider={provider}
-						presences={presences}
-						metadata={metadataQuery.data}
-					/>
-				) : (
-					<StaticNote slug={props.slug} />
+		<div className="relative flex h-full w-full flex-col">
+			<div
+				className={classNames(
+					"presence absolute z-[1] my-2 flex w-full min-w-0 items-center gap-2 px-2 transition-all hover:opacity-100",
+					{
+						"opacity-100": !isLoaded,
+						"opacity-25": isLoaded,
+					}
 				)}
+			>
+				{isReadOnly && (
+					<div className="badge badge-neutral">View Only</div>
+				)}
+				<div className="ml-auto">
+					{isLoaded ? (
+						<Presences
+							presences={presences}
+							clientId={props.doc.clientID}
+						/>
+					) : (
+						<Spinner />
+					)}
+				</div>
 			</div>
-		</>
+			{isLoaded ? (
+				<WysiwygEditor
+					key={props.slug}
+					{...props}
+					provider={provider}
+					presences={presences}
+					metadata={metadataQuery.data}
+				/>
+			) : (
+				<StaticNote slug={props.slug} />
+			)}
+		</div>
 	);
 }
