@@ -52,7 +52,7 @@ function uppercaseFirstLetter(str: string) {
 
 export default function ThemePicker() {
 	const [selectedTheme, setTheme] = useState(
-		(Cookies.get("theme") as (typeof themes)[number]) ?? themes[0]
+		themes[0] as (typeof themes)[number]
 	);
 
 	const [isOpen, setIsOpen] = useState(false);
@@ -67,12 +67,12 @@ export default function ThemePicker() {
 		document.documentElement.setAttribute("data-theme", theme);
 	}, []);
 
-	// useEffect(() => {
-	// 	updateTheme(
-	// 		(Cookies.get("theme") as (typeof themes)[number]) ?? themes[0]
-	// 	);
-	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	// }, []);
+	useEffect(() => {
+		updateTheme(
+			(Cookies.get("theme") as (typeof themes)[number]) ?? themes[0]
+		);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	const parentRef = useRef(null as HTMLLabelElement | null);
 

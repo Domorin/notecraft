@@ -95,6 +95,7 @@ async function authHandler(req: NextApiRequest, res: NextApiResponse) {
 		update: {},
 		select: {
 			userId: true,
+			id: true,
 		},
 	});
 
@@ -121,6 +122,7 @@ async function authHandler(req: NextApiRequest, res: NextApiResponse) {
 	// Was worried about expiry being edited client-side, but iron-session stores its own encrypted expiry that can not be tampered with
 	req.session.user = {
 		id: account.userId,
+		accountId: account.id,
 		name: userInfo.email,
 		image: userInfo.picture,
 		provider: "Google",

@@ -12,6 +12,7 @@ declare module "iron-session" {
 	interface IronSessionData {
 		user: {
 			id: string;
+			accountId: string;
 			name: string;
 			image?: string;
 			provider: TokenType;

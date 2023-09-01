@@ -96,15 +96,11 @@ function initWSServer() {
 		// You may check auth of request here..
 		// See https://github.com/websockets/ws#client-authentication
 
-		console.log("Got upgrade request");
-
 		const cookies = cookie.parse(request.headers.cookie || "");
 
 		let userId: string | undefined;
 
 		const sessionCookie = cookies[GetEnvVar("SESSION_COOKIE_NAME")];
-
-		console.log(cookies);
 
 		// TODO: cookie types should be in common
 		if (sessionCookie) {
@@ -112,11 +108,8 @@ function initWSServer() {
 				password: GetEnvVar("SESSION_SECRET"),
 			})) as { user: { id: string } };
 
-			console.log("got session id");
-
 			userId = data.user.id;
 		} else if (cookies["ephemeralUserId"]) {
-			console.log("got ephemeral id");
 			userId = cookies["ephemeralUserId"];
 		}
 

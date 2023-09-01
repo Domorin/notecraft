@@ -34,14 +34,17 @@ function authHandler(req: NextApiRequest, res: NextApiResponse) {
 
 	const encrypedUserId = encrypt(ephemeralUserId ?? "");
 
+	// TODO: add value of the anti-forgery unique session token
+
 	const url = GoogleOAuth().generateAuthUrl({
 		scope: "openid email profile",
+		prompt: "select_account",
 		state: JSON.stringify({
 			ephemeralUserId: encrypedUserId,
 		} as GCalAuthState),
 	});
 
-	return res.redirect(url);
+	res.redirect(url);
 }
 
 export default withSessionRoute(authHandler);

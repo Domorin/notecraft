@@ -30,10 +30,6 @@ export function useAttachChildToParent<
 
 			const { relativeX, relativeY } = getPosition(parentRect, childRect);
 
-			console.log("");
-			console.log("parent", parentRect);
-			console.log("child", childRect);
-
 			const baseY =
 				parentRect.top + parentRect.height / 2 - childRect.height / 2;
 
@@ -49,8 +45,6 @@ export function useAttachChildToParent<
 				relativeX
 			}px`;
 			child.current.style.top = `${desiredTop}px`;
-
-			console.log(child.current.style.left, child.current.style.top);
 		};
 
 		setPosition();

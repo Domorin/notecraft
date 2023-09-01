@@ -22,7 +22,7 @@ function generateEnvTypes() {
 		// TODO: check empty lines?
 		const envLines = data
 			.split("\n")
-			.filter((line) => line.length > 0)
+			.filter((line) => line.length > 0 && !line.startsWith("#"))
 			.map((val) => val.split("=")[0]);
 
 		const resultFile = `export type EnvVars = ${envLines

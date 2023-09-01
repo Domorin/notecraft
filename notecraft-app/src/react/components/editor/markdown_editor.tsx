@@ -132,7 +132,7 @@ export function WysiwygEditor(props: {
 	});
 
 	if (!editor || !isEditorReady) {
-		return <StaticNote />;
+		return <StaticNote slug={props.slug} />;
 	}
 
 	const isEditable =

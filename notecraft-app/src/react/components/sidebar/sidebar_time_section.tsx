@@ -3,7 +3,7 @@ import { usePageSlug } from "../../hooks/use_page_id";
 import { SidebarListItem } from "./sidebar_list_item";
 
 export function SidebarTimeSection(props: { title: string; slugs: string[] }) {
-	const currentSlug = usePageSlug();
+	const currentSlug = usePageSlug() ?? "welcome";
 
 	return (
 		<>
@@ -11,7 +11,7 @@ export function SidebarTimeSection(props: { title: string; slugs: string[] }) {
 				<>
 					<li
 						className={classNames(
-							"sticky top-0 bg-base-200 px-4 py-2 text-xs font-bold"
+							"bg-base-200 sticky top-0 px-4 py-2 text-xs font-bold"
 						)}
 					>
 						<span className="opacity-40">{props.title}</span>

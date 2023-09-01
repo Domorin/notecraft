@@ -30,7 +30,10 @@ function LogOutButton(props: {
 	return (
 		<>
 			<div className="dropdown dropdown-end">
-				<label tabIndex={0} className="flex items-center gap-2">
+				<label
+					tabIndex={0}
+					className="flex cursor-pointer items-center gap-2"
+				>
 					{props.userInfo.image && (
 						<div className="avatar">
 							<div className="w-8 overflow-hidden rounded-full">

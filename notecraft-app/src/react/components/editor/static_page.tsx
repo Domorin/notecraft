@@ -1,15 +1,12 @@
 import { useNoteContentQuery } from "@/react/hooks/trpc/use_note_content_query";
-import { usePageSlug } from "@/react/hooks/use_page_id";
 import { generateHTML } from "@tiptap/html";
 import { useEffect, useMemo } from "react";
 import { Spinner } from "../spinner";
 import { baseExtensions } from "./extensions/base_extensions";
 import { CustomLink } from "./extensions/custom_link_mark";
 
-export function StaticNote() {
-	const slug = usePageSlug();
-
-	const query = useNoteContentQuery(slug);
+export function StaticNote(props: { slug: string }) {
+	const query = useNoteContentQuery(props.slug);
 
 	const html = useMemo(() => {
 		if (!query.data) {

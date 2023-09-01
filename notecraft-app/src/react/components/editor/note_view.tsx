@@ -121,7 +121,7 @@ export function NoteView(props: { slug: string; doc: Y.Doc }) {
 						metadata={metadataQuery.data}
 					/>
 				) : (
-					<StaticNote />
+					<StaticNote slug={props.slug} />
 				)}
 			</div>
 		</>
