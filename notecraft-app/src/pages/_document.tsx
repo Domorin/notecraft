@@ -11,6 +11,8 @@ import * as cookie from "cookie";
 export default function MyDocument(
 	props: DocumentInitialProps & { theme: string }
 ) {
+	console.log("theme", props.theme);
+
 	return (
 		<Html lang="en" data-theme={props.theme}>
 			<Head />

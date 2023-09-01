@@ -1,4 +1,4 @@
-import { faChevronDown, faPalette } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import classNames from "classnames";
 import Cookies from "js-cookie";
@@ -10,9 +10,9 @@ import {
 	useRef,
 	useState,
 } from "react";
-import { useAttachChildToParent } from "../hooks/use_attach_child_to_parent";
 import { createPortal } from "react-dom";
 import { useOnClickOutside } from "usehooks-ts";
+import { useAttachChildToParent } from "../hooks/use_attach_child_to_parent";
 
 export const themes = [
 	"light",
@@ -50,7 +50,7 @@ function uppercaseFirstLetter(str: string) {
 	return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-export default function ThemePicker(props: { labelOverride?: ReactNode }) {
+export default function ThemePicker() {
 	const [selectedTheme, setTheme] = useState(
 		themes[0] as (typeof themes)[number]
 	);
@@ -61,7 +61,7 @@ export default function ThemePicker(props: { labelOverride?: ReactNode }) {
 		setTheme(theme);
 
 		Cookies.set("theme", theme, {
-			sameSite: "strict",
+			sameSite: "lax",
 			expires: 365,
 		});
 		document.documentElement.setAttribute("data-theme", theme);

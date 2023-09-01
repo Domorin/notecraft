@@ -11,8 +11,8 @@ export function Navbar() {
 
 	return (
 		<div className="absolute right-4 top-2 flex items-center">
-			<SignedInStatus userInfo={userInfoQuery.data} />
 			{!userInfoQuery.data.isLoggedIn && <ThemePicker />}
+			<SignedInStatus userInfo={userInfoQuery.data} />
 		</div>
 	);
 }
