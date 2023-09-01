@@ -22,6 +22,8 @@
 	"dependencies": {
 		"@fortawesome/free-brands-svg-icons": "^6.4.2",
 		"@googleapis/oauth2": "^1.0.4",
+		"@tiptap/extension-image": "^2.1.7",
+		"@tiptap/extension-text-align": "^2.1.7",
 		"cryptr": "^6.2.0",
 		"dotenv-cli": "^7.3.0",
 		"iron-session": "^6.3.1",

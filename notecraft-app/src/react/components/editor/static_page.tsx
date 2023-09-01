@@ -4,6 +4,7 @@ import { useEffect, useMemo } from "react";
 import { Spinner } from "../spinner";
 import { baseExtensions } from "./extensions/base_extensions";
 import { CustomLink } from "./extensions/custom_link_mark";
+import { NotecraftImage } from "./extensions/image/notecraft_image";
 
 export function StaticNote(props: { slug: string }) {
 	const query = useNoteContentQuery(props.slug);
@@ -16,6 +17,7 @@ export function StaticNote(props: { slug: string }) {
 		return generateHTML(query.data.docJson, [
 			...baseExtensions,
 			CustomLink,
+			NotecraftImage,
 		]);
 	}, [query.data]);
 

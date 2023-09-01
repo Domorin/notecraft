@@ -1,4 +1,3 @@
-# TODO: change to docker-compose.prod.yml
 echo "Building docker images"
 docker compose -f docker-compose.yml -f docker-compose.build.yml --progress=plain build ws app
 # Make sure tmp is empty before we start

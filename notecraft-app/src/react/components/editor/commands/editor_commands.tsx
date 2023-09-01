@@ -1,16 +1,20 @@
 import {
 	IconDefinition,
+	faAlignCenter,
+	faAlignJustify,
+	faAlignLeft,
+	faAlignRight,
 	faBold,
 	faCode,
 	faFileCode,
 	faGripLines,
+	faImage,
 	faItalic,
 	faLink,
 	faList,
 	faList12,
 	faQuoteLeft,
 	faStrikethrough,
-	faTable,
 	faTasks,
 	faUnderline,
 } from "@fortawesome/free-solid-svg-icons";
@@ -25,7 +29,7 @@ import { Hotkey } from "./keyboard_types";
 export type MarkDescriptor = {
 	title: string;
 	hotkey?: Hotkey;
-	markName: string;
+	markName?: string;
 	markAttributes?: Record<string, unknown>;
 	icon: IconDefinition | (() => JSX.Element);
 	hideOnBubbleMenu?: boolean;
@@ -93,6 +97,7 @@ export const EditorCommands: MarkDescriptor[] = [
 		hotkey: "Ctrl Shift B",
 		icon: faQuoteLeft,
 		markName: "blockquote",
+		hideOnBubbleMenu: true,
 	},
 	{
 		title: "Bullet List",
@@ -100,6 +105,7 @@ export const EditorCommands: MarkDescriptor[] = [
 		hotkey: "Ctrl Shift 8",
 		icon: faList,
 		markName: "bulletlist",
+		hideOnBubbleMenu: true,
 	},
 	{
 		title: "Ordered List",
@@ -107,6 +113,7 @@ export const EditorCommands: MarkDescriptor[] = [
 		hotkey: "Ctrl Shift 7",
 		icon: faList12,
 		markName: "orderedlist",
+		hideOnBubbleMenu: true,
 	},
 	{
 		title: "Task List",
@@ -114,6 +121,7 @@ export const EditorCommands: MarkDescriptor[] = [
 		hotkey: "Ctrl Shift 9",
 		icon: faTasks,
 		markName: "tasklist",
+		hideOnBubbleMenu: true,
 	},
 	{
 		title: "Code",
@@ -140,6 +148,12 @@ export const EditorCommands: MarkDescriptor[] = [
 		markName: "customLink",
 	},
 	{
+		title: "Image",
+		command: (o) => BaseChain(o).openImageModal().run(),
+		markName: "image",
+		icon: faImage,
+	},
+	{
 		title: "Divider",
 		command: (o) => BaseChain(o).setHorizontalRule().run(),
 		icon: faGripLines,
@@ -147,11 +161,28 @@ export const EditorCommands: MarkDescriptor[] = [
 		hideOnBubbleMenu: true,
 	},
 	{
-		title: "Table",
-		command: (o) => BaseChain(o).insertTable().run(),
-		markName: "table",
-		icon: faTable,
-		hideOnBubbleMenu: true,
+		title: "Justify Left",
+		command: (o) => BaseChain(o).setTextAlign("left").run(),
+		icon: faAlignLeft,
+		markAttributes: { textAlign: "left" },
+	},
+	{
+		title: "Justify Center",
+		command: (o) => BaseChain(o).setTextAlign("center").run(),
+		icon: faAlignCenter,
+		markAttributes: { textAlign: "center" },
+	},
+	{
+		title: "Justify Right",
+		command: (o) => BaseChain(o).setTextAlign("right").run(),
+		icon: faAlignRight,
+		markAttributes: { textAlign: "right" },
+	},
+	{
+		title: "Justify",
+		command: (o) => BaseChain(o).setTextAlign("justify").run(),
+		icon: faAlignJustify,
+		markAttributes: { textAlign: "justify" },
 	},
 	...createHeadings(),
 ];
@@ -166,6 +197,7 @@ function createHeadings(): MarkDescriptor[] {
 			icon: () => <CommandHeadingIcon iconIndex={index} />,
 			markName: "heading",
 			markAttributes: { level: level },
+			hideOnBubbleMenu: level > 1,
 		})
 	);
 }

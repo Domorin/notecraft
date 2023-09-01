@@ -1,13 +1,10 @@
 import Placeholder from "@tiptap/extension-placeholder";
 import TaskItem from "@tiptap/extension-task-item";
 import TaskList from "@tiptap/extension-task-list";
+import TextAlign from "@tiptap/extension-text-align";
 import Underline from "@tiptap/extension-underline";
 import { EditorOptions } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import Table from "@tiptap/extension-table";
-import TableCell from "@tiptap/extension-table-cell";
-import TableHeader from "@tiptap/extension-table-header";
-import TableRow from "@tiptap/extension-table-row";
 
 export const baseExtensions: EditorOptions["extensions"] = [
 	StarterKit.configure({
@@ -23,15 +20,18 @@ export const baseExtensions: EditorOptions["extensions"] = [
 	// 	transformCopiedText: true,
 	// 	transformPastedText: true,
 	// }),
+	TextAlign.configure({
+		types: ["heading", "paragraph", "image"],
+	}),
 	TaskList,
 	TaskItem.configure({
 		nested: true,
 	}),
 	Underline,
-	Table.configure({
-		resizable: true,
-	}),
-	TableRow,
-	TableHeader,
-	TableCell,
+	// Table.configure({
+	// 	resizable: true,
+	// }),
+	// TableRow,
+	// TableHeader,
+	// TableCell,
 ];

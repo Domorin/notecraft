@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ComponentProps, useEffect, useRef, useState } from "react";
 import { BaseModalProps, Modal } from "./components/modal";
 
-export function EditorModalLinkInput(props: {
+export function EditorLinkInputModal(props: {
 	initialHref: string | undefined;
 	initialTitle: string | undefined;
 	onSubmit: (opts: { href: string; title: string }) => void;
@@ -18,7 +18,7 @@ export function EditorModalLinkInput(props: {
 }
 
 function InnerModal(
-	props: BaseModalProps & ComponentProps<typeof EditorModalLinkInput>
+	props: BaseModalProps & ComponentProps<typeof EditorLinkInputModal>
 ) {
 	const [url, setUrl] = useState(props.initialHref ?? "");
 	const [label, setLabel] = useState(props.initialTitle ?? "");

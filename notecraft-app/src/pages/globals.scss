@@ -151,4 +151,18 @@
 	table {
 		@apply table;
 	}
+
+	figure {
+		margin: 0;
+
+		img {
+			@apply inline-block h-auto max-w-full border border-transparent;
+		}
+
+		&.ProseMirror-selectednode {
+			img {
+				@apply border-primary border;
+			}
+		}
+	}
 }

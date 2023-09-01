@@ -7,9 +7,10 @@ import {
 	useContext,
 	useState,
 } from "react";
-import { EditorModalLinkInput } from "../components/modals/modal_editor_link_input_modal";
+import { EditorLinkInputModal } from "../components/modals/editor_link_input_modal";
 import { LoginModal } from "../components/modals/login_modal";
 import { SettingsModal } from "../components/modals/settings_modal";
+import { EditorImageInputModal } from "../components/modals/editor_image_input_modal";
 
 export const ModalContext = createContext({
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -18,7 +19,8 @@ export const ModalContext = createContext({
 });
 
 const ValidModals = {
-	EditorLinkInput: EditorModalLinkInput,
+	EditorLinkInput: EditorLinkInputModal,
+	EditorImageInput: EditorImageInputModal,
 	Login: LoginModal,
 	Settings: SettingsModal,
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any

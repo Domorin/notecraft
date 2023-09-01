@@ -18,6 +18,7 @@ import { CustomLink } from "./extensions/custom_link_mark";
 import { createHoverExtension } from "./extensions/hover_extension";
 import { StaticNote } from "./static_page";
 import { RouterOutput } from "@/server/trpc/routers/_app";
+import { NotecraftImage } from "./extensions/image/notecraft_image";
 
 export function getCurrentMark(editor: CoreEditor, name: "customLink") {
 	if (!editor.isActive(name)) {
@@ -38,7 +39,8 @@ export function WysiwygEditor(props: {
 	metadata: RouterOutput["note"]["metadata"];
 }) {
 	const ref = useRef(props.presences);
-	const { openModal } = useModal("EditorLinkInput");
+	const { openModal: openLinkModal } = useModal("EditorLinkInput");
+	const { openModal: openImageModal } = useModal("EditorImageInput");
 
 	const [isEditorReady, setIsEditorReady] = useState(false);
 
@@ -46,19 +48,28 @@ export function WysiwygEditor(props: {
 		null
 	);
 
-	const [commandAutocompleteMenuProps, setShowingAutocomplete] =
+	const [commandAutocompleteMenuProps, setAutocompleteProps] =
 		useState<ComponentProps<typeof AutocompleteCommandsList> | null>(null);
 
-	const toggleModal = useCallback(
+	const toggleLinkModal = useCallback(
 		(editor: CoreEditor, opts: { href: string; title: string }) => {
-			openModal({
+			openLinkModal({
 				initialHref: opts.href,
 				initialTitle: opts.title,
 				onSubmit: editor.commands.setCustomLink,
 				onRemove: editor.commands.unsetCustomLink,
 			});
 		},
-		[openModal]
+		[openLinkModal]
+	);
+	const toggleImageModal = useCallback(
+		(editor: CoreEditor) => {
+			openImageModal({
+				onSubmit: (image) =>
+					editor.chain().focus().setImage(image).run(),
+			});
+		},
+		[openImageModal]
 	);
 
 	if (props.presences !== ref.current) {
@@ -116,17 +127,20 @@ export function WysiwygEditor(props: {
 				},
 			}),
 			CustomLink.configure({
-				toggleModal,
+				toggleModal: toggleLinkModal,
 			}),
 			createHoverExtension(setHoveredLink),
 			Commands.configure({
 				suggestion: {
 					items: getSuggestionItems,
-					render: createRenderItems(setShowingAutocomplete),
+					render: createRenderItems(setAutocompleteProps),
 				},
 				showMenu: (props) => {
-					setShowingAutocomplete(props);
+					setAutocompleteProps(props);
 				},
+			}),
+			NotecraftImage.configure({
+				toggleModal: toggleImageModal,
 			}),
 		],
 	});
@@ -153,7 +167,7 @@ export function WysiwygEditor(props: {
 				<EditorLinkTooltip
 					editor={editor}
 					hoveredLinkDom={hoveredLinkDom}
-					openModal={openModal}
+					openModal={openLinkModal}
 					onMouseLeave={() => setHoveredLink(null)}
 				/>
 			)}

@@ -5,16 +5,18 @@ import { CommandIcon, MarkDescriptor } from "../commands/editor_commands";
 export function EditorButton(props: {
 	title: string;
 	hotkey: string | undefined;
-	markName: string;
+	markName?: string;
 	markAttributes?: Record<string, unknown>;
 	editor: Editor;
 	onClick: (editor: Editor) => void;
 	icon: MarkDescriptor["icon"];
 }) {
-	const isActive = props.editor.isActive(
-		props.markName,
-		props.markAttributes
-	);
+	let isActive = false;
+	if (props.markName) {
+		isActive = props.editor.isActive(props.markName, props.markAttributes);
+	} else if (props.markAttributes) {
+		isActive = props.editor.isActive(props.markAttributes);
+	}
 
 	const titleStrings = [props.title];
 	if (props.hotkey) titleStrings.push(`(${props.hotkey})`);
