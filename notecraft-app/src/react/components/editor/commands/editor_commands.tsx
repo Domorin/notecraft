@@ -26,11 +26,18 @@ import {
 } from "./custom_icons/command_heading_icon";
 import { Hotkey } from "./keyboard_types";
 
-export type MarkDescriptor = {
+export type CommandDescriptor = {
+	/**
+	 *  Used for main display of item and searching
+	 */
 	title: string;
 	hotkey?: Hotkey;
 	markName?: string;
 	markAttributes?: Record<string, unknown>;
+	/**
+	 * Used for searching
+	 */
+	keywords?: string[];
 	icon: IconDefinition | (() => JSX.Element);
 	hideOnBubbleMenu?: boolean;
 	hideOnAutocompleteMenu?: boolean;
@@ -50,7 +57,7 @@ function BaseChain(opts: { editor: CoreEditor; range?: Range }) {
 	return editor.chain().focus();
 }
 
-export function CommandIcon(props: { icon: MarkDescriptor["icon"] }) {
+export function CommandIcon(props: { icon: CommandDescriptor["icon"] }) {
 	return typeof props.icon === "function" ? (
 		props.icon()
 	) : (
@@ -58,7 +65,7 @@ export function CommandIcon(props: { icon: MarkDescriptor["icon"] }) {
 	);
 }
 
-export const EditorCommands: MarkDescriptor[] = [
+export const EditorCommands: CommandDescriptor[] = [
 	{
 		title: "Bold",
 		command: (o) => BaseChain(o).toggleBold().run(),
@@ -66,6 +73,7 @@ export const EditorCommands: MarkDescriptor[] = [
 		icon: faBold,
 		markName: "bold",
 		hideOnAutocompleteMenu: true,
+		keywords: ["weight", "style"],
 	},
 	{
 		title: "Italic",
@@ -74,6 +82,7 @@ export const EditorCommands: MarkDescriptor[] = [
 		icon: faItalic,
 		markName: "italic",
 		hideOnAutocompleteMenu: true,
+		keywords: ["font style"],
 	},
 	{
 		title: "Underline",
@@ -82,6 +91,7 @@ export const EditorCommands: MarkDescriptor[] = [
 		icon: faUnderline,
 		markName: "underline",
 		hideOnAutocompleteMenu: true,
+		keywords: ["decoration"],
 	},
 	{
 		title: "Strike",
@@ -90,6 +100,7 @@ export const EditorCommands: MarkDescriptor[] = [
 		icon: faStrikethrough,
 		markName: "strike",
 		hideOnAutocompleteMenu: true,
+		keywords: ["strikeout"],
 	},
 	{
 		title: "Block Quote",
@@ -98,6 +109,7 @@ export const EditorCommands: MarkDescriptor[] = [
 		icon: faQuoteLeft,
 		markName: "blockquote",
 		hideOnBubbleMenu: true,
+		keywords: ["quote", "indent"],
 	},
 	{
 		title: "Bullet List",
@@ -106,6 +118,7 @@ export const EditorCommands: MarkDescriptor[] = [
 		icon: faList,
 		markName: "bulletlist",
 		hideOnBubbleMenu: true,
+		keywords: ["unordered", "points"],
 	},
 	{
 		title: "Ordered List",
@@ -114,6 +127,7 @@ export const EditorCommands: MarkDescriptor[] = [
 		icon: faList12,
 		markName: "orderedlist",
 		hideOnBubbleMenu: true,
+		keywords: ["numbered", "points"],
 	},
 	{
 		title: "Task List",
@@ -122,6 +136,7 @@ export const EditorCommands: MarkDescriptor[] = [
 		icon: faTasks,
 		markName: "tasklist",
 		hideOnBubbleMenu: true,
+		keywords: ["tasks", "checklist", "todo"],
 	},
 	{
 		title: "Code",
@@ -130,6 +145,7 @@ export const EditorCommands: MarkDescriptor[] = [
 		icon: faCode,
 		markName: "code",
 		hideOnAutocompleteMenu: true,
+		keywords: ["snippet", "programming"],
 	},
 	{
 		title: "Code Block",
@@ -138,6 +154,7 @@ export const EditorCommands: MarkDescriptor[] = [
 		icon: faFileCode,
 		markName: "codeblock",
 		hideOnBubbleMenu: true,
+		keywords: ["syntax", "snippet", "programming"],
 	},
 	{
 		title: "Link",
@@ -146,12 +163,14 @@ export const EditorCommands: MarkDescriptor[] = [
 		},
 		icon: faLink,
 		markName: "customLink",
+		keywords: ["hyperlink", "URL"],
 	},
 	{
 		title: "Image",
 		command: (o) => BaseChain(o).openImageModal().run(),
 		markName: "image",
 		icon: faImage,
+		keywords: ["insert", "picture"],
 	},
 	{
 		title: "Divider",
@@ -159,35 +178,40 @@ export const EditorCommands: MarkDescriptor[] = [
 		icon: faGripLines,
 		markName: "horizontalrule",
 		hideOnBubbleMenu: true,
+		keywords: ["horizontal line", "separator"],
 	},
 	{
 		title: "Justify Left",
 		command: (o) => BaseChain(o).setTextAlign("left").run(),
 		icon: faAlignLeft,
 		markAttributes: { textAlign: "left" },
+		keywords: ["align"],
 	},
 	{
 		title: "Justify Center",
 		command: (o) => BaseChain(o).setTextAlign("center").run(),
 		icon: faAlignCenter,
 		markAttributes: { textAlign: "center" },
+		keywords: ["align"],
 	},
 	{
 		title: "Justify Right",
 		command: (o) => BaseChain(o).setTextAlign("right").run(),
 		icon: faAlignRight,
 		markAttributes: { textAlign: "right" },
+		keywords: ["align"],
 	},
 	{
 		title: "Justify",
 		command: (o) => BaseChain(o).setTextAlign("justify").run(),
 		icon: faAlignJustify,
 		markAttributes: { textAlign: "justify" },
+		keywords: ["align"],
 	},
 	...createHeadings(),
 ];
 
-function createHeadings(): MarkDescriptor[] {
+function createHeadings(): CommandDescriptor[] {
 	return ([1, 3, 5] as HeadingLevel[]).map(
 		(level: HeadingLevel, index: number) => ({
 			title: `Heading ${index + 1}`,
@@ -197,6 +221,7 @@ function createHeadings(): MarkDescriptor[] {
 			icon: () => <CommandHeadingIcon iconIndex={index} />,
 			markName: "heading",
 			markAttributes: { level: level },
+			keywords: ["header", "title"],
 			hideOnBubbleMenu: level > 1,
 		})
 	);

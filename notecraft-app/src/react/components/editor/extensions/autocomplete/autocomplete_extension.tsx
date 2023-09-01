@@ -5,7 +5,7 @@ import Suggestion, {
 } from "@tiptap/suggestion";
 import { ComponentProps } from "react";
 import { AutocompleteCommandsList } from "./autocomplete_commands_list";
-import { MarkDescriptor } from "../../commands/editor_commands";
+import { CommandDescriptor } from "../../commands/editor_commands";
 
 declare module "@tiptap/core" {
 	interface Commands<ReturnType> {
@@ -18,11 +18,11 @@ declare module "@tiptap/core" {
 }
 
 export type CommandSuggestionOptions = Omit<
-	SuggestionOptions<MarkDescriptor>,
+	SuggestionOptions<CommandDescriptor>,
 	"editor"
 >;
 
-export type CommandSuggestionProps = SuggestionProps<MarkDescriptor> & {
+export type CommandSuggestionProps = SuggestionProps<CommandDescriptor> & {
 	editor: CoreEditor;
 };
 

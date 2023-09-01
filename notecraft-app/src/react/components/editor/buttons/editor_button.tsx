@@ -1,6 +1,6 @@
 import { Editor } from "@tiptap/react";
 import classNames from "classnames";
-import { CommandIcon, MarkDescriptor } from "../commands/editor_commands";
+import { CommandIcon, CommandDescriptor } from "../commands/editor_commands";
 
 export function EditorButton(props: {
 	title: string;
@@ -9,7 +9,7 @@ export function EditorButton(props: {
 	markAttributes?: Record<string, unknown>;
 	editor: Editor;
 	onClick: (editor: Editor) => void;
-	icon: MarkDescriptor["icon"];
+	icon: CommandDescriptor["icon"];
 }) {
 	let isActive = false;
 	if (props.markName) {
