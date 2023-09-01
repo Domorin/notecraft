@@ -7,7 +7,7 @@ export function EditorBubbleMenu(props: { editor: Editor }) {
 
 	return (
 		<BubbleMenu editor={editor}>
-			<div className="join overflow-hidden border border-neutral bg-base-300 shadow">
+			<div className="join border-neutral bg-base-300 overflow-hidden border shadow">
 				{EditorCommands.filter((val) => !val.hideOnBubbleMenu).map(
 					(val) => (
 						<EditorButton
@@ -20,6 +20,7 @@ export function EditorBubbleMenu(props: { editor: Editor }) {
 							}
 							title={val.title}
 							markName={val.markName}
+							markAttributes={val.markAttributes}
 						/>
 					)
 				)}

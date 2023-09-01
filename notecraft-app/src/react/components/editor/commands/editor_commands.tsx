@@ -26,6 +26,7 @@ export type MarkDescriptor = {
 	title: string;
 	hotkey?: Hotkey;
 	markName: string;
+	markAttributes?: Record<string, unknown>;
 	icon: IconDefinition | (() => JSX.Element);
 	hideOnBubbleMenu?: boolean;
 	hideOnAutocompleteMenu?: boolean;
@@ -164,6 +165,7 @@ function createHeadings(): MarkDescriptor[] {
 			},
 			icon: () => <CommandHeadingIcon iconIndex={index} />,
 			markName: "heading",
+			markAttributes: { level: level },
 		})
 	);
 }

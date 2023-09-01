@@ -6,11 +6,15 @@ export function EditorButton(props: {
 	title: string;
 	hotkey: string | undefined;
 	markName: string;
+	markAttributes?: Record<string, unknown>;
 	editor: Editor;
 	onClick: (editor: Editor) => void;
 	icon: MarkDescriptor["icon"];
 }) {
-	const isActive = props.editor.isActive(props.markName);
+	const isActive = props.editor.isActive(
+		props.markName,
+		props.markAttributes
+	);
 
 	const titleStrings = [props.title];
 	if (props.hotkey) titleStrings.push(`(${props.hotkey})`);
