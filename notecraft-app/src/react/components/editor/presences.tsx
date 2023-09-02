@@ -6,13 +6,17 @@ export function Presences(props: {
 	presences: UserPresence[];
 	clientId: number;
 }) {
+	const sortedPresences = props.presences.sort(
+		(a, b) => b.connectedMs - a.connectedMs
+	);
+
 	return (
 		<div className="avatar-group -space-x-3 overflow-visible">
-			{props.presences
+			{sortedPresences
 				.map((val) => <UserPresenceIcon key={val.name} user={val} />)
 				.slice(0, 5)}
-			{props.presences.length > 5 && (
-				<Presence name={`+${props.presences.length - 5}`} />
+			{sortedPresences.length > 5 && (
+				<Presence name={`+${sortedPresences.length - 5}`} />
 			)}
 		</div>
 	);
@@ -56,7 +60,7 @@ function UserPresenceIcon(props: { user: UserPresence }) {
 		<Presence
 			name={letters.join("")}
 			color={props.user.color}
-			tooltip={props.user.name}
+			tooltip={props.user.name + (props.user.isYou ? " (You)" : "")}
 		/>
 	);
 }

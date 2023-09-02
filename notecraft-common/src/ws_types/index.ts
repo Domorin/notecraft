@@ -5,6 +5,7 @@ export type UserPresence = {
 	name: string;
 	color: string;
 	isYou?: boolean;
+	connectedMs: number;
 };
 
 export type CustomMessage =

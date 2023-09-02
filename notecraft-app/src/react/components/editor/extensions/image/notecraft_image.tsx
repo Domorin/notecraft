@@ -15,6 +15,11 @@ export interface CustomImageOptions extends ImageOptions {
 }
 
 export const NotecraftImage = Image.extend<CustomImageOptions>({
+	addKeyboardShortcuts() {
+		return {
+			"Mod-Alt-i": () => this.editor.commands.openImageModal(),
+		};
+	},
 	addCommands() {
 		return {
 			...this.parent?.(),

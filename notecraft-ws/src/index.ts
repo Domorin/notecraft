@@ -28,6 +28,8 @@ process
 		process.exit(1);
 	});
 
+// TODO: scale horizontally: https://discuss.yjs.dev/t/scalability-of-y-websocket-server/274/5
+// https://github.com/erdtool/yjs-scalable-ws-backend
 function initWSServer() {
 	const server = http.createServer((request, response) => {
 		response.writeHead(200, { "Content-Type": "text/plain" });

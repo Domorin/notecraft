@@ -162,6 +162,7 @@ export const EditorCommands: CommandDescriptor[] = [
 			BaseChain(o).openLinkModal().run();
 		},
 		icon: faLink,
+		hotkey: "Ctrl K",
 		markName: "customLink",
 		keywords: ["hyperlink", "URL"],
 	},
@@ -170,6 +171,7 @@ export const EditorCommands: CommandDescriptor[] = [
 		command: (o) => BaseChain(o).openImageModal().run(),
 		markName: "image",
 		icon: faImage,
+		hotkey: "Ctrl Alt I",
 		keywords: ["insert", "picture"],
 	},
 	{

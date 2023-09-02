@@ -203,10 +203,29 @@ export class WSSharedDoc extends Y.Doc {
 	};
 
 	broadcastPresenceUpdate() {
-		this.broadcastAll({
+		const message: WSTypes.CustomMessage = {
 			type: "presencesUpdated",
 			users: [...this.conns.values()].map((val) => val.clientInfo),
-		});
+		};
+
+		for (const ws of this.conns.keys()) {
+			const connDescriptor = this.conns.get(ws)?.clientInfo;
+
+			const youIndex = message.users.findIndex(
+				(val) => val === connDescriptor
+			);
+
+			const messageUsersCopy = [...message.users];
+			messageUsersCopy[youIndex] = {
+				...messageUsersCopy[youIndex],
+				isYou: true,
+			};
+
+			this.send(
+				ws,
+				SuperJSON.stringify({ ...message, users: messageUsersCopy })
+			);
+		}
 	}
 
 	messageListener = (conn: WebSocket, message: Uint8Array) => {
@@ -250,6 +269,7 @@ export class WSSharedDoc extends Y.Doc {
 				),
 				color: hexColors[this.connCount % hexColors.length],
 				clientId: undefined,
+				connectedMs: new Date().getTime(),
 			},
 		});
 
