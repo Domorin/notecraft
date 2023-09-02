@@ -114,7 +114,7 @@ export const AutocompleteCommandsList = forwardRef(
 
 		return createPortal(
 			<div
-				className="rounded-box border-neutral bg-base-300 absolute max-h-64 w-fit overflow-auto border shadow"
+				className="rounded-box autocomplete-menu border-neutral bg-base-300 absolute max-h-64 w-fit overflow-auto border shadow"
 				ref={positionRef}
 			>
 				<ul

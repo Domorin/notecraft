@@ -20,6 +20,49 @@
 		);
 }
 
+// Just a fun custom theme
+[data-theme="brutal"] {
+	.btn:not(.btn-ghost) {
+		@apply -translate-x-[2px] -translate-y-[2px] border border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] hover:translate-x-0 hover:translate-y-0 hover:shadow-none;
+	}
+
+	.menu {
+		@apply shadow-[2px_2px_0px_rgba(0,0,0,1)];
+	}
+
+	.main-bg {
+		@apply bg-base-300;
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%239C92AC' fill-opacity='0.4' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E");
+	}
+
+	.main-container {
+		@apply shadow-[2px_2px_0px_rgba(0,0,0,1)];
+	}
+
+	.modal-box {
+		@apply shadow-[2px_2px_0px_rgba(0,0,0,1)];
+	}
+
+	.input {
+		&:focus {
+			@apply shadow-none;
+		}
+		@apply -translate-x-[2px] -translate-y-[2px] border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-0 hover:translate-y-0 hover:shadow-none;
+	}
+
+	.join {
+		@apply -translate-x-[2px] -translate-y-[2px] border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] transition-all;
+	}
+
+	.autocomplete-menu {
+		@apply -translate-x-[2px] -translate-y-[2px] border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] transition-all;
+	}
+
+	.placeholder {
+		@apply -translate-x-[2px] -translate-y-[2px] border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-0 hover:translate-y-0 hover:shadow-none;
+	}
+}
+
 .ProseMirror {
 	@apply rounded-box px-12 py-12;
 	height: 100%;

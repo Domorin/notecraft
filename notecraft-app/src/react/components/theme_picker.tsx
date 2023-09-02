@@ -44,6 +44,7 @@ export const themes = [
 	"night",
 	"coffee",
 	"winter",
+	"brutal",
 ] as const;
 
 function uppercaseFirstLetter(str: string) {
@@ -83,7 +84,7 @@ export default function ThemePicker() {
 				title={"Theme"}
 				tabIndex={0}
 				onClick={() => setIsOpen(true)}
-				className="border-neutral rounded-btn flex cursor-pointer items-center gap-1 border px-2 py-1 text-sm"
+				className="border-neutral rounded-btn btn btn-sm flex cursor-pointer items-center gap-1 border text-sm"
 			>
 				<div>{uppercaseFirstLetter(selectedTheme)}</div>
 				<FontAwesomeIcon className="text-xs" icon={faChevronDown} />

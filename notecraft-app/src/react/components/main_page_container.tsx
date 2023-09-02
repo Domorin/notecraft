@@ -21,7 +21,7 @@ export default function MainPageContainer(props: { children: ReactNode }) {
 			}}
 		>
 			{openedModal}
-			<div className="from-base-200 via-base-300 to-base-100 flex h-screen items-center justify-center bg-gradient-to-br">
+			<div className="main-bg from-base-100 via-base-300 to-base-200 flex h-screen items-center justify-center bg-gradient-to-br">
 				<ReactQueryDevtools />
 				<Toaster position="bottom-center">
 					{(t) => (
@@ -47,7 +47,7 @@ export default function MainPageContainer(props: { children: ReactNode }) {
 					)}
 				</Toaster>
 				<Navbar />
-				<div className="rounded-box shadow-primary m-12 flex h-5/6 drop-shadow-lg">
+				<div className="rounded-box main-container m-12 flex h-5/6">
 					<div className="rounded-l-box border-neutral bg-base-200 h-full w-[12rem] overflow-hidden border-y-2 border-l-2">
 						<Sidebar />
 					</div>

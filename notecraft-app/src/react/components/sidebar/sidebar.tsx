@@ -30,8 +30,8 @@ export default function Sidebar() {
 	}
 
 	return (
-		<div className="flex h-full w-full flex-col border-r border-neutral">
-			<div className="flex flex-col items-center border-b border-neutral">
+		<div className="border-neutral flex h-full w-full flex-col border-r">
+			<div className="border-neutral flex flex-col items-center border-b">
 				<div className="flex w-full min-w-0">
 					<SidebarListViewButton
 						type="Created"
@@ -50,7 +50,7 @@ export default function Sidebar() {
 					<SidebarListNotes active={currentList} />
 				</SidebarActiveListContext.Provider>
 			</div>
-			<div className="flex flex-col items-center border-t border-neutral">
+			<div className="border-neutral flex flex-col items-center border-t">
 				<button
 					className="btn-primary btn w-full rounded-none"
 					onClick={() =>
