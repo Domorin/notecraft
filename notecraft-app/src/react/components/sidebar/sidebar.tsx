@@ -54,7 +54,7 @@ export default function Sidebar() {
 				<button
 					className="btn-primary btn w-full rounded-none"
 					onClick={() =>
-						router.push("/", undefined, { shallow: true })
+						router.push("/new", undefined, { shallow: true })
 					}
 				>
 					<FontAwesomeIcon icon={faPlus} />

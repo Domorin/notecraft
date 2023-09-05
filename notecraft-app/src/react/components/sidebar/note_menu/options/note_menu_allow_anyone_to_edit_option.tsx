@@ -2,6 +2,7 @@ import { RouterOutput } from "@/server/trpc/routers/_app";
 import { faLock, faLockOpen } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useUpdateEditPermissionsMutation } from "../../../../hooks/trpc/use_update_edit_permissions_mutation";
+import classNames from "classnames";
 
 export function AllowAnyoneToEditOption(props: {
 	metadata: RouterOutput["note"]["metadata"];
@@ -23,9 +24,28 @@ export function AllowAnyoneToEditOption(props: {
 			}}
 		>
 			<div className="flex items-center gap-2">
-				<div className="flex w-6 justify-center">
-					<FontAwesomeIcon icon={isChecked ? faLockOpen : faLock} />
-				</div>
+				<label
+					className={classNames("swap swap-flip grid w-6", {
+						"swap-active": isChecked,
+					})}
+				>
+					<div
+						className={classNames(
+							"swap-on grid-cols-1 grid-rows-1",
+							{}
+						)}
+					>
+						<FontAwesomeIcon icon={faLockOpen} />
+					</div>
+					<div
+						className={classNames(
+							"swap-off grid-cols-1 grid-rows-1",
+							{}
+						)}
+					>
+						<FontAwesomeIcon icon={faLock} />
+					</div>
+				</label>
 				Allow anyone to edit
 			</div>
 			<input

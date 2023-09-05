@@ -53,8 +53,8 @@ module.exports = {
 					accent: "#daf5f0",
 					neutral: "#000000",
 					"base-100": "#ffb2ef",
-					// "base-100": "#7fbc8c",
-					"base-300": "#69d2e7",
+					"base-200": "#69d2e7",
+					"base-300": "#ff6b6b",
 				},
 			},
 		], // true: all themes | false: only light + dark | array: specific themes like this ["light", "dark", "cupcake"]
