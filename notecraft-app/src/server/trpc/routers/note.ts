@@ -4,14 +4,14 @@ import { yDocToProsemirrorJSON } from "y-prosemirror";
 import * as Y from "yjs";
 import { z } from "zod";
 
-import { YJS, PrismaTypes } from "@notecraft/common";
 import { titleLimiter } from "@/lib/validators";
 import { prisma } from "@/server/prisma";
 import { redis } from "@/server/redis";
 import { getUniqueNoteSlug } from "@/server/words/words";
-import { router } from "../trpc";
-import { baseProcedure } from "../providers/base_procedure";
+import { PrismaTypes, YJS } from "@notecraft/common";
 import { TRPCError } from "@trpc/server";
+import { baseProcedure } from "../providers/base_procedure";
+import { router } from "../trpc";
 
 export type CustomError = {
 	code: "NOT_FOUND";

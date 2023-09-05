@@ -29,4 +29,10 @@ const MyApp: AppType = ({ Component, pageProps }: AppProps) => {
 	return <Component {...pageProps} />;
 };
 
+// Stub getInitialProps so document getInitialProps is called properly
+// https://github.com/vercel/next.js/issues/7791
+MyApp.getInitialProps = async () => {
+	return {};
+};
+
 export default trpc.withTRPC(MyApp);

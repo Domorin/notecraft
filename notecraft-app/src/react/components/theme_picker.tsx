@@ -4,7 +4,6 @@ import classNames from "classnames";
 import Cookies from "js-cookie";
 import {
 	MutableRefObject,
-	ReactNode,
 	useCallback,
 	useEffect,
 	useRef,
@@ -17,6 +16,8 @@ import { useAttachChildToParent } from "../hooks/use_attach_child_to_parent";
 export const themes = [
 	"light",
 	"dark",
+	"lofi",
+	"brutal",
 	"cupcake",
 	"bumblebee",
 	"emerald",
@@ -29,7 +30,6 @@ export const themes = [
 	"garden",
 	"forest",
 	"aqua",
-	"lofi",
 	"pastel",
 	"fantasy",
 	"wireframe",
@@ -44,7 +44,6 @@ export const themes = [
 	"night",
 	"coffee",
 	"winter",
-	"brutal",
 ] as const;
 
 function uppercaseFirstLetter(str: string) {
