@@ -1,5 +1,5 @@
 import { GetEnvVar } from "@notecraft/common";
-import { TokenType } from "@prisma/client";
+import { ProviderType } from "@prisma/client";
 import { IronSessionData, IronSessionOptions } from "iron-session";
 import { withIronSessionApiRoute, withIronSessionSsr } from "iron-session/next";
 import {
@@ -15,7 +15,7 @@ declare module "iron-session" {
 			accountId: string;
 			name: string;
 			image?: string;
-			provider: TokenType;
+			provider: ProviderType;
 		};
 	}
 }
@@ -30,6 +30,7 @@ export const ironOptions: IronSessionOptions = {
 	// secure: true should be used in production (HTTPS) but can't be used in development (HTTP)
 	cookieOptions: {
 		secure: process.env.NODE_ENV === "production",
+		sameSite: "strict",
 	},
 };
 

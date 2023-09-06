@@ -25,7 +25,7 @@ export function SidebarListItem(props: { slug: string; active: boolean }) {
 			className={classNames(
 				"group flex w-full min-w-0 items-center whitespace-nowrap rounded-none text-sm",
 				{
-					"bg-primary text-primary-content": props.active,
+					"bg-primary text-primary-content ": props.active,
 					"hover:bg-base-content hover:bg-opacity-10": !props.active,
 				}
 			)}

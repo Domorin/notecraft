@@ -1,14 +1,12 @@
 import { useSignoutMutation } from "@/react/hooks/trpc/use_signout_mutation";
 import { useModal } from "@/react/hooks/use_modal";
 import { RouterOutput } from "@/server/trpc/routers/_app";
-import { trpc } from "@/utils/trpc";
 import {
 	faArrowRightFromBracket,
 	faChevronDown,
 	faGear,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useRouter } from "next/router";
 
 export function SignedInStatus(props: {
 	userInfo: RouterOutput["user"]["info"];

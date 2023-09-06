@@ -34,8 +34,7 @@ function authHandler(req: NextApiRequest, res: NextApiResponse) {
 
 	const encrypedUserId = encrypt(ephemeralUserId ?? "");
 
-	// TODO: add value of the anti-forgery unique session token
-
+	// I do not believe we need to store an anti CSFR token in state, since our cookies have sameSite=strict
 	const url = GoogleOAuth().generateAuthUrl({
 		scope: "openid email profile",
 		prompt: "select_account",
