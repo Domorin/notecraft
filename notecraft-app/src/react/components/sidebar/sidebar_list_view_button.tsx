@@ -10,7 +10,7 @@ export function SidebarListViewButton(props: {
 	return (
 		<button
 			className={classNames(
-				"btn-sm btn relative box-border flex-1 rounded-r-none rounded-bl-none",
+				"btn-sm btn relative box-border w-1/2 rounded-r-none rounded-bl-none",
 				{
 					"btn-primary btn-active": props.type === props.currentList,
 					"rounded-r-none rounded-bl-none rounded-tl-[calc(var(--rounded-box)-2px)]":

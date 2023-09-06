@@ -64,22 +64,31 @@ export default function MainPageContainer(props: { children: ReactNode }) {
 					</Toaster>
 					<Navbar />
 					<div className="rounded-box main-container relative flex h-5/6 w-[95vw] min-w-0 lg:w-[72rem] lg:max-w-[95vw]">
-						<div
-							className={classNames(
-								"rounded-l-box border-neutral bg-base-200 absolute z-[50] flex h-full border-y-2 border-l-2 transition-all duration-200 sm:static",
-								{
-									"border-neutral min-w-[192px] max-w-[192px] scale-x-100 opacity-100":
-										sidebarOpen,
-									"min-w-0 max-w-0 scale-x-0 border-none opacity-0":
-										!sidebarOpen,
-								}
-							)}
-						>
-							<Sidebar />
+						<div className="absolute h-full sm:static">
+							<div className="flex h-full">
+								<div
+									className={classNames(
+										"rounded-l-box border-neutral bg-base-200 z-[50] flex h-full border-y-2 border-l-2 transition-all duration-200",
+										{
+											"border-neutral block w-48 min-w-[12rem] max-w-[12rem] opacity-100":
+												sidebarOpen,
+											"pointer-events-none invisible min-w-0 max-w-0 border-none opacity-0":
+												!sidebarOpen,
+										}
+									)}
+								>
+									<Sidebar />
+								</div>
+								<div className="relative right-0 z-50">
+									<div className="absolute">
+										<SidebarExpander />
+									</div>
+								</div>
+							</div>
 						</div>
 						<div
 							className={classNames(
-								"bg-base-100 border-neutral h-full border-2 transition-all duration-200",
+								"bg-base-100 border-neutral h-full w-full border-2 transition-all duration-200",
 								{
 									"rounded-box": !sidebarOpen,
 									"rounded-box sm:rounded-r-box sm:rounded-l-none sm:border-y-2 sm:border-l-0 sm:border-r-2":
@@ -87,9 +96,6 @@ export default function MainPageContainer(props: { children: ReactNode }) {
 								}
 							)}
 						>
-							<div className="absolute z-10">
-								<SidebarExpander />
-							</div>
 							{props.children}
 						</div>
 					</div>

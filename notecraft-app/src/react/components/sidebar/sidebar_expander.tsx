@@ -7,7 +7,7 @@ export function SidebarExpander() {
 
 	return (
 		<button
-			className="px-2 py-1 pb-4 opacity-20 transition-all hover:opacity-100"
+			className="p-2 pb-4 opacity-50 transition-all hover:opacity-100"
 			onClick={() => setIsOpen(!isOpen)}
 		>
 			<FontAwesomeIcon icon={isOpen ? faAnglesLeft : faAnglesRight} />

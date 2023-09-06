@@ -1,12 +1,12 @@
-import { faAnglesLeft, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRouter } from "next/router";
 import { createContext, useState } from "react";
 import { useNoteMetadataQuery } from "../../hooks/trpc/use_note_metadata_query";
 import { usePageSlug } from "../../hooks/use_page_id";
+import { SidebarExpander } from "./sidebar_expander";
 import { SidebarListViewButton } from "./sidebar_list_view_button";
 import { SidebarListNotes } from "./sidebar_lists";
-import { SidebarExpander } from "./sidebar_expander";
 
 export type ListType = "Created" | "Recents";
 export const SidebarActiveListContext = createContext<ListType>("Created");
@@ -34,7 +34,7 @@ export default function Sidebar() {
 		<>
 			<div className="border-neutral flex h-full w-full flex-col border-r">
 				<div className="border-neutral flex flex-col items-center border-b">
-					<div className="flex w-full min-w-0">
+					<div className="flex w-full min-w-0 overflow-hidden">
 						<SidebarListViewButton
 							type="Created"
 							currentList={currentList}
@@ -63,9 +63,6 @@ export default function Sidebar() {
 						<FontAwesomeIcon icon={faPlus} />
 						New Note
 					</button>
-				</div>
-				<div className="absolute left-full">
-					<SidebarExpander />
 				</div>
 			</div>
 		</>
