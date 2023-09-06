@@ -70,6 +70,31 @@
 		@apply -translate-x-[2px] -translate-y-[2px] border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-0 hover:translate-y-0 hover:shadow-none;
 	}
 
+	.toggle {
+		@apply -translate-x-[2px] -translate-y-[2px] border border-black transition-all;
+
+		--tglbg: hsl(var(--a));
+		box-shadow: var(--handleoffsetcalculator) 0 0 2px var(--tglbg) inset,
+			0 0 0 2px var(--tglbg) inset, var(--togglehandleborder),
+			2px 2px 0px rgba(0, 0, 0, 1);
+		&:hover {
+			@apply translate-x-0 translate-y-0;
+			box-shadow: var(--handleoffsetcalculator) 0 0 2px var(--tglbg) inset,
+				0 0 0 2px var(--tglbg) inset, var(--togglehandleborder);
+		}
+
+		&-primary {
+			&:focus-visible {
+			}
+			&:checked,
+			&[checked="true"],
+			&[aria-checked="true"] {
+				@apply border-black;
+				@apply bg-primary text-primary-content border-black border-opacity-10;
+			}
+		}
+	}
+
 	.join {
 		@apply -translate-x-[2px] -translate-y-[2px] border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] transition-all;
 	}
