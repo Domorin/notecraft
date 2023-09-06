@@ -28,9 +28,11 @@ export function useNoteContentQuery(slug: string | undefined) {
 
 	useEffect(() => {
 		if (isError) {
-			router.replace("/not-found", undefined, { shallow: true });
+			router.replace(`/not-found?slug=${slug}`, "/not-found", {
+				shallow: true,
+			});
 		}
-	}, [isError, router]);
+	}, [isError, router, slug]);
 
 	if (!contentQuery.isSuccess) {
 		return {

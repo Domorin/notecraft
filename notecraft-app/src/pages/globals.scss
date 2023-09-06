@@ -108,6 +108,34 @@
 	.placeholder {
 		@apply -translate-x-[2px] -translate-y-[2px] border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-0 hover:translate-y-0 hover:shadow-none;
 	}
+
+	.ProseMirror {
+		ul[data-type="taskList"] {
+			@apply list-none;
+			li {
+				label {
+					@apply mr-2 inline;
+					input {
+						@apply checkbox-primary checkbox checkbox-xs mt-1 -translate-x-[2px] -translate-y-[2px] border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-0 hover:translate-y-0 hover:shadow-none;
+
+						/* cursor: not-allowed;
+						border-color: transparent;
+						--tw-bg-opacity: 1;
+						background-color: hsl(var(--bc) / var(--tw-bg-opacity));
+						opacity: 0.2; */
+
+						&:disabled {
+							@apply border-primary cursor-default bg-inherit opacity-100;
+						}
+					}
+				}
+
+				div {
+					@apply inline align-top;
+				}
+			}
+		}
+	}
 }
 
 .ProseMirror {
