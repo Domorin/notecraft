@@ -43,7 +43,7 @@ export default function MainPageContainer(props: { children: ReactNode }) {
 						{(t) => (
 							<div
 								className={classNames(
-									"rounded-box flex gap-2 p-2 pl-4 text-base",
+									"rounded-box my-toast flex gap-2 p-2 pl-4 text-base",
 									{
 										"bg-success text-success-content":
 											t.type === "success",

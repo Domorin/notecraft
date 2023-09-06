@@ -52,8 +52,8 @@ module.exports = {
 					secondary: "#e3a018",
 					accent: "#daf5f0",
 					neutral: "#000000",
-					"base-100": "#ffb2ef",
-					"base-200": "#69d2e7",
+					"base-100": "#69d2e7",
+					"base-200": "#ffb2ef",
 					"base-300": "#ff6b6b",
 
 					"--btn-text-case": "capitalize",
