@@ -37,6 +37,8 @@
 
 // Just a fun custom theme
 [data-theme="brutal"] {
+	@apply selection:bg-base-300;
+
 	.btn:not(.btn-ghost) {
 		@apply -translate-x-[2px] -translate-y-[2px] border border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] hover:translate-x-0 hover:translate-y-0 hover:shadow-none;
 
