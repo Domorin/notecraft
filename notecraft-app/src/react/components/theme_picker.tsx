@@ -108,7 +108,7 @@ export function ThemeDropdown(props: {
 	close: () => void;
 	parentRef: MutableRefObject<HTMLLabelElement | null>;
 }) {
-	const childRef = useRef(null as HTMLUListElement | null);
+	const childRef = useRef(null as HTMLDivElement | null);
 
 	useAttachChildToParent(props.parentRef, childRef, (parent, child) => {
 		return {
@@ -120,22 +120,26 @@ export function ThemeDropdown(props: {
 	useOnClickOutside(childRef, props.close);
 
 	return (
-		<ul
-			tabIndex={0}
-			className="dropdown-content menu rounded-box bg-base-100 border-neutral absolute z-[1001] mt-2 max-h-80 w-52 flex-nowrap overflow-scroll border p-2 shadow"
+		<div
+			className="rounded-box bg-base-100 menu border-neutral absolute z-[1001] mt-2 w-52 border p-2 shadow"
 			ref={childRef}
 		>
-			{themes.map((theme) => (
-				<li key={theme} onClick={() => props.updateTheme(theme)}>
-					<a
-						className={classNames({
-							active: theme === props.selectedTheme,
-						})}
-					>
-						{uppercaseFirstLetter(theme)}
-					</a>
-				</li>
-			))}
-		</ul>
+			<ul
+				tabIndex={0}
+				className="dropdown-content  max-h-80 flex-nowrap overflow-auto"
+			>
+				{themes.map((theme) => (
+					<li key={theme} onClick={() => props.updateTheme(theme)}>
+						<a
+							className={classNames({
+								active: theme === props.selectedTheme,
+							})}
+						>
+							{uppercaseFirstLetter(theme)}
+						</a>
+					</li>
+				))}
+			</ul>
+		</div>
 	);
 }

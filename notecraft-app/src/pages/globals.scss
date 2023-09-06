@@ -20,6 +20,21 @@
 		);
 }
 
+::-webkit-scrollbar {
+	@apply rounded-box w-1;
+	/* Customize the scrollbar width */
+}
+
+::-webkit-scrollbar-track {
+	@apply bg-base-100 rounded-box;
+	/* Customize the scrollbar track */
+}
+
+::-webkit-scrollbar-thumb {
+	@apply bg-base-300 rounded-box;
+	/* Customize the scrollbar thumb */
+}
+
 // Just a fun custom theme
 [data-theme="brutal"] {
 	.btn:not(.btn-ghost) {

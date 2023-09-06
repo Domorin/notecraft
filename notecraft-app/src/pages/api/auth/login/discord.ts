@@ -30,7 +30,6 @@ function generateDiscordUrl(ephemeralUserId: string) {
 }
 
 function authHandler(req: NextApiRequest, res: NextApiResponse) {
-	// TODO: add value of the anti-forgery unique session token
 	const url = generateDiscordUrl(getEphemeralUserIdFromCookie(req) ?? "");
 
 	res.redirect(url);

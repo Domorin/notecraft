@@ -44,6 +44,7 @@ export const AutocompleteCommandsList = forwardRef(
 	) {
 		const [selectedIndex, setSelectedIndex] = useState(0);
 		const positionRef = useRef<HTMLDivElement>(null);
+		const scrollRef = useRef<HTMLDivElement>(null);
 		const parentRef = useRef(props.decorationNode as HTMLSpanElement);
 
 		const onKeyDown = useCallback(
@@ -86,14 +87,14 @@ export const AutocompleteCommandsList = forwardRef(
 		}));
 
 		useEffect(() => {
-			if (!positionRef.current) return;
-			const selectedNode = positionRef.current?.firstChild?.childNodes[
+			if (!scrollRef.current) return;
+			const selectedNode = scrollRef.current?.firstChild?.childNodes[
 				selectedIndex
 			] as HTMLLIElement;
 
 			if (!selectedNode) return;
 
-			const parentRect = positionRef.current.getBoundingClientRect();
+			const parentRect = scrollRef.current.getBoundingClientRect();
 			const childRect = selectedNode.getBoundingClientRect();
 
 			const isAbove = childRect.top < parentRect.top;
@@ -114,52 +115,58 @@ export const AutocompleteCommandsList = forwardRef(
 
 		return createPortal(
 			<div
-				className="rounded-box autocomplete-menu border-neutral bg-base-300 absolute max-h-64 w-fit overflow-auto border shadow"
+				className="rounded-box border-neutral bg-base-300 absolute overflow-hidden border shadow"
 				ref={positionRef}
 			>
-				<ul
-					tabIndex={0}
-					// eslint-disable-next-line @typescript-eslint/no-explicit-any
-					ref={ref as any}
+				<div
+					className="rounded-box autocomplete-menu border-neutral bg-base-300 max-h-64 w-fit overflow-auto"
+					ref={scrollRef}
 				>
-					{props.items.length === 0 && (
-						<div className="p-2 text-sm">No commands found</div>
-					)}
-					{props.items.map((item, index) => (
-						<li
-							key={item.title}
-							tabIndex={-1}
-							// className="h-full min-w-0 overflow-y-auto"
-						>
-							<button
-								className={classNames(
-									"flex w-full items-center gap-4 whitespace-nowrap p-1 pr-12 text-sm",
-									{
-										"bg-base-content bg-opacity-10":
-											index === selectedIndex,
-									}
-								)}
-								key={index}
-								onClick={() => selectItem(props, index)}
+					<ul
+						tabIndex={0}
+						// eslint-disable-next-line @typescript-eslint/no-explicit-any
+						ref={ref as any}
+					>
+						{props.items.length === 0 && (
+							<div className="p-2 text-sm">No commands found</div>
+						)}
+						{props.items.map((item, index) => (
+							<li
+								key={item.title}
+								tabIndex={-1}
+								// className="h-full min-w-0 overflow-y-auto"
 							>
-								<div
+								<button
 									className={classNames(
-										"rounded-box flex h-12 w-12 flex-col items-center justify-center text-xl",
+										"flex w-full items-center gap-4 whitespace-nowrap p-1 pr-12 text-sm",
 										{
-											// "bg-base-content bg-opacity-10":
-											// 	index === selectedIndex,
-											"bg-base-200":
-												index !== selectedIndex || true,
+											"bg-base-content bg-opacity-10":
+												index === selectedIndex,
 										}
 									)}
+									key={index}
+									onClick={() => selectItem(props, index)}
 								>
-									<CommandIcon icon={item.icon} />
-								</div>
-								{item.title}
-							</button>
-						</li>
-					))}
-				</ul>
+									<div
+										className={classNames(
+											"rounded-box flex h-12 w-12 flex-col items-center justify-center text-xl",
+											{
+												// "bg-base-content bg-opacity-10":
+												// 	index === selectedIndex,
+												"bg-base-200":
+													index !== selectedIndex ||
+													true,
+											}
+										)}
+									>
+										<CommandIcon icon={item.icon} />
+									</div>
+									{item.title}
+								</button>
+							</li>
+						))}
+					</ul>
+				</div>
 			</div>,
 			document.body
 		);

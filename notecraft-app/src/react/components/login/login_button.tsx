@@ -47,7 +47,7 @@ function LogOutButton(props: {
 				</label>
 				<ul
 					tabIndex={0}
-					className="dropdown-content menu rounded-box bg-base-100 z-[10] max-h-80 flex-nowrap overflow-scroll p-2 shadow"
+					className="dropdown-content menu rounded-box bg-base-100 z-[10] max-h-80 flex-nowrap overflow-auto p-2 shadow"
 				>
 					<li className="mr-auto">
 						<button
