@@ -2,60 +2,99 @@ import { faX } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import classNames from "classnames";
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import toast, { Toaster, resolveValue } from "react-hot-toast";
 import { ModalContext } from "../hooks/use_modal";
+import { SidebarExpanderContext } from "../hooks/use_sidebar_expander";
 import { Navbar } from "./navbar/navbar";
 import Sidebar from "./sidebar/sidebar";
+import { SidebarExpander } from "./sidebar/sidebar_expander";
 
 export default function MainPageContainer(props: { children: ReactNode }) {
 	const [openedModal, setOpenModal] = useState(null as ReactNode | null);
 
+	const [sidebarOpen, setSidebarOpen] = useState(true);
+
+	useEffect(() => {
+		if (window.innerWidth < 640) {
+			setSidebarOpen(false);
+		}
+	}, []);
+
 	return (
-		<ModalContext.Provider
+		<SidebarExpanderContext.Provider
 			value={{
-				openModal: (element) => setOpenModal(element),
-				closeModal: () => {
-					setOpenModal(null);
-				},
+				isOpen: sidebarOpen,
+				setIsOpen: setSidebarOpen,
 			}}
 		>
-			{openedModal}
-			<div className="main-bg from-base-100 via-base-300 to-base-200 flex h-screen items-center justify-center bg-gradient-to-br">
-				<ReactQueryDevtools />
-				<Toaster position="bottom-center">
-					{(t) => (
+			<ModalContext.Provider
+				value={{
+					openModal: (element) => setOpenModal(element),
+					closeModal: () => {
+						setOpenModal(null);
+					},
+				}}
+			>
+				{openedModal}
+				<div className="main-bg from-base-100 via-base-300 to-base-200 flex h-screen max-w-[100vw] items-center justify-center overflow-hidden bg-gradient-to-br">
+					<ReactQueryDevtools />
+					<Toaster position="bottom-center">
+						{(t) => (
+							<div
+								className={classNames(
+									"rounded-box flex gap-2 p-2 pl-4 text-base",
+									{
+										"bg-success text-success-content":
+											t.type === "success",
+										"bg-error text-error-content":
+											t.type === "error",
+									}
+								)}
+							>
+								{resolveValue(t.message, t)}
+								<button
+									className="btn-ghost rounded-btn p-1 text-xs"
+									onClick={() => toast.remove(t.id)}
+								>
+									<FontAwesomeIcon icon={faX} />
+								</button>
+							</div>
+						)}
+					</Toaster>
+					<Navbar />
+					<div className="rounded-box main-container relative flex h-5/6 w-[95vw] min-w-0 lg:w-[72rem] lg:max-w-[95vw]">
 						<div
 							className={classNames(
-								"rounded-box flex gap-2 p-2 pl-4 text-base",
+								"rounded-l-box border-neutral bg-base-200 absolute z-[50] flex h-full border-y-2 border-l-2 transition-all duration-200 sm:static",
 								{
-									"bg-success text-success-content":
-										t.type === "success",
-									"bg-error text-error-content":
-										t.type === "error",
+									"border-neutral min-w-[192px] max-w-[192px] scale-x-100 opacity-100":
+										sidebarOpen,
+									"min-w-0 max-w-0 scale-x-0 border-none opacity-0":
+										!sidebarOpen,
 								}
 							)}
 						>
-							{resolveValue(t.message, t)}
-							<button
-								className="btn-ghost rounded-btn p-1 text-xs"
-								onClick={() => toast.remove(t.id)}
-							>
-								<FontAwesomeIcon icon={faX} />
-							</button>
+							<Sidebar />
 						</div>
-					)}
-				</Toaster>
-				<Navbar />
-				<div className="rounded-box main-container m-12 flex h-5/6">
-					<div className="rounded-l-box border-neutral bg-base-200 h-full w-[12rem] border-y-2 border-l-2">
-						<Sidebar />
-					</div>
-					<div className="rounded-r-box border-neutral bg-base-100 h-full flex-grow-0 border-y-2 border-r-2 lg:w-[64rem]">
-						{props.children}
+						<div
+							className={classNames(
+								"bg-base-100 border-neutral h-full border-2 transition-all duration-200",
+								{
+									"rounded-box": !sidebarOpen,
+									"rounded-box sm:rounded-r-box sm:rounded-l-none sm:border-y-2 sm:border-l-0 sm:border-r-2":
+										sidebarOpen,
+								}
+							)}
+						>
+							<div className="absolute z-10">
+								<SidebarExpander />
+							</div>
+							{props.children}
+						</div>
 					</div>
 				</div>
-			</div>
-		</ModalContext.Provider>
+			</ModalContext.Provider>
+		</SidebarExpanderContext.Provider>
 	);
 }

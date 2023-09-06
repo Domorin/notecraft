@@ -45,7 +45,7 @@ export function SidebarList(props: {
 	// 	(val) => val.date > now.minus({ days: 7 })
 	// );
 	return (
-		<ul className="w-full p-0">
+		<ul className="w-full min-w-0 flex-col p-0">
 			{todaysSlugs.length > 0 && (
 				<>
 					<SidebarTimeSection title="Today" slugs={todaysSlugs} />

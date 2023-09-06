@@ -87,7 +87,7 @@ function MenuPopup(
 
 	return (
 		<ul
-			className="rouded-box dropdown-content menu rounded-box menu-sm border-neutral bg-base-300 text-base-content absolute z-[1] ml-2 mt-2 w-fit min-w-[14rem] border py-2 text-sm shadow"
+			className="rouded-box dropdown-content menu rounded-box menu-sm border-neutral bg-base-300 text-base-content absolute z-[100] ml-2 mt-2 w-fit min-w-[14rem] border py-2 text-sm shadow"
 			ref={ref}
 			onClick={(e) => e.preventDefault()}
 		>

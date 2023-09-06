@@ -72,17 +72,21 @@ export function NoteView(props: { slug: string; doc: Y.Doc }) {
 		<div className="relative flex h-full w-full flex-col">
 			<div
 				className={classNames(
-					"presence absolute z-[1] my-2 flex w-full min-w-0 items-center gap-2 px-2 transition-all hover:opacity-100",
-					{
-						"opacity-100": !isLoaded,
-						"opacity-25": isLoaded,
-					}
+					"presence absolute z-[1] my-2 flex w-full min-w-0 items-center gap-2 px-2 transition-all"
 				)}
 			>
-				{isReadOnly && (
-					<div className="badge badge-neutral">View Only</div>
-				)}
-				<div className="ml-auto">
+				<div
+					className={classNames(
+						"ml-auto flex w-fit items-center gap-2 transition-all hover:opacity-100",
+						{
+							"opacity-100": !isLoaded,
+							"opacity-25": isLoaded,
+						}
+					)}
+				>
+					{isReadOnly && (
+						<div className="badge badge-neutral">View Only</div>
+					)}
 					{isLoaded ? (
 						<Presences
 							presences={presences}
