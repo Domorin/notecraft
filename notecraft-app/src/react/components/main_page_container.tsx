@@ -48,7 +48,7 @@ export default function MainPageContainer(props: { children: ReactNode }) {
 				</Toaster>
 				<Navbar />
 				<div className="rounded-box main-container m-12 flex h-5/6">
-					<div className="rounded-l-box border-neutral bg-base-200 h-full w-[12rem] overflow-hidden border-y-2 border-l-2">
+					<div className="rounded-l-box border-neutral bg-base-200 h-full w-[12rem] border-y-2 border-l-2">
 						<Sidebar />
 					</div>
 					<div className="rounded-r-box border-neutral bg-base-100 h-full flex-grow-0 border-y-2 border-r-2 lg:w-[64rem]">

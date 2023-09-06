@@ -37,6 +37,7 @@ export default function Sidebar() {
 						type="Created"
 						currentList={currentList}
 						setCurrentList={setCurrentList}
+						isFirst
 					/>
 					<SidebarListViewButton
 						type="Recents"
@@ -52,7 +53,7 @@ export default function Sidebar() {
 			</div>
 			<div className="border-neutral flex flex-col items-center border-t">
 				<button
-					className="btn-primary btn w-full rounded-none"
+					className="btn-primary btn w-full rounded-none rounded-bl-[calc(var(--rounded-box)-2px)]"
 					onClick={() =>
 						router.push("/new", undefined, { shallow: true })
 					}

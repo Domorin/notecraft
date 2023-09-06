@@ -24,7 +24,7 @@ export function NoteWithLoadedContent(props: {
 	}, [add, slug]);
 
 	return (
-		<div className="flex h-full w-full flex-col">
+		<div className="flex h-full w-full flex-col gap-1">
 			<NoteView key={props.slug} slug={props.slug} doc={doc} />
 			<div className="relative w-full">
 				<div className="absolute flex w-full">
