@@ -55,6 +55,8 @@ module.exports = {
 					"base-100": "#ffb2ef",
 					"base-200": "#69d2e7",
 					"base-300": "#ff6b6b",
+
+					"--btn-text-case": "capitalize",
 				},
 			},
 		], // true: all themes | false: only light + dark | array: specific themes like this ["light", "dark", "cupcake"]
