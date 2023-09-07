@@ -37,7 +37,7 @@ export default function MainPageContainer(props: { children: ReactNode }) {
 				}}
 			>
 				{openedModal}
-				<div className="main-bg from-base-100 via-base-300 to-base-200 flex h-screen max-w-[100vw] items-center justify-center overflow-hidden bg-gradient-to-br">
+				<div className="main-bg from-base-100 via-base-300 to-base-200 flex h-screen min-h-0 max-w-[100vw] flex-col items-center overflow-x-hidden bg-gradient-to-br">
 					<ReactQueryDevtools />
 					<Toaster position="bottom-center">
 						{(t) => (
@@ -63,8 +63,8 @@ export default function MainPageContainer(props: { children: ReactNode }) {
 						)}
 					</Toaster>
 					<Navbar />
-					<div className="rounded-box main-container relative flex h-5/6 w-[95vw] min-w-0 lg:w-[72rem] lg:max-w-[95vw]">
-						<div className="absolute h-full sm:static">
+					<div className="rounded-box main-container relative flex min-h-0 w-[95vw] flex-grow lg:w-[72rem] lg:max-w-[95vw]">
+						<div className="absolute bottom-0 top-0 sm:static">
 							<div className="flex h-full">
 								<div
 									className={classNames(
@@ -99,6 +99,7 @@ export default function MainPageContainer(props: { children: ReactNode }) {
 							{props.children}
 						</div>
 					</div>
+					<div className="min-h-12 h-12 w-full"></div>
 				</div>
 			</ModalContext.Provider>
 		</SidebarExpanderContext.Provider>

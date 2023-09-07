@@ -10,8 +10,8 @@ export function Navbar() {
 	}
 
 	return (
-		<div>
-			<div className="absolute right-4 top-2 flex items-center gap-2">
+		<div className="min-h-12 flex h-12 w-full items-center">
+			<div className="mx-2 ml-auto flex items-center gap-2">
 				{!userInfoQuery.data.isLoggedIn && <ThemePicker />}
 				<SignedInStatus userInfo={userInfoQuery.data} />
 			</div>
