@@ -77,8 +77,8 @@ async function authHandler(req: NextApiRequest, res: NextApiResponse) {
 
 	const ephemeralUserId = decrypt(state.ephemeralUserId);
 
-	onLogin(req, res, "Discord", ephemeralUserId, {
-		id: userInfo.id,
+	await onLogin(req, res, "Discord", ephemeralUserId, {
+		accountId: userInfo.id,
 		name: userInfo.global_name ?? userInfo.username,
 		image: `https://cdn.discordapp.com/avatars/${userInfo.id}/${userInfo.avatar}.png`,
 	});

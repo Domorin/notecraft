@@ -71,8 +71,8 @@ async function authHandler(req: NextApiRequest, res: NextApiResponse) {
 
 	const ephemeralUserId = decrypt(state.ephemeralUserId);
 
-	onLogin(req, res, "Google", ephemeralUserId, {
-		id: userInfo.sub,
+	await onLogin(req, res, "Google", ephemeralUserId, {
+		accountId: userInfo.sub,
 		name: userInfo.name,
 		image: userInfo.picture,
 	});

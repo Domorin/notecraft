@@ -10,18 +10,18 @@ export async function onLogin(
 	res: NextApiResponse,
 	provider: ProviderType,
 	ephemeralUserId: string | undefined,
-	userInfo: Omit<IronSessionUser, "accountId" | "provider">
+	userInfo: Omit<IronSessionUser, "id" | "provider">
 ) {
 	// Tie user ID to Account
 	const account = await prisma.account.upsert({
 		where: {
 			id_provider: {
-				id: userInfo.id,
+				id: userInfo.accountId,
 				provider,
 			},
 		},
 		create: {
-			id: userInfo.id,
+			id: userInfo.accountId,
 			provider,
 			User: {
 				// If ephemeral user Id exists, associate existing account with it
@@ -62,7 +62,7 @@ export async function onLogin(
 
 	// Signed iron session cookie, should be secure
 	// Was worried about expiry being edited client-side, but iron-session stores its own encrypted expiry that can not be tampered with
-	req.session.user = { ...userInfo, accountId: account.id, provider };
+	req.session.user = { ...userInfo, id: account.userId, provider };
 
 	await req.session.save();
 
