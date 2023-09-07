@@ -22,6 +22,7 @@
 	"dependencies": {
 		"@fortawesome/free-brands-svg-icons": "^6.4.2",
 		"@googleapis/oauth2": "^1.0.4",
+		"@tiptap/extension-character-count": "^2.1.8",
 		"@tiptap/extension-image": "^2.1.7",
 		"@tiptap/extension-text-align": "^2.1.7",
 		"cryptr": "^6.2.0",

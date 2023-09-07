@@ -63,7 +63,7 @@ export default function MainPageContainer(props: { children: ReactNode }) {
 						)}
 					</Toaster>
 					<Navbar />
-					<div className="rounded-box main-container relative flex min-h-0 w-[95vw] flex-grow lg:w-[72rem] lg:max-w-[95vw]">
+					<div className="rounded-box main-container relative flex min-h-0 w-[95vw] min-w-0 flex-grow lg:w-[72rem] lg:max-w-[95vw]">
 						<div className="absolute bottom-0 top-0 sm:static">
 							<div className="flex h-full">
 								<div
@@ -88,7 +88,7 @@ export default function MainPageContainer(props: { children: ReactNode }) {
 						</div>
 						<div
 							className={classNames(
-								"bg-base-100 border-neutral h-full w-full border-2 transition-all duration-200",
+								"bg-base-100 border-neutral h-full w-full min-w-0 border-2 transition-all duration-200",
 								{
 									"rounded-box": !sidebarOpen,
 									"rounded-box sm:rounded-r-box sm:rounded-l-none sm:border-y-2 sm:border-l-0 sm:border-r-2":

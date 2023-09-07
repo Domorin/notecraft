@@ -19,6 +19,7 @@ import { createHoverExtension } from "./extensions/hover_extension";
 import { StaticNote } from "./static_page";
 import { RouterOutput } from "@/server/trpc/routers/_app";
 import { NotecraftImage } from "./extensions/image/notecraft_image";
+import CharacterCount from "@tiptap/extension-character-count";
 
 export function getCurrentMark(editor: CoreEditor, name: "customLink") {
 	if (!editor.isActive(name)) {
@@ -31,6 +32,8 @@ export function getCurrentMark(editor: CoreEditor, name: "customLink") {
 
 	return node?.marks.find((val) => val.type.name === name);
 }
+
+const charLimit = 10000;
 
 export function WysiwygEditor(props: {
 	slug: string;
@@ -86,6 +89,9 @@ export function WysiwygEditor(props: {
 		},
 		extensions: [
 			...baseExtensions,
+			CharacterCount.configure({
+				limit: charLimit,
+			}),
 			Collaboration.configure({
 				document: props.provider.doc,
 			}),
@@ -156,6 +162,8 @@ export function WysiwygEditor(props: {
 		editor.setEditable(isEditable);
 	}
 
+	const charCount = editor.storage.characterCount.characters();
+
 	// TODO: show EditorLinkTooltip on selection
 	return (
 		<>
@@ -178,6 +186,11 @@ export function WysiwygEditor(props: {
 						className="h-full w-full min-w-0"
 						editor={editor}
 					/>
+					{charCount > charLimit * 0.9 && (
+						<div className="text-error absolute bottom-2 right-2 mx-2 text-xs font-bold">
+							{charCount}/{charLimit}
+						</div>
+					)}
 				</div>
 			</div>
 		</>

@@ -180,7 +180,7 @@ export const EditorCommands: CommandDescriptor[] = [
 		icon: faGripLines,
 		markName: "horizontalrule",
 		hideOnBubbleMenu: true,
-		keywords: ["horizontal line", "separator"],
+		keywords: ["horizontal", "separator", "line", "rule"],
 	},
 	{
 		title: "Justify Left",
