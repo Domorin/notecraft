@@ -106,7 +106,10 @@ function LogInButton() {
 	const modal = useModal("Login");
 
 	return (
-		<button className="btn btn-ghost" onClick={() => modal.openModal({})}>
+		<button
+			className="btn btn-ghost btn-sm"
+			onClick={() => modal.openModal({})}
+		>
 			Login
 		</button>
 	);

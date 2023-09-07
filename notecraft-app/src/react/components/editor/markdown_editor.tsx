@@ -1,4 +1,5 @@
 import { useModal } from "@/react/hooks/use_modal";
+import { RouterOutput } from "@/server/trpc/routers/_app";
 import { WSTypes, YJS } from "@notecraft/common";
 import { Editor as CoreEditor } from "@tiptap/core";
 import Collaboration from "@tiptap/extension-collaboration";
@@ -14,12 +15,12 @@ import Commands from "./extensions/autocomplete/autocomplete_extension";
 import getSuggestionItems from "./extensions/autocomplete/autocomplete_items";
 import { createRenderItems } from "./extensions/autocomplete/autocomplete_render_items";
 import { baseExtensions } from "./extensions/base_extensions";
+import { NotecraftCharacterCount } from "./extensions/character_count/notecraft_character_count";
 import { CustomLink } from "./extensions/custom_link_mark";
 import { createHoverExtension } from "./extensions/hover_extension";
-import { StaticNote } from "./static_page";
-import { RouterOutput } from "@/server/trpc/routers/_app";
 import { NotecraftImage } from "./extensions/image/notecraft_image";
-import CharacterCount from "@tiptap/extension-character-count";
+import { StaticNote } from "./static_page";
+import { CharacterLimit } from "@/lib/note_limit_utils";
 
 export function getCurrentMark(editor: CoreEditor, name: "customLink") {
 	if (!editor.isActive(name)) {
@@ -32,8 +33,6 @@ export function getCurrentMark(editor: CoreEditor, name: "customLink") {
 
 	return node?.marks.find((val) => val.type.name === name);
 }
-
-const charLimit = 10000;
 
 export function WysiwygEditor(props: {
 	slug: string;
@@ -89,8 +88,8 @@ export function WysiwygEditor(props: {
 		},
 		extensions: [
 			...baseExtensions,
-			CharacterCount.configure({
-				limit: charLimit,
+			NotecraftCharacterCount.configure({
+				limit: CharacterLimit,
 			}),
 			Collaboration.configure({
 				document: props.provider.doc,
@@ -147,6 +146,7 @@ export function WysiwygEditor(props: {
 			}),
 			NotecraftImage.configure({
 				toggleModal: toggleImageModal,
+				allowBase64: false,
 			}),
 		],
 	});
@@ -162,7 +162,7 @@ export function WysiwygEditor(props: {
 		editor.setEditable(isEditable);
 	}
 
-	const charCount = editor.storage.characterCount.characters();
+	const characters = editor.storage.characterCount.characters();
 
 	// TODO: show EditorLinkTooltip on selection
 	return (
@@ -170,7 +170,6 @@ export function WysiwygEditor(props: {
 			{editor.isFocused && commandAutocompleteMenuProps && (
 				<AutocompleteCommandsList {...commandAutocompleteMenuProps} />
 			)}
-			{/* {showingAutocomplete?.render()} */}
 			{hoveredLinkDom && (
 				<EditorLinkTooltip
 					editor={editor}
@@ -179,16 +178,19 @@ export function WysiwygEditor(props: {
 					onMouseLeave={() => setHoveredLink(null)}
 				/>
 			)}
-			<div className="flex h-full w-full flex-col">
+			<div
+				className="flex h-full w-full flex-col"
+				onClick={() => editor.commands.focus()}
+			>
 				<EditorBubbleMenu editor={editor} />
 				<div className="rounded-box overflow-hidden py-0">
 					<EditorContent
 						className="h-full w-full min-w-0"
 						editor={editor}
 					/>
-					{charCount > charLimit * 0.9 && (
+					{characters > CharacterLimit * 0.9 && (
 						<div className="text-error absolute bottom-2 right-2 mx-2 text-xs font-bold">
-							{charCount}/{charLimit}
+							{characters}/{CharacterLimit}
 						</div>
 					)}
 				</div>

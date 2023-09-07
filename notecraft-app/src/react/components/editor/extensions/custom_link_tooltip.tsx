@@ -26,13 +26,13 @@ export function LinkTooltip(props: {
 			{createPortal(
 				<div
 					onMouseLeave={props.onMouseLeave}
-					className="absolute z-[1] w-fit"
+					className="absolute z-[100] w-fit"
 					ref={childRef}
 					onClick={props.onClick}
 				>
 					<ul
 						className={classNames(
-							"dropdown-content menu menu-xs visible max-w-xs whitespace-nowrap bg-base-200 p-0 shadow"
+							"dropdown-content menu menu-xs bg-base-200 visible max-w-xs whitespace-nowrap p-0 shadow"
 						)}
 					>
 						<li className="flex w-full">

@@ -6,8 +6,6 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { DiscordAuthState, getDiscordRedirectURI } from "../login/discord";
 
 async function getToken(code: string) {
-	console.log(code);
-
 	const params = new URLSearchParams();
 	params.append("client_id", GetEnvVar("DISCORD_ID"));
 	params.append("client_secret", GetEnvVar("DISCORD_SECRET"));

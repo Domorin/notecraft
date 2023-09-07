@@ -172,7 +172,7 @@ export const EditorCommands: CommandDescriptor[] = [
 		markName: "image",
 		icon: faImage,
 		hotkey: "Ctrl Alt I",
-		keywords: ["insert", "picture"],
+		keywords: ["insert", "picture", "img"],
 	},
 	{
 		title: "Divider",
