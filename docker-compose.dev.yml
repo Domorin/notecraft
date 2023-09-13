@@ -6,6 +6,7 @@ services:
         image: node:18
         depends_on:
             - postgres
+        working_dir: /app
         volumes:
             - .:/app
         ports:
@@ -27,6 +28,7 @@ services:
         image: node:18
         env_file:
             - .env.development
+        working_dir: /app
         command: sh -c 'npm install && npm run syncDangerous --workspace=notecraft-schema && npm run dev --workspace=notecraft-app'
         volumes:
             - .:/app
@@ -36,5 +38,6 @@ services:
         env_file:
             - .env.development
         command: sh -c 'npm install && npm run dev --workspace=notecraft-ws'
+        working_dir: /app
         volumes:
             - .:/app
