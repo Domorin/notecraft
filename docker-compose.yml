@@ -32,6 +32,7 @@ services:
         image: redis:7
         container_name: ${REDIS_HOST}
     app:
+        container_name: "notecraft-app"
         depends_on:
             - postgres
             - redis

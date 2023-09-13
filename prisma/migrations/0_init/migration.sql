@@ -1,8 +1,20 @@
+-- CreateEnum
+CREATE TYPE "ProviderType" AS ENUM ('Google', 'Discord');
+
 -- CreateTable
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Account" (
+    "id" TEXT NOT NULL,
+    "provider" "ProviderType" NOT NULL,
+    "userId" TEXT NOT NULL,
+
+    CONSTRAINT "Account_pkey" PRIMARY KEY ("id","provider")
 );
 
 -- CreateTable
@@ -22,7 +34,14 @@ CREATE TABLE "Note" (
 );
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Account_userId_key" ON "Account"("userId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Note_slug_key" ON "Note"("slug");
 
 -- AddForeignKey
+ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Note" ADD CONSTRAINT "Note_creatorId_fkey" FOREIGN KEY ("creatorId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
