@@ -164,6 +164,35 @@ export const noteRouter = router({
 
 			return parseNoteMetadataForWeb(metadata, user.id);
 		}),
+	addView: baseProcedure
+		.input(z.object({ slug: z.string() }))
+		.mutation(async ({ input, ctx: { user } }) => {
+			const note = await prisma.note.findUnique({
+				where: {
+					slug: input.slug,
+				},
+				select: {
+					content: true,
+				},
+			});
+
+			if (!note) {
+				return CreateCustomError({ code: "NOT_FOUND" });
+			}
+
+			await updateNoteMetadataForWeb(user.id, {
+				data: {
+					views: {
+						increment: 1,
+					}
+				},
+				where: {
+					slug: input.slug,
+				},
+				requireCreator: false,
+			})
+
+		}),
 	htmlContent: baseProcedure
 		.input(z.object({ slug: z.string() }))
 		.query(async ({ input }) => {
@@ -183,9 +212,6 @@ export const noteRouter = router({
 			await prisma.note.update({
 				data: {
 					viewedAt: new Date(),
-					views: {
-						increment: 1,
-					},
 				},
 				where: {
 					slug: input.slug,

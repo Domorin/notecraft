@@ -4,6 +4,7 @@ import { Doc } from "yjs";
 import { useNoteListRecent } from "../../hooks/use_recents";
 import { NoteView } from "../editor/note_view";
 import { NoteEditDisplaySuspense } from "./note_edit_display";
+import { trpc } from "@/utils/trpc";
 
 export function NoteWithLoadedContent(props: {
 	rawData: NonNullable<ReturnType<typeof useNoteContentQuery>["data"]>;
@@ -17,6 +18,14 @@ export function NoteWithLoadedContent(props: {
 	const { slug } = props;
 
 	const { add } = useNoteListRecent();
+
+	const addViewMutation = trpc.note.addView.useMutation().mutate;
+
+	useEffect(() => {
+		addViewMutation({
+			slug,
+		});
+	}, [addViewMutation, slug]);
 
 	useEffect(() => {
 		// Add page to recents

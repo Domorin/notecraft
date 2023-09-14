@@ -38,6 +38,7 @@ function LogOutButton(props: {
 								<img
 									src={props.userInfo?.image}
 									referrerPolicy="no-referrer"
+									alt="avatar"
 								/>
 							</div>
 						</div>

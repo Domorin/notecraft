@@ -5,6 +5,7 @@
 	"scripts": {
 		"dev": "next dev",
 		"build": "next build",
+		"startNoMigrate": "next start",
 		"start": "npm run migrate --workspace=notecraft-schema && next start"
 	},
 	"prisma": {

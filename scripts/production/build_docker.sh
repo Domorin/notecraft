@@ -14,5 +14,5 @@ echo "Done sending images to production server"
 # rm -rf tmp
 
 # Delete previous images, load new images and start containers
-ssh note-smith-production "cd /home/domorin/notecraft && npm run prodCleanResources; docker load -i tmp/images.tar && npm run prodResourcesUp"
+ssh note-smith-production "cd /home/domorin/notecraft && npm run prodCleanResources; docker load -i tmp/images.tar && npm run prodResourcesUp && rm -rf tmp"
 echo "Successfully deployed"
