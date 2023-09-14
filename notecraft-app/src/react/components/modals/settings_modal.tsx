@@ -19,7 +19,7 @@ export function SettingsModal(props: BaseModalProps) {
 
 	return (
 		<Modal {...props}>
-			<div className="w-96">
+			<div className="w-72 max-w-[100vw] sm:w-96">
 				<ModalHeader>Settings</ModalHeader>
 				<div className="flex w-full flex-col gap-2">
 					<div className="flex items-center">

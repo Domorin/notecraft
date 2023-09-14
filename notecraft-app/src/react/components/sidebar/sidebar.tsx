@@ -4,7 +4,6 @@ import { useRouter } from "next/router";
 import { createContext, useState } from "react";
 import { useNoteMetadataQuery } from "../../hooks/trpc/use_note_metadata_query";
 import { usePageSlug } from "../../hooks/use_page_id";
-import { SidebarExpander } from "./sidebar_expander";
 import { SidebarListViewButton } from "./sidebar_list_view_button";
 import { SidebarListNotes } from "./sidebar_lists";
 
