@@ -36,7 +36,7 @@ function authHandler(req: NextApiRequest, res: NextApiResponse) {
 
 	// I do not believe we need to store an anti CSFR token in state, since our cookies have sameSite=strict
 	const url = GoogleOAuth().generateAuthUrl({
-		scope: "openid",
+		scope: "openid email profile",
 		prompt: "select_account",
 		state: JSON.stringify({
 			ephemeralUserId: encrypedUserId,

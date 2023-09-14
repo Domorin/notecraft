@@ -1,4 +1,3 @@
-import { GetEnvVar } from "@notecraft/common";
 import { ProviderType } from "@prisma/client";
 import { IronSessionData, IronSessionOptions } from "iron-session";
 import { withIronSessionApiRoute, withIronSessionSsr } from "iron-session/next";
@@ -24,9 +23,10 @@ export type IronSessionUser = IronSessionData["user"];
 
 export type ClientUser = IronSessionUser | { id: string };
 
+// Can not use GetEnvVar because we are importing this in _app.tsx, and it does not like redis in common
 export const ironOptions: IronSessionOptions = {
-	cookieName: GetEnvVar("SESSION_COOKIE_NAME"),
-	password: GetEnvVar("SESSION_SECRET"),
+	cookieName: process.env.SESSION_COOKIE_NAME!,
+	password: process.env.SESSION_SECRET!,
 	// secure: true should be used in production (HTTPS) but can't be used in development (HTTP)
 	cookieOptions: {
 		secure: process.env.NODE_ENV === "production",

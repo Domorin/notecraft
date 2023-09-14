@@ -1,3 +1,4 @@
+import { IronSessionUser } from "@/lib/session";
 import { useSignoutMutation } from "@/react/hooks/trpc/use_signout_mutation";
 import { useModal } from "@/react/hooks/use_modal";
 import { RouterOutput } from "@/server/trpc/routers/_app";
@@ -9,10 +10,10 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export function SignedInStatus(props: {
-	userInfo: RouterOutput["user"]["info"];
+	session: IronSessionUser | undefined;
 }) {
-	return props.userInfo.isLoggedIn ? (
-		<LogOutButton userInfo={props.userInfo.user} />
+	return props.session ? (
+		<LogOutButton userInfo={props.session} />
 	) : (
 		<LogInButton />
 	);

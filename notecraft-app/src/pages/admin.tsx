@@ -3,16 +3,18 @@ import { Spinner } from "@/react/components/spinner";
 import { trpc } from "@/utils/trpc";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { RootPageProps } from ".";
+import { defaultGetServerSideProps } from "@/lib/default_server_side_props";
 
 type State = "Overview" | "WelcomeMessage";
 
-export default function AdminPage() {
+export default function AdminPage(props: RootPageProps) {
 	const isAdminQuery = trpc.admin.isAdmin.useQuery();
 	const [state, setState] = useState("Overview" as State);
 
 	if (!isAdminQuery.isSuccess) {
 		return (
-			<MainPageContainer sidebarOpened={true}>
+			<MainPageContainer {...props}>
 				<Spinner />
 			</MainPageContainer>
 		);
@@ -29,7 +31,7 @@ export default function AdminPage() {
 	}
 
 	return (
-		<MainPageContainer sidebarOpened>
+		<MainPageContainer {...props}>
 			{state !== "Overview" && (
 				<button
 					className="btn btn-ghost absolute"
@@ -79,3 +81,5 @@ function WelcomeMessage() {
 		</div>
 	);
 }
+
+export const getServerSideProps = defaultGetServerSideProps();
