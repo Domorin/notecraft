@@ -17,7 +17,7 @@ export default function MainPageContainer(
 ) {
 	const [openedModal, setOpenModal] = useState(null as ReactNode | null);
 
-	const [sidebarOpen, setSidebarOpen] = useState(props.sidebarOpened);
+	const [sidebarOpen, setSidebarOpen] = useState(props.sidebarOpened ?? true);
 
 	useEffect(() => {
 		Cookies.set("sidebarOpen", sidebarOpen ? "true" : "false", {

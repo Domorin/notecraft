@@ -26,9 +26,9 @@ export const getServerSideProps = withSessionSsr(
 	async function getServerSideProps(context: GetServerSidePropsContext) {
 		const sidebarOpened =
 			cookie.parse(context.req.headers.cookie || "")["sidebarOpen"] ===
-			"true"
-				? true
-				: false;
+			"false"
+				? false
+				: true;
 
 		// Server side prefetch only note's content
 		// We can prefetch other things as well, but content is most important and we do not want to increase time to first byte

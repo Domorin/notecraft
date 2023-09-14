@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+	@apply bg-base-300;
+}
+
 .background-gradient {
 	background-color: theme("colors.base-100");
 	background-image: radial-gradient(
