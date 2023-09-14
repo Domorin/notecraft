@@ -11,7 +11,7 @@ echo "Done saving images"
 echo "Sending images to production server"
 rsync -v -r -P package.json docker-compose.yml docker-compose.prod.yml .env.production tmp note-smith-production:/home/domorin/notecraft/
 echo "Done sending images to production server"
-# rm -rf tmp
+rm -rf tmp
 
 # Delete previous images, load new images and start containers
 ssh note-smith-production "cd /home/domorin/notecraft && npm run prodCleanResources; docker load -i tmp/images.tar && npm run prodResourcesUp && rm -rf tmp"

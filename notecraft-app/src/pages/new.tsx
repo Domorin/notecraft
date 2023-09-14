@@ -30,9 +30,6 @@ export const getServerSideProps = withSessionSsr(
 				? false
 				: true;
 
-		// Server side prefetch only note's content
-		// We can prefetch other things as well, but content is most important and we do not want to increase time to first byte
-
 		return {
 			props: {
 				sidebarOpened,

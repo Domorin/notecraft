@@ -40,7 +40,6 @@ export const getServerSideProps = withSessionSsr(
 		// Server side prefetch only note's content
 		// We can prefetch other things as well, but content is most important and we do not want to increase time to first byte
 		await Promise.all([
-			helpers.user.info.prefetch(),
 			helpers.note.htmlContent.prefetch({
 				slug: context.query.slug as string,
 			}),

@@ -12,7 +12,7 @@ export default function AdminPage() {
 
 	if (!isAdminQuery.isSuccess) {
 		return (
-			<MainPageContainer>
+			<MainPageContainer sidebarOpened={true}>
 				<Spinner />
 			</MainPageContainer>
 		);
@@ -29,7 +29,7 @@ export default function AdminPage() {
 	}
 
 	return (
-		<MainPageContainer>
+		<MainPageContainer sidebarOpened>
 			{state !== "Overview" && (
 				<button
 					className="btn btn-ghost absolute"
