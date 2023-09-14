@@ -3,8 +3,8 @@ import { adminProcedure } from "../providers/admin_procedure";
 import { prisma } from "@/server/prisma";
 import { PrismaTypes, YJS } from "@notecraft/common";
 import * as Y from "yjs";
+import { WelcomePageSlug } from "@/lib/default_pages";
 
-export const WelcomeMessageSlug = "welcome";
 
 export const adminRouter = router({
 	isAdmin: adminProcedure.query(async () => {
@@ -14,7 +14,7 @@ export const adminRouter = router({
 		async ({ ctx: { user } }) => {
 			let result = await prisma.note.findUnique({
 				where: {
-					slug: WelcomeMessageSlug,
+					slug: WelcomePageSlug,
 				},
 				select: PrismaTypes.NoteMetadataValues,
 			});
@@ -23,7 +23,7 @@ export const adminRouter = router({
 				const buffer = Buffer.from(YJS.encodeYDocContent(new Y.Doc()));
 				result = await prisma.note.create({
 					data: {
-						slug: WelcomeMessageSlug,
+						slug: WelcomePageSlug,
 						allowAnyoneToEdit: false,
 						content: buffer,
 						creator: {

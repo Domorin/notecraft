@@ -1,7 +1,9 @@
+import { RootPageProps } from "@/pages";
 import { faX } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import classNames from "classnames";
+import Cookies from "js-cookie";
 import { ReactNode, useEffect, useState } from "react";
 import toast, { Toaster, resolveValue } from "react-hot-toast";
 import { ModalContext } from "../hooks/use_modal";
@@ -10,16 +12,19 @@ import { Navbar } from "./navbar/navbar";
 import Sidebar from "./sidebar/sidebar";
 import { SidebarExpander } from "./sidebar/sidebar_expander";
 
-export default function MainPageContainer(props: { children: ReactNode }) {
+export default function MainPageContainer(
+	props: RootPageProps & { children: ReactNode }
+) {
 	const [openedModal, setOpenModal] = useState(null as ReactNode | null);
 
-	const [sidebarOpen, setSidebarOpen] = useState(true);
+	const [sidebarOpen, setSidebarOpen] = useState(props.sidebarOpened);
 
 	useEffect(() => {
-		if (window.innerWidth < 640) {
-			setSidebarOpen(false);
-		}
-	}, []);
+		Cookies.set("sidebarOpen", sidebarOpen ? "true" : "false", {
+			expires: 365,
+			sameSite: "lax",
+		});
+	}, [sidebarOpen]);
 
 	return (
 		<SidebarExpanderContext.Provider

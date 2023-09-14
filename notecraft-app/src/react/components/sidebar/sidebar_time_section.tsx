@@ -1,9 +1,10 @@
 import classNames from "classnames";
 import { usePageSlug } from "../../hooks/use_page_id";
 import { SidebarListItem } from "./sidebar_list_item";
+import { WelcomePageSlug } from "@/lib/default_pages";
 
 export function SidebarTimeSection(props: { title: string; slugs: string[] }) {
-	const currentSlug = usePageSlug() ?? "welcome";
+	const currentSlug = usePageSlug() ?? WelcomePageSlug;
 
 	return (
 		<>

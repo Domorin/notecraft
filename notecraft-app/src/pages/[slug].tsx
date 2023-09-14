@@ -6,11 +6,13 @@ import { appRouter } from "@/server/trpc/routers/_app";
 import { createServerSideHelpers } from "@trpc/react-query/server";
 import { GetServerSidePropsContext } from "next";
 import superjson from "superjson";
+import * as cookie from "cookie";
+import { RootPageProps } from ".";
 
-export default function NoteWithId() {
+export default function NoteWithId(props: RootPageProps) {
 	const slug = usePageSlug();
 	return (
-		<MainPageContainer>
+		<MainPageContainer sidebarOpened={props.sidebarOpened}>
 			<Note key={slug} />
 		</MainPageContainer>
 	);
@@ -29,6 +31,12 @@ export const getServerSideProps = withSessionSsr(
 			transformer: superjson,
 		});
 
+		const sidebarOpened =
+			cookie.parse(context.req.headers.cookie || "")["sidebarOpen"] ===
+			"true"
+				? true
+				: false;
+
 		// Server side prefetch only note's content
 		// We can prefetch other things as well, but content is most important and we do not want to increase time to first byte
 		await Promise.all([
@@ -43,6 +51,7 @@ export const getServerSideProps = withSessionSsr(
 		return {
 			props: {
 				trpcState: helpers.dehydrate(),
+				sidebarOpened,
 			},
 		};
 	}

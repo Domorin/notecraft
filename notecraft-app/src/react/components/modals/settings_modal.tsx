@@ -7,7 +7,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDiscord, faGoogle } from "@fortawesome/free-brands-svg-icons";
 import { useSignoutMutation } from "@/react/hooks/trpc/use_signout_mutation";
 import { RouterOutput } from "@/server/trpc/routers/_app";
-import { userInfo } from "os";
 
 export function SettingsModal(props: BaseModalProps) {
 	const { clear } = useNoteListRecent();
