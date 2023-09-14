@@ -17,7 +17,8 @@
 		"devResourcesRemove": "docker compose -f docker-compose.yml -f docker-compose.dev.yml down",
 		"prodResourcesUp": "docker compose --env-file .env.prod -f docker-compose.yml -f docker-compose.prod.yml up -d && lazydocker",
 		"prodResourcesRemove": "docker compose -f docker-compose.yml -f docker-compose.prod.yml down",
-		"prodResourcesStop": "docker compose -f docker-compose.yml -f docker-compose.prod.yml stop"
+		"prodResourcesStop": "docker compose -f docker-compose.yml -f docker-compose.prod.yml stop",
+		"prodCleanResources": "docker rm $(docker stop $(docker ps -a -q --filter ancestor=notecraft-app --format=\"{{.ID}}\")); docker rmi notecraft-app; docker rm $(docker stop $(docker ps -a -q --filter ancestor=notecraft-ws --format=\"{{.ID}}\")); docker rmi notecraft-ws"
 	},
 	"dependencies": {
 		"@fortawesome/free-brands-svg-icons": "^6.4.2",

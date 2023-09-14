@@ -43,6 +43,7 @@ services:
             - "traefik.enable=true"
             - "traefik.http.routers.app.rule=Host(`${NEXT_PUBLIC_WEB_APP_URL}`) && (!Headers(`upgrade`, `websocket`) || PathPrefix(`/_next`))"
     ws:
+        container_name: "notecraft-ws"
         depends_on:
             - redis
         expose:
