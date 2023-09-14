@@ -48,6 +48,7 @@ export function SidebarListItem(props: { slug: string; active: boolean }) {
 						{pageTitle}
 					</div>
 					<SidebarElementMenu
+						active={props.active}
 						metadata={metadata}
 						openTitleInput={() => setShowInput(true)}
 					/>

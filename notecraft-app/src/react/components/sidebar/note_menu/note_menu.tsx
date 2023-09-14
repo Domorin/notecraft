@@ -20,7 +20,7 @@ type MenuProps = {
 	metadata: RouterOutput["note"]["metadata"];
 };
 
-export function SidebarElementMenu(props: MenuProps) {
+export function SidebarElementMenu(props: MenuProps & { active: boolean }) {
 	const [isOpen, setIsOpen] = useState(false);
 
 	const labelRef = useRef(null as HTMLLabelElement | null);
@@ -33,7 +33,13 @@ export function SidebarElementMenu(props: MenuProps) {
 		>
 			<label
 				ref={labelRef}
-				className="btn-ghost btn-xs btn invisible cursor-pointer p-1 group-hover:visible group-focus:visible"
+				className={classNames(
+					"btn-ghost btn-xs btn cursor-pointer p-1 group-hover:visible group-focus:visible",
+					{
+						invisible: !props.active,
+						visible: props.active,
+					}
+				)}
 				onClick={(e) => {
 					e.preventDefault();
 					setIsOpen(true);
