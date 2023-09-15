@@ -258,7 +258,8 @@
 	}
 
 	pre {
-		@apply border-base-content bg-base-300 text-base-content w-full rounded-sm border border-opacity-20 p-2 font-mono;
+		@apply border-base-content bg-base-300 text-base-content w-full overflow-x-auto rounded-sm border border-opacity-20 p-2 font-mono;
+		@apply whitespace-pre #{!important};
 	}
 
 	img {
