@@ -118,7 +118,6 @@ export function WysiwygEditor(props: {
 						"border",
 						"ml-[-1px]",
 						"mr-[-1px]",
-						"pointer-events-none",
 						"select-none"
 					);
 					cursor.style.borderColor = presence.color;

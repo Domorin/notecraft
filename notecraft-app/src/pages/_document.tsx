@@ -13,7 +13,9 @@ export default function MyDocument(
 ) {
 	return (
 		<Html lang="en" data-theme={props.theme}>
-			<Head />
+			<Head>
+				<link rel="icon" href="/favicon.ico" sizes="any" />
+			</Head>
 			<body>
 				<Main />
 				<NextScript />
