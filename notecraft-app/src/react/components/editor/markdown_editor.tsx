@@ -1,3 +1,4 @@
+import { CharacterLimit } from "@/lib/note_limit_utils";
 import { useModal } from "@/react/hooks/use_modal";
 import { RouterOutput } from "@/server/trpc/routers/_app";
 import { WSTypes, YJS } from "@notecraft/common";
@@ -20,7 +21,6 @@ import { CustomLink } from "./extensions/custom_link_mark";
 import { createHoverExtension } from "./extensions/hover_extension";
 import { NotecraftImage } from "./extensions/image/notecraft_image";
 import { StaticNote } from "./static_page";
-import { CharacterLimit } from "@/lib/note_limit_utils";
 
 export function getCurrentMark(editor: CoreEditor, name: "customLink") {
 	if (!editor.isActive(name)) {
@@ -167,7 +167,7 @@ export function WysiwygEditor(props: {
 	// TODO: show EditorLinkTooltip on selection
 	return (
 		<>
-			{editor.isFocused && commandAutocompleteMenuProps && (
+			{commandAutocompleteMenuProps && (
 				<AutocompleteCommandsList {...commandAutocompleteMenuProps} />
 			)}
 			{hoveredLinkDom && (
