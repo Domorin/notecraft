@@ -3,6 +3,7 @@ import { SignedInStatus } from "../login/login_button";
 import ThemePicker from "../theme_picker";
 import Image from "next/image";
 import { useRouter } from "next/router";
+import notecraftLogo from "../../../../public/icon.png";
 
 export function Navbar() {
 	const session = useSession();
@@ -15,7 +16,7 @@ export function Navbar() {
 				onClick={() => router.push("/", undefined, { shallow: true })}
 			>
 				<Image
-					src="/logo.png"
+					src={notecraftLogo}
 					width={32}
 					height={32}
 					alt="NoteCraft Logo"

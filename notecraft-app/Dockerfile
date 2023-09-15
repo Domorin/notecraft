@@ -13,6 +13,7 @@ COPY notecraft-common/tsconfig.json notecraft-common/
 # Next.js wants .env file in the root directory of nextjs project
 COPY .env.production notecraft-app/
 COPY notecraft-app/src notecraft-app/src
+COPY notecraft-app/public notecraft-app/public
 COPY notecraft-app/package.json notecraft-app/
 COPY notecraft-app/tsconfig.json notecraft-app/
 COPY notecraft-app/tsconfig.json notecraft-app/
