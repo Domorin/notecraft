@@ -26,9 +26,11 @@ export function useNoteListCreatedQuery() {
 			return notes;
 		},
 		select: (data) =>
-			data.map((val) => ({
-				slug: val.slug,
-				date: DateTime.fromJSDate(val.updatedAt),
-			})),
+			data
+				.map((val) => ({
+					slug: val.slug,
+					date: DateTime.fromJSDate(val.updatedAt),
+				}))
+				.sort((a, b) => b.date.toMillis() - a.date.toMillis()),
 	});
 }
