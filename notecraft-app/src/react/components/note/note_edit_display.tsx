@@ -1,5 +1,5 @@
 import { DateTime } from "luxon";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNoteMetadataQuery } from "../../hooks/trpc/use_note_metadata_query";
 import { RouterOutput } from "@/server/trpc/routers/_app";
 
@@ -18,19 +18,27 @@ function NoteEditDisplay(props: {
 }) {
 	const { metadata } = props;
 
+	const dateForText = useMemo(
+		() =>
+			metadata.updatedAt.getTime() > Date.now()
+				? new Date()
+				: metadata.updatedAt,
+		[metadata.updatedAt]
+	);
+
 	const [dateText, setDateText] = useState(
-		DateTime.fromJSDate(metadata.updatedAt).toRelative()
+		DateTime.fromJSDate(dateForText).toRelative()
 	);
 
 	useEffect(() => {
-		const updatedAt = DateTime.fromJSDate(metadata.updatedAt);
+		const updatedAt = DateTime.fromJSDate(dateForText);
 		setDateText(updatedAt.toRelative());
 		const timer = setInterval(() => {
 			setDateText(updatedAt.toRelative());
 		}, 1000);
 
 		return () => clearInterval(timer);
-	}, [metadata.updatedAt]);
+	}, [dateForText]);
 
 	return (
 		<div className="ml-auto flex gap-2 text-sm opacity-50">
