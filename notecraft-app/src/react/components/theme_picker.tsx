@@ -68,8 +68,14 @@ export default function ThemePicker() {
 	}, []);
 
 	useEffect(() => {
+		const defaultTheme =
+			window.matchMedia &&
+			window.matchMedia("(prefers-color-scheme: dark)").matches
+				? "dark"
+				: "light";
+
 		updateTheme(
-			(Cookies.get("theme") as (typeof themes)[number]) ?? themes[0]
+			(Cookies.get("theme") as (typeof themes)[number]) ?? defaultTheme
 		);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
